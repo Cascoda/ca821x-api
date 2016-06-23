@@ -49,7 +49,11 @@ static int ca8210_test_int_exchange(
 	int status, Rx_Length;
 	ca8210_test_int_write(buf, len);
 
-	do {
-		Rx_Length = read(DriverFileDescriptor, response, NULL);
-	} while (Rx_Length == 0);
+	if ((buf[0] & SPI_SYN) && response) {
+		do {
+			Rx_Length = read(DriverFileDescriptor, response, NULL);
+		} while (Rx_Length == 0);
+	}
+
+	return 0;
 }

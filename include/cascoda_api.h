@@ -49,6 +49,48 @@
 #define PUTLE16(x,y)    {(y)[0]=((x)&0xff);(y)[1]=((x)>>8);}
 #define PUTLE32(x,y)    {(y)[0]=((x)&0xff);(y)[1]=(((x)>>8)&0xff);(y)[2]=(((x)>>16)&0xff);(y)[3]=(((x)>>24)&0xff);}
 
+/******************************************************************************/
+/****** API callbacks                                                    ******/
+/******************************************************************************/
+
+struct cascoda_api_callbacks {
+	int (*MCPS_DATA_indication) (
+		struct MCPS_DATA_indication_pset *params);
+	int (*MCPS_DATA_confirm) (
+		struct MCPS_DATA_confirm_pset *params);
+	int (*MLME_ASSOCIATE_indication) (
+		struct MLME_ASSOCIATE_indication_pset *params);
+	int (*MLME_ASSOCIATE_confirm) (
+		struct MLME_ASSOCIATE_confirm_pset *params);
+	int (*MLME_DISASSOCIATE_indication) (
+		struct MLME_DISASSOCIATE_indication_pset *params);
+	int (*MLME_DISASSOCIATE_confirm) (
+		struct MLME_DISASSOCIATE_confirm_pset *params);
+	int (*MLME_BEACON_NOTIFY_indication) (
+		struct MLME_BEACON_NOTIFY_indication_pset *params);
+	int (*MLME_ORPHAN_indication) (
+		struct MLME_ORPHAN_indication_pset *params);
+	int (*MLME_SCAN_confirm) (
+		struct MLME_SCAN_confirm_pset *params);
+	int (*MLME_COMM_STATUS_indication) (
+		struct MLME_COMM_STATUS_indication_pset *params);
+	int (*MLME_SYNC_LOSS_indication) (
+		struct MLME_SYNC_LOSS_indication_pset *params);
+	int (*HWME_WAKEUP_indication) (
+		struct HWME_WAKEUP_indication_pset *params);
+	int (*TDME_MESSAGE_indication) (
+		const char *message,
+		size_t      len);
+	int (*TDME_RXPKT_indication) (
+		struct TDME_RXPKT_indication_pset *params);
+	int (*TDME_EDDET_indication) (
+		struct TDME_EDDET_indication_pset *params);
+	int (*TDME_ERROR_indication) (
+		struct TDME_ERROR_indication_pset *params);
+	int (*generic_dispatch) (
+		const uint8_t *buf,
+		size_t         len);
+};
 
 /******************************************************************************/
 /****** MAC MCPS/MLME Downlink                                           ******/
@@ -185,6 +227,9 @@ uint8_t HWME_HAES_request_sync(
 	void        *pDeviceRef
 );
 
+/******************************************************************************/
+/****** TDME Downlink                                                    ******/
+/******************************************************************************/
 
 uint8_t TDME_SETSFR_request_sync(
 	uint8_t      SFRPage,
@@ -244,21 +289,31 @@ uint8_t TDME_SetTxPower(uint8_t txp, void *pDeviceRef);
 uint8_t TDME_GetTxPower(uint8_t *txp, void *pDeviceRef);
 
 /******************************************************************************/
-/****** MAC Workarounds for V1.1 and MPW silicon (V0.x)                  ******/
+/****** API callback functions                                           ******/
 /******************************************************************************/
-static int (*cascoda_api_downstream)(
+
+int cascoda_register_callbacks(struct cascoda_api_callbacks in_callbacks);
+int cascoda_downstream_dispatch(const uint8_t *buf, size_t len);
+
+/******************************************************************************/
+/****** External function pointers                                       ******/
+/******************************************************************************/
+int (*cascoda_api_downstream)(
 	const uint8_t *buf,
 	size_t len,
 	uint8_t *response,
 	void *pDeviceRef
 );
 
-static int (*cascoda_api_upstream)(
+int (*cascoda_api_upstream)(
 	const uint8_t *buf,
 	size_t len,
 	void *pDeviceRef
 );
 
+/******************************************************************************/
+/****** MAC Workarounds for V1.1 and MPW silicon (V0.x)                  ******/
+/******************************************************************************/
 extern uint8_t MAC_Workarounds;
 extern uint8_t MAC_MPW;
 

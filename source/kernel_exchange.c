@@ -1,5 +1,7 @@
-#include <stdlib.h>
 #include <fcntl.h>
+#include <pthread.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "../include/cascoda_api.h"
 
@@ -19,22 +21,45 @@ static int ca8210_test_int_exchange(
 /******************************************************************************/
 
 static int DriverFileDescriptor;
+static pthread_t rx_thread;
 
 /******************************************************************************/
 
-int kernel_exchange_init(void)
+static void *ca8210_test_int_read_worker(void *arg)
 {
-	DriverFileDescriptor = open(DriverFilePath, O_RDWR);
-	cascoda_api_downstream = ca8210_test_int_exchange;
+	uint8_t rx_buf[512];
+	size_t rx_len;
+	/* TODO: while not told to exit? */
+	while (1) {
+		rx_len = read(DriverFileDescriptor, rx_buf, 0);
+		if (rx_len > 0) {
+			cascoda_downstream_dispatch(rx_buf, rx_len);
+		}
+	}
+
+	return NULL;
 }
 
-static void ca8210_test_int_write(uint8_t *buf, size_t len)
+int kernel_exchange_init(void)
+{
+	int ret;
+	pthread_attr_t attrs;
+
+	DriverFileDescriptor = open(DriverFilePath, O_RDWR);
+
+	cascoda_api_downstream = ca8210_test_int_exchange;
+
+	ret = pthread_create(&rx_thread, &attrs, ca8210_test_int_read_worker, NULL);
+	return ret;
+}
+
+static void ca8210_test_int_write(const uint8_t *buf, size_t len)
 {
 	int returnvalue, remaining = len;
 
 	do {
 		returnvalue = write(DriverFileDescriptor, buf+len-remaining, remaining);
-		if(returnvalue > 0)
+		if (returnvalue > 0)
 			remaining -= returnvalue;
 	} while (remaining > 0);
 }

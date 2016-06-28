@@ -29,9 +29,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "../include/mac_messages.h"
 #include "../include/cascoda_api.h"
@@ -41,6 +42,8 @@
 /******************************************************************************/
 uint8_t MAC_Workarounds = 0;
 uint8_t MAC_MPW         = 0;
+
+static struct cascoda_api_callbacks callbacks;
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1392,4 +1395,105 @@ uint8_t TDME_GetTxPower(
 	}
 
 	return status;
+}
+
+int cascoda_register_callbacks(struct cascoda_api_callbacks in_callbacks)
+{
+	memcpy(&callbacks, &in_callbacks, sizeof(struct cascoda_api_callbacks));
+}
+
+int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
+{
+	int ret;
+
+	/* call appropriate api upstream callback */
+	switch (buf[0]) {
+	case SPI_MLME_ASSOCIATE_INDICATION:
+		if (callbacks.MCPS_DATA_indication) {
+			return callbacks.MCPS_DATA_indication(buf + 2);
+		}
+		break;
+	case SPI_MLME_ASSOCIATE_CONFIRM:
+		if (callbacks.MCPS_DATA_confirm) {
+			return callbacks.MCPS_DATA_confirm(buf + 2);
+		}
+		break;
+	case SPI_MLME_DISASSOCIATE_INDICATION:
+		if (callbacks.MLME_DISASSOCIATE_indication) {
+			return callbacks.MLME_DISASSOCIATE_indication(buf + 2);
+		}
+		break;
+	case SPI_MLME_DISASSOCIATE_CONFIRM:
+		if (callbacks.MLME_DISASSOCIATE_confirm) {
+			return callbacks.MLME_DISASSOCIATE_confirm(buf + 2);
+		}
+		break;
+	case SPI_MLME_BEACON_NOTIFY_INDICATION:
+		if (callbacks.MLME_BEACON_NOTIFY_indication) {
+			return callbacks.MLME_BEACON_NOTIFY_indication(buf + 2);
+		}
+		break;
+	case SPI_MLME_ORPHAN_INDICATION:
+		if (callbacks.MLME_ORPHAN_indication) {
+			return callbacks.MLME_ORPHAN_indication(buf + 2);
+		}
+		break;
+	case SPI_MLME_SCAN_CONFIRM:
+		if (callbacks.MLME_SCAN_confirm) {
+			return callbacks.MLME_SCAN_confirm(buf + 2);
+		}
+		break;
+	case SPI_MLME_COMM_STATUS_INDICATION:
+		if (callbacks.MLME_COMM_STATUS_indication) {
+			return callbacks.MLME_COMM_STATUS_indication(buf + 2);
+		}
+		break;
+	case SPI_MLME_SYNC_LOSS_INDICATION:
+		if (callbacks.MLME_SYNC_LOSS_indication) {
+			return callbacks.MLME_SYNC_LOSS_indication(buf + 2);
+		}
+		break;
+	case SPI_HWME_WAKEUP_INDICATION:
+		if (callbacks.HWME_WAKEUP_indication) {
+			return callbacks.HWME_WAKEUP_indication(buf + 2);
+		}
+		break;
+	case SPI_TDME_MESSAGE_INDICATION:
+		if (callbacks.TDME_MESSAGE_indication) {
+			return callbacks.TDME_MESSAGE_indication(buf + 2, len);
+		}
+		break;
+	case SPI_TDME_RXPKT_INDICATION:
+		if (callbacks.TDME_RXPKT_indication) {
+			return callbacks.TDME_RXPKT_indication(buf + 2);
+		}
+		break;
+	case SPI_TDME_EDDET_INDICATION:
+		if (callbacks.TDME_EDDET_indication) {
+			return callbacks.TDME_EDDET_indication(buf + 2);
+		}
+		break;
+	case SPI_TDME_ERROR_INDICATION:
+		if (callbacks.TDME_ERROR_indication) {
+			return callbacks.TDME_ERROR_indication(buf + 2);
+		}
+		break;
+	default:
+		if (!(buf[0] & SPI_SYN)) {
+			fprintf(stderr, "Unrecognised upstream command id: %d", buf[0]);
+			return -EINVAL;
+		}
+		break;
+	}
+
+	/* If specific command was not handled, try calling generic receive
+	   routine */
+	if (callbacks.generic_dispatch) {
+		ret = callbacks.generic_dispatch(buf, len);
+		if (ret) {
+			return ret;
+		}
+	}
+
+	return 0;
 }

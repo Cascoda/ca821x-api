@@ -789,7 +789,6 @@ uint8_t HWME_GET_request_sync(
 	return Response.PData.HWMEGetCnf.Status;
 } // End of HWME_GET_request_sync()
 
-
 /******************************************************************************/
 /******************************************************************************/
 /****** HWME_HAES_request_sync()                                         ******/
@@ -933,7 +932,6 @@ uint8_t TDME_TESTMODE_request_sync(
 	return Response.PData.TDMETestModeCnf.Status;
 } // End of TDME_TESTMODE_request_sync()
 
-
 /******************************************************************************/
 /******************************************************************************/
 /****** TDME_SET_request_sync()                                          ******/
@@ -977,7 +975,6 @@ uint8_t TDME_SET_request_sync(
 
 	return Response.PData.TDMESetCnf.Status;
 } // End of TDME_SET_request_sync()
-
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1032,7 +1029,6 @@ uint8_t TDME_TXPKT_request_sync(
 	return Response.PData.TDMETxPktCnf.Status;
 } // End of TDME_TXPKT_request_sync()
 
-
 /******************************************************************************/
 /******************************************************************************/
 /****** TDME_LOTLK_request_sync()                                        ******/
@@ -1080,7 +1076,6 @@ uint8_t TDME_LOTLK_request_sync(
 
 	return Response.PData.TDMELOTlkCnf.Status;
 } // End of TDME_LOTLK_request_sync()
-
 
 /******************************************************************************/
 /******************************************************************************/

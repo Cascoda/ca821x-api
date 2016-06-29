@@ -1397,9 +1397,9 @@ uint8_t TDME_GetTxPower(
 	return status;
 }
 
-int cascoda_register_callbacks(struct cascoda_api_callbacks in_callbacks)
+int cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks)
 {
-	memcpy(&callbacks, &in_callbacks, sizeof(struct cascoda_api_callbacks));
+	memcpy(&callbacks, in_callbacks, sizeof(struct cascoda_api_callbacks));
 }
 
 int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)

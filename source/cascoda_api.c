@@ -789,7 +789,6 @@ uint8_t HWME_GET_request_sync(
 	return Response.PData.HWMEGetCnf.Status;
 } // End of HWME_GET_request_sync()
 
-
 /******************************************************************************/
 /******************************************************************************/
 /****** HWME_HAES_request_sync()                                         ******/
@@ -933,7 +932,6 @@ uint8_t TDME_TESTMODE_request_sync(
 	return Response.PData.TDMETestModeCnf.Status;
 } // End of TDME_TESTMODE_request_sync()
 
-
 /******************************************************************************/
 /******************************************************************************/
 /****** TDME_SET_request_sync()                                          ******/
@@ -977,7 +975,6 @@ uint8_t TDME_SET_request_sync(
 
 	return Response.PData.TDMESetCnf.Status;
 } // End of TDME_SET_request_sync()
-
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1032,7 +1029,6 @@ uint8_t TDME_TXPKT_request_sync(
 	return Response.PData.TDMETxPktCnf.Status;
 } // End of TDME_TXPKT_request_sync()
 
-
 /******************************************************************************/
 /******************************************************************************/
 /****** TDME_LOTLK_request_sync()                                        ******/
@@ -1080,7 +1076,6 @@ uint8_t TDME_LOTLK_request_sync(
 
 	return Response.PData.TDMELOTlkCnf.Status;
 } // End of TDME_LOTLK_request_sync()
-
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1397,9 +1392,9 @@ uint8_t TDME_GetTxPower(
 	return status;
 }
 
-int cascoda_register_callbacks(struct cascoda_api_callbacks in_callbacks)
+int cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks)
 {
-	memcpy(&callbacks, &in_callbacks, sizeof(struct cascoda_api_callbacks));
+	memcpy(&callbacks, in_callbacks, sizeof(struct cascoda_api_callbacks));
 }
 
 int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)

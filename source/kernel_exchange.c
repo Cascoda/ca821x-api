@@ -46,13 +46,12 @@ static void *ca8210_test_int_read_worker(void *arg)
 int kernel_exchange_init(void)
 {
 	int ret;
-	pthread_attr_t attrs;
 
 	DriverFileDescriptor = open(DriverFilePath, O_RDWR);
 
 	cascoda_api_downstream = ca8210_test_int_exchange;
 
-	ret = pthread_create(&rx_thread, &attrs, ca8210_test_int_read_worker, NULL);
+	ret = pthread_create(&rx_thread, NULL, ca8210_test_int_read_worker, NULL);
 	return ret;
 }
 

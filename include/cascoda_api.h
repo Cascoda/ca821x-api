@@ -306,12 +306,6 @@ int (*cascoda_api_downstream)(
 	void *pDeviceRef
 );
 
-int (*cascoda_api_upstream)(
-	const uint8_t *buf,
-	size_t len,
-	void *pDeviceRef
-);
-
 /******************************************************************************/
 /****** MAC Workarounds for V1.1 and MPW silicon (V0.x)                  ******/
 /******************************************************************************/

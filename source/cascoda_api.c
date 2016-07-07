@@ -1405,82 +1405,115 @@ int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
 	switch (buf[0]) {
 	case SPI_MCPS_DATA_INDICATION:
 		if (callbacks.MCPS_DATA_indication) {
-			return callbacks.MCPS_DATA_indication(buf + 2);
+			return callbacks.MCPS_DATA_indication(
+				(struct MCPS_DATA_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MCPS_DATA_CONFIRM:
 		if (callbacks.MCPS_DATA_confirm) {
-			return callbacks.MCPS_DATA_confirm(buf + 2);
+			return callbacks.MCPS_DATA_confirm(
+				(struct MCPS_DATA_confirm_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_ASSOCIATE_INDICATION:
 		if (callbacks.MLME_ASSOCIATE_indication) {
-			return callbacks.MLME_ASSOCIATE_indication(buf + 2);
+			return callbacks.MLME_ASSOCIATE_indication(
+				(struct MLME_ASSOCIATE_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_ASSOCIATE_CONFIRM:
 		if (callbacks.MLME_ASSOCIATE_confirm) {
-			return callbacks.MLME_ASSOCIATE_confirm(buf + 2);
+			return callbacks.MLME_ASSOCIATE_confirm(
+				(struct MLME_ASSOCIATE_confirm_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_DISASSOCIATE_INDICATION:
 		if (callbacks.MLME_DISASSOCIATE_indication) {
-			return callbacks.MLME_DISASSOCIATE_indication(buf + 2);
+			return callbacks.MLME_DISASSOCIATE_indication(
+				(struct MLME_DISASSOCIATE_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_DISASSOCIATE_CONFIRM:
 		if (callbacks.MLME_DISASSOCIATE_confirm) {
-			return callbacks.MLME_DISASSOCIATE_confirm(buf + 2);
+			return callbacks.MLME_DISASSOCIATE_confirm(
+				(struct MLME_DISASSOCIATE_confirm_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_BEACON_NOTIFY_INDICATION:
 		if (callbacks.MLME_BEACON_NOTIFY_indication) {
-			return callbacks.MLME_BEACON_NOTIFY_indication(buf + 2);
+			return callbacks.MLME_BEACON_NOTIFY_indication(
+				(struct MLME_BEACON_NOTIFY_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_ORPHAN_INDICATION:
 		if (callbacks.MLME_ORPHAN_indication) {
-			return callbacks.MLME_ORPHAN_indication(buf + 2);
+			return callbacks.MLME_ORPHAN_indication(
+				(struct MLME_ORPHAN_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_SCAN_CONFIRM:
 		if (callbacks.MLME_SCAN_confirm) {
-			return callbacks.MLME_SCAN_confirm(buf + 2);
+			return callbacks.MLME_SCAN_confirm(
+				(struct MLME_SCAN_confirm_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_COMM_STATUS_INDICATION:
 		if (callbacks.MLME_COMM_STATUS_indication) {
-			return callbacks.MLME_COMM_STATUS_indication(buf + 2);
+			return callbacks.MLME_COMM_STATUS_indication(
+				(struct MLME_COMM_STATUS_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_MLME_SYNC_LOSS_INDICATION:
 		if (callbacks.MLME_SYNC_LOSS_indication) {
-			return callbacks.MLME_SYNC_LOSS_indication(buf + 2);
+			return callbacks.MLME_SYNC_LOSS_indication(
+				(struct MLME_SYNC_LOSS_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_HWME_WAKEUP_INDICATION:
 		if (callbacks.HWME_WAKEUP_indication) {
-			return callbacks.HWME_WAKEUP_indication(buf + 2);
+			return callbacks.HWME_WAKEUP_indication(
+				(struct HWME_WAKEUP_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_TDME_MESSAGE_INDICATION:
 		if (callbacks.TDME_MESSAGE_indication) {
-			return callbacks.TDME_MESSAGE_indication(buf + 2, len);
+			return callbacks.TDME_MESSAGE_indication(
+				buf + 2,
+				len
+			);
 		}
 		break;
 	case SPI_TDME_RXPKT_INDICATION:
 		if (callbacks.TDME_RXPKT_indication) {
-			return callbacks.TDME_RXPKT_indication(buf + 2);
+			return callbacks.TDME_RXPKT_indication(
+				(struct TDME_RXPKT_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_TDME_EDDET_INDICATION:
 		if (callbacks.TDME_EDDET_indication) {
-			return callbacks.TDME_EDDET_indication(buf + 2);
+			return callbacks.TDME_EDDET_indication(
+				(struct TDME_EDDET_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	case SPI_TDME_ERROR_INDICATION:
 		if (callbacks.TDME_ERROR_indication) {
-			return callbacks.TDME_ERROR_indication(buf + 2);
+			return callbacks.TDME_ERROR_indication(
+				(struct TDME_ERROR_indication_pset*)(buf + 2)
+			);
 		}
 		break;
 	default:

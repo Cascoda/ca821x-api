@@ -32,8 +32,8 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "../include/cascoda_debug.h"
-#include "../include/cascoda_api.h"
+#include "cascoda_debug.h"
+#include "cascoda_api.h"
 
 #define MAX_PUTC_CHARS  (128)
 

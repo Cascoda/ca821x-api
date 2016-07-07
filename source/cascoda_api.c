@@ -34,8 +34,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../include/mac_messages.h"
-#include "../include/cascoda_api.h"
+#include "mac_messages.h"
+#include "cascoda_api.h"
 
 /******************************************************************************/
 /****** MAC Workarounds for V1.1 and MPW silicon (V0.x)                  ******/

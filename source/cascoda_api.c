@@ -1395,6 +1395,7 @@ uint8_t TDME_GetTxPower(
 int cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks)
 {
 	memcpy(&callbacks, in_callbacks, sizeof(struct cascoda_api_callbacks));
+	return 0;
 }
 
 int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
@@ -1490,7 +1491,7 @@ int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
 	case SPI_TDME_MESSAGE_INDICATION:
 		if (callbacks.TDME_MESSAGE_indication) {
 			return callbacks.TDME_MESSAGE_indication(
-				buf + 2,
+				(char *)(buf + 2),
 				len
 			);
 		}

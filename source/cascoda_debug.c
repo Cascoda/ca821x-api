@@ -89,7 +89,7 @@ void dpFlush(void *pDeviceRef)
 {
 	if (PutcCount != 0) {
 		if (EVBME_Message != NULL) {
-			EVBME_Message(PutcBuffer, PutcCount, pDeviceRef);
+			EVBME_Message((char *)PutcBuffer, PutcCount, pDeviceRef);
 		}
 		PutcCount = 0;
 	}

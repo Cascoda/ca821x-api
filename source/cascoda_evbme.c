@@ -49,7 +49,7 @@ uint8_t EVBME_SetVal[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 /******************************************************************************/
 int EVBMEInitialise(char *version, void *pDeviceRef)
 {
-	int status;
+	int status = 0;
 
 	EVBME_SetVal[0] = 1;             // initialise/reset PIBs on higher layers
 

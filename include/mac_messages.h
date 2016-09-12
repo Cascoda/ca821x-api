@@ -411,12 +411,12 @@ struct TDME_LOTLK_confirm_pset {
 /******************************************************************************/
 /****** Security PIB Table Size Definitions                              ******/
 /******************************************************************************/
-#define KEY_TABLE_SIZE                  (2)
+#define KEY_TABLE_SIZE                  (4)
 #define LOOKUP_DESC_TABLE_SIZE          (5)
-#define KEY_DEVICE_TABLE_SIZE           (5)
+#define KEY_DEVICE_TABLE_SIZE           (10)
 #define KEY_USAGE_TABLE_SIZE            (12)
 #define SECURITY_LEVEL_TABLE_SIZE       (2)
-#define DEVICE_TABLE_SIZE               (5)
+#define DEVICE_TABLE_SIZE               (10)
 
 
 /******************************************************************************/

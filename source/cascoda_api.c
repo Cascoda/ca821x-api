@@ -1518,10 +1518,12 @@ int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
 		}
 		break;
 	default:
-		if (!(buf[0] & SPI_SYN)) {
-			fprintf(stderr, "Unrecognised upstream command id: %d", buf[0]);
-			return -EINVAL;
-		}
+#ifdef __unix__
+		fprintf(stderr, "Unrecognised upstream command id: %d", buf[0]);
+		return -EINVAL;
+#else
+		return -ERANGE;
+#endif
 		break;
 	}
 

@@ -163,7 +163,7 @@ void dp32(uint32_t Out, void *pDeviceRef)
 /****** Return: -                                                        ******/
 /******************************************************************************/
 /******************************************************************************/
-void dps(uint8_t *pString, void *pDeviceRef)
+void dps(const uint8_t *pString, void *pDeviceRef)
 {
 	while (*pString != 0) {
 		Putc(*pString++, pDeviceRef);
@@ -213,7 +213,7 @@ void dptime(void)
 /****** Return: -                                                        ******/
 /******************************************************************************/
 /******************************************************************************/
-void dparray(uint8_t *pArray, uint8_t Length, void *pDeviceRef)
+void dparray(const uint8_t *pArray, uint8_t Length, void *pDeviceRef)
 {
 	while (Length) {
 		dp8(*pArray++, pDeviceRef);
@@ -234,7 +234,7 @@ void dparray(uint8_t *pArray, uint8_t Length, void *pDeviceRef)
 /****** Return: -                                                        ******/
 /******************************************************************************/
 /******************************************************************************/
-void dparrayle(uint8_t *pArray, uint8_t Length, void *pDeviceRef)
+void dparrayle(const uint8_t *pArray, uint8_t Length, void *pDeviceRef)
 {
 	while (Length) {
 		Length--;
@@ -639,7 +639,7 @@ void dp_u32_u(uint32_t d, void *pDeviceRef)
 /****** Return: -                                                        ******/
 /******************************************************************************/
 /******************************************************************************/
-void dpslow(uint8_t *pString, void *pDeviceRef)
+void dpslow(const uint8_t *pString, void *pDeviceRef)
 {
 	struct timespec delaytime;
 	delaytime.tv_sec = 0;

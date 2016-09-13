@@ -42,10 +42,10 @@ void dpFlush(void *pDeviceRef);
 void dp8(uint8_t Out, void *pDeviceRef);
 void dp16(uint16_t Out, void *pDeviceRef);
 void dp32(uint32_t Out, void *pDeviceRef);
-void dps(uint8_t *pString, void *pDeviceRef);
+void dps(const uint8_t *pString, void *pDeviceRef);
 void dptime(void);
-void dparray(uint8_t *pArray, uint8_t Length, void *pDeviceRef);
-void dparrayle(uint8_t *pArray, uint8_t Length, void *pDeviceRef);
+void dparray(const uint8_t *pArray, uint8_t Length, void *pDeviceRef);
+void dparrayle(const uint8_t *pArray, uint8_t Length, void *pDeviceRef);
 void dpc(uint8_t Out, void *pDeviceRef);
 void dpnl(void *pDeviceRef );
 void dpDec(uint16_t Out, void *pDeviceRef);
@@ -58,7 +58,7 @@ void dp_u16_u(uint16_t d, void *pDeviceRef);
 void dp_s16_s(int16_t d, void *pDeviceRef);
 void dp_u32_10u(uint32_t d, void *pDeviceRef);
 void dp_u32_u(uint32_t d, void *pDeviceRef);
-void dpslow(uint8_t *pString, void *pDeviceRef);
+void dpslow(const uint8_t *pString, void *pDeviceRef);
 
 extern void (*EVBME_Message)(char *message, size_t len, void *pDeviceRef);
 

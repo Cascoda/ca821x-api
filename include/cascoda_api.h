@@ -37,6 +37,8 @@
 
 #include "mac_messages.h"
 
+#ifndef _CASCODA_MACROS
+#define _CASCODA_MACROS
 
 #define LS_BYTE(x)  ((uint8_t)((x)&0xFF))
 #define MS_BYTE(x)  ((uint8_t)(((x)>>8)&0xFF))
@@ -49,6 +51,8 @@
 #define GETLE32(x)      (((uint32_t)(x)[3]<<24)+((uint32_t)(x)[2]<<16)+((uint32_t)(x)[1]<<8)+(x)[0])
 #define PUTLE16(x,y)    {(y)[0]=((x)&0xff);(y)[1]=((x)>>8);}
 #define PUTLE32(x,y)    {(y)[0]=((x)&0xff);(y)[1]=(((x)>>8)&0xff);(y)[2]=(((x)>>16)&0xff);(y)[3]=(((x)>>24)&0xff);}
+
+#endif
 
 /******************************************************************************/
 /****** API callbacks                                                    ******/

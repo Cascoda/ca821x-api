@@ -297,7 +297,7 @@ uint8_t TDME_GetTxPower(uint8_t *txp, void *pDeviceRef);
 /****** API callback functions                                           ******/
 /******************************************************************************/
 
-int cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks);
+void cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks);
 int cascoda_downstream_dispatch(const uint8_t *buf, size_t len);
 
 /******************************************************************************/

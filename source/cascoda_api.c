@@ -45,6 +45,13 @@ uint8_t MAC_MPW         = 0;
 
 static struct cascoda_api_callbacks callbacks;
 
+int (*cascoda_api_downstream)(
+	const uint8_t *buf,
+	size_t len,
+	uint8_t *response,
+	void *pDeviceRef
+);
+
 /******************************************************************************/
 /******************************************************************************/
 /****** MCPS_DATA_request()                                              ******/

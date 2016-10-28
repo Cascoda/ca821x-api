@@ -303,7 +303,7 @@ int cascoda_downstream_dispatch(const uint8_t *buf, size_t len);
 /******************************************************************************/
 /****** External function pointers                                       ******/
 /******************************************************************************/
-int (*cascoda_api_downstream)(
+extern int (*cascoda_api_downstream)(
 	const uint8_t *buf,
 	size_t len,
 	uint8_t *response,

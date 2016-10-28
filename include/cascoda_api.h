@@ -28,7 +28,31 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+/***************************************************************************//**
+ * @file cascoda_api.h
+ * @brief API Access Function Declarations for MCPS, MLME, HWME and TDME.
+ *
+ * \def LS_BYTE(x)
+ * Extract the least significant octet of a 16-bit value
+ * \def MS_BYTE(x)
+ * Extract the most significant octet of a 16-bit value
+ * \def LS0_BYTE(x)
+ * Extract the first (little-endian) octet of a 32-bit value
+ * \def LS1_BYTE(x)
+ * Extract the second (little-endian) octet of a 32-bit value
+ * \def LS2_BYTE(x)
+ * Extract the third (little-endian) octet of a 32-bit value
+ * \def LS3_BYTE(x)
+ * Extract the fourth (little-endian) octet of a 32-bit value
+ * \def GETLE16(x)
+ * Extract a 16-bit value from a little-endian octet array
+ * \def GETLE32(x)
+ * Extract a 32-bit value from a little-endian octet array
+ * \def PUTLE16(x,y)
+ * Put a 16-bit value x into a little-endian octet array y
+ * \def PUTLE32(x,y)
+ * Put a 32-bit value x into a little-endian octet array y
+ ******************************************************************************/
 #ifndef CASCODA_API_H
 #define CASCODA_API_H
 
@@ -54,10 +78,15 @@
 
 #endif
 
-/******************************************************************************/
-/****** API callbacks                                                    ******/
-/******************************************************************************/
-
+/***************************************************************************//**
+ * \brief API user callbacks structure
+ *
+ * Contains a set of function pointers that can (and should) be populated by the
+ * user for processing asynchronous messages received from the hardware. If the
+ * pointer for the specific command type is populated that will be called,
+ * otherwise the generic_dispatch function will be. If neither are populated the
+ * message is discarded.
+ ******************************************************************************/
 struct cascoda_api_callbacks {
 	int (*MCPS_DATA_indication) (
 		struct MCPS_DATA_indication_pset *params);

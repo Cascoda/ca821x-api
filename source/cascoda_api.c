@@ -28,7 +28,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+/***************************************************************************//**
+ * @file cascoda_api.c
+ * @brief API Access Function Declarations for MCPS, MLME, HWME and TDME.
+ *
+ * \def DATAREQ
+ * Shorthand for MCPS-DATA Request parameter set
+ * \def ASSOCREQ
+ * Shorthand for MLME-ASSOCIATE Request parameter set
+ * \def ASSOCRSP
+ * Shorthand for MLME-ASSOCIATE Response parameter set
+ * \def GETREQ
+ * Shorthand for MLME-GET Request parameter set
+ * \def GETCNF
+ * Shorthand for MLME-GET Confirm parameter set
+ * \def ORPHANRSP
+ * Shorthand for MLME-ORPHAN Response parameter set
+ * \def SIMPLEREQ
+ * Shorthand for the raw parameter data of a request
+ *
+ * Usually used for requests with a single-byte payload etc.
+ * \def SIMPLECNF
+ * Shorthand for the raw parameter data of a confirm
+ *
+ * Usually used for confirms with just a status etc.
+ * \def SCANREQ
+ * Shorthand for MLME-SCAN Request parameter set
+ * \def SETREQ
+ * Shorthand for MLME-SET Request parameter set
+ * \def STARTREQ
+ * Shorthand for MLME-START Request parameter set
+ * \def POLLREQ
+ * Shorthand for MLME-POLL Request parameter set
+ ******************************************************************************/
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
@@ -37,14 +69,30 @@
 #include "mac_messages.h"
 #include "cascoda_api.h"
 
-/******************************************************************************/
-/****** MAC Workarounds for V1.1 and MPW silicon (V0.x)                  ******/
-/******************************************************************************/
-uint8_t MAC_Workarounds = 0;
-uint8_t MAC_MPW         = 0;
+uint8_t MAC_Workarounds = 0; /**< Flag to enable workarounds for ca8210 v1.1 */
+uint8_t MAC_MPW         = 0; /**< Flag to enable workarounds for ca8210 v0.x */
 
+/** Variable for storing callback routines registered by the user */
 static struct cascoda_api_callbacks callbacks;
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Function pointer for downstream api interface.
+ *******************************************************************************
+ * This function pointer is called by all api functions when it comes to
+ * transmitting constructed commands to the transceiver. The user must implement
+ * their own downstream exchange function conforming to this prototype and
+ * assign that function to this pointer.
+ *******************************************************************************
+ * \param buf - The buffer containing the command to send downstream
+ * \param len - The length of the command in octets
+ * \param response - The buffer to populate with a received synchronous
+ *                    response
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return Effectively a bool as far as API is concerned, 0 means exchange was
+ *         successful, nonzero otherwise
+ ******************************************************************************/
 int (*cascoda_api_downstream)(
 	const uint8_t *buf,
 	size_t len,
@@ -53,25 +101,23 @@ int (*cascoda_api_downstream)(
 );
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MCPS_DATA_request()                                              ******/
-/******************************************************************************/
-/****** Brief:  MCPS_DATA_request (Send Data) according to API Spec      ******/
-/******************************************************************************/
-/****** Param:  SrcAddrMode - Source Addressing Mode                     ******/
-/****** Param:  DstAddrMode - Destination Addressing Mode                ******/
-/****** Param:  DstPANId - Destination PAN ID                            ******/
-/****** Param:  pDstAddr - Pointer to Destination Address                ******/
-/****** Param:  MsduLength - Length of Data                              ******/
-/****** Param:  pMsdu - Pointer to Data                                  ******/
-/****** Param:  MsduHandle - Handle of Data                              ******/
-/****** Param:  TxOptions - Tx Options Bit Field                         ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MCPS_DATA_request (Send Data) according to API Spec
+ *******************************************************************************
+ * \param SrcAddrMode - Source Addressing Mode
+ * \param DstAddrMode - Destination Addressing Mode
+ * \param DstPANId - Destination PAN ID
+ * \param pDstAddr - Pointer to Destination Address
+ * \param MsduLength - Length of Data
+ * \param pMsdu - Pointer to Data
+ * \param MsduHandle - Handle of Data
+ * \param TxOptions - Tx Options Bit Field
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MCPS_DATA_request(
 	uint8_t          SrcAddrMode,
 	uint8_t          DstAddrMode,
@@ -123,17 +169,15 @@ uint8_t MCPS_DATA_request(
 } // End of MCPS_DATA_request()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MCPS_PURGE_request_sync()                                        ******/
-/******************************************************************************/
-/****** Brief:  MCPS_PURGE_request/confirm according to API Spec         ******/
-/******************************************************************************/
-/****** Param:  MsduHandle - Handle of Data                              ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MCPS_PURGE_request/confirm according to API Spec
+ *******************************************************************************
+ * \param MsduHandle - Handle of Data
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return: 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MCPS_PURGE_request_sync(
 	uint8_t     *MsduHandle,
 	void        *pDeviceRef
@@ -156,22 +200,20 @@ uint8_t MCPS_PURGE_request_sync(
 } // End of MCPS_PURGE_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_ASSOCIATE_request()                                         ******/
-/******************************************************************************/
-/****** Brief:  MLME_ASSOCIATE_request according to API Spec             ******/
-/******************************************************************************/
-/****** Param:  LogicalChannel - Channel Number                          ******/
-/****** Param:  DstAddrMode - Destination Addressing Mode                ******/
-/****** Param:  DstPANId - Destination PAN ID                            ******/
-/****** Param:  pDstAddr - Pointer to Destination Address                ******/
-/****** Param:  CapabilityInfo - Bitmap of operational Capabilities      ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_ASSOCIATE_request according to API Spec
+ *******************************************************************************
+ * \param LogicalChannel - Channel Number
+ * \param DstAddrMode - Destination Addressing Mode
+ * \param DstPANId - Destination PAN ID
+ * \param pDstAddr - Pointer to Destination Address
+ * \param CapabilityInfo - Bitmap of operational Capabilities
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_ASSOCIATE_request(
 	uint8_t          LogicalChannel,
 	uint8_t          DstAddrMode,
@@ -223,20 +265,18 @@ uint8_t MLME_ASSOCIATE_request(
 } // End of MLME_ASSOCIATE_request()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_ASSOCIATE_response()                                        ******/
-/******************************************************************************/
-/****** Brief:  MLME_ASSOCIATE_response according to API Spec            ******/
-/******************************************************************************/
-/****** Param:  pDeviceAddress - Pointer to IEEE Address                 ******/
-/****** Param:  AssocShortAddress - Short Address given to Device        ******/
-/****** Param:  Status - Status                                          ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_ASSOCIATE_response according to API Spec
+ *******************************************************************************
+ * \param pDeviceAddress - Pointer to IEEE Address
+ * \param AssocShortAddress - Short Address given to Device
+ * \param Status - Status
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_ASSOCIATE_response(
 	uint8_t         *pDeviceAddress,
 	uint16_t         AssocShortAddress,
@@ -268,20 +308,18 @@ uint8_t MLME_ASSOCIATE_response(
 } // End of MLME_ASSOCIATE_response()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_DISASSOCIATE_request()                                      ******/
-/******************************************************************************/
-/****** Brief:  MLME_DISASSOCIATE_request according to API Spec          ******/
-/******************************************************************************/
-/****** Param:  DevAddr - Device Address                                 ******/
-/****** Param:  DisassociateReason - Reason for Disassociation           ******/
-/****** Param:  TxIndirect - TxIndirect Flag                             ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_DISASSOCIATE_request according to API Spec
+ *******************************************************************************
+ * \param DevAddr - Device Address
+ * \param DisassociateReason - Reason for Disassociation
+ * \param TxIndirect - TxIndirect Flag
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_DISASSOCIATE_request(
 	struct FullAddr    DevAddr,
 	uint8_t            DisassociateReason,
@@ -312,20 +350,18 @@ uint8_t MLME_DISASSOCIATE_request(
 } // End of MLME_DISASSOCIATE_request()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_GET_request_sync()                                          ******/
-/******************************************************************************/
-/****** Brief:  MLME_GET_request/confirm according to API Spec           ******/
-/******************************************************************************/
-/****** Param:  PIBAttribute - Attribute Number                          ******/
-/****** Param:  PIBAttributeIndex - Index within Attribute if an Array   ******/
-/****** Param:  pPIBAttributeLength - Pointer to Attribute Length        ******/
-/****** Param:  pPIBAttributeValue - Pointer to Attribute Value          ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_GET_request/confirm according to API Spec
+ *******************************************************************************
+ * \param PIBAttribute - Attribute Number
+ * \param PIBAttributeIndex - Index within Attribute if an Array
+ * \param pPIBAttributeLength - Pointer to Attribute Length
+ * \param pPIBAttributeValue - Pointer to Attribute Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_GET_request_sync(
 	uint8_t      PIBAttribute,
 	uint8_t      PIBAttributeIndex,
@@ -364,20 +400,18 @@ uint8_t MLME_GET_request_sync(
 } // End of MLME_GET_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_ORPHAN_response()                                           ******/
-/******************************************************************************/
-/****** Brief:  MLME_ORPHAN_response according to API Spec               ******/
-/******************************************************************************/
-/****** Param:  pOrphanAddress - Pointer to Orphan IEEE Address          ******/
-/****** Param:  ShortAddress - Short Address for Orphan                  ******/
-/****** Param:  AssociatedMember - TRUE if associated                    ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_ORPHAN_response according to API Spec
+ *******************************************************************************
+ * \param pOrphanAddress - Pointer to Orphan IEEE Address
+ * \param ShortAddress - Short Address for Orphan
+ * \param AssociatedMember - TRUE if associated
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_ORPHAN_response(
 	uint8_t          *pOrphanAddress,
 	uint16_t          ShortAddress,
@@ -409,17 +443,15 @@ uint8_t MLME_ORPHAN_response(
 } // End of MLME_ORPHAN_response()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_RESET_request_sync()                                        ******/
-/******************************************************************************/
-/****** Brief:  MLME_RESET_request/confirm according to API Spec         ******/
-/******************************************************************************/
-/****** Param:  SetDefaultPIB - Set defaults in PIB                      ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_RESET_request/confirm according to API Spec
+ *******************************************************************************
+ * \param SetDefaultPIB - Set defaults in PIB
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_RESET_request_sync(uint8_t SetDefaultPIB, void *pDeviceRef)
 {
 	uint8_t status;
@@ -448,19 +480,17 @@ uint8_t MLME_RESET_request_sync(uint8_t SetDefaultPIB, void *pDeviceRef)
 } // End of MLME_RESET_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_RX_ENABLE_request_sync()                                    ******/
-/******************************************************************************/
-/****** Brief:  MLME_RX_ENABLE_request/confirm according to API Spec     ******/
-/******************************************************************************/
-/****** Param:  DeferPermit - Defer Permit Flag                          ******/
-/****** Param:  RxOnTime - Receiver On Time                              ******/
-/****** Param:  RxOnDuration - Receiver On Duration                      ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_RX_ENABLE_request/confirm according to API Spec
+ *******************************************************************************
+ * \param DeferPermit - Defer Permit Flag
+ * \param RxOnTime - Receiver On Time
+ * \param RxOnDuration - Receiver On Duration
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_RX_ENABLE_request_sync(
 	uint8_t      DeferPermit,
 	uint32_t     RxOnTime,
@@ -492,20 +522,18 @@ uint8_t MLME_RX_ENABLE_request_sync(
 } // End of MLME_RX_ENABLE_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_SCAN_request()                                              ******/
-/******************************************************************************/
-/****** Brief:  MLME_SCAN_request according to API Spec                  ******/
-/******************************************************************************/
-/****** Param:  ScanType - Scan Type (Energy, Active or Orphan)          ******/
-/****** Param:  ScanChannels -  Channel Bit mask (32 Bit)                ******/
-/****** Param:  ScanDuration - Time to scan for                          ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_SCAN_request according to API Spec
+ *******************************************************************************
+ * \param ScanType - Scan Type (Energy, Active or Orphan)
+ * \param ScanChannels -  Channel Bit mask (32 Bit)
+ * \param ScanDuration - Time to scan for
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return: 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_SCAN_request(
 	uint8_t          ScanType,
 	uint32_t         ScanChannels,
@@ -539,20 +567,18 @@ uint8_t MLME_SCAN_request(
 } // End of MLME_SCAN_request()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_SET_request_sync()                                          ******/
-/******************************************************************************/
-/****** Brief:  MLME_SET_request/confirm according to API Spec           ******/
-/******************************************************************************/
-/****** Param:  PIBAttribute - Attribute Number                          ******/
-/****** Param:  PIBAttributeIndex - Index within Attribute if an Array   ******/
-/****** Param:  PIBAttributeLength - Attribute Length                    ******/
-/****** Param:  pPIBAttributeValue - Pointer to Attribute Value          ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_SET_request/confirm according to API Spec
+ *******************************************************************************
+ * \param PIBAttribute - Attribute Number
+ * \param PIBAttributeIndex - Index within Attribute if an Array
+ * \param PIBAttributeLength - Attribute Length
+ * \param pPIBAttributeValue - Pointer to Attribute Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_SET_request_sync(
 	uint8_t       PIBAttribute,
 	uint8_t       PIBAttributeIndex,
@@ -598,24 +624,25 @@ uint8_t MLME_SET_request_sync(
 } // End of MLME_SET_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_START_request_sync()                                        ******/
-/******************************************************************************/
-/****** Brief:  MLME_START_request/confirm according to API Spec         ******/
-/******************************************************************************/
-/****** Param:  PANId - PAN Identifier                                   ******/
-/****** Param:  LogicalChannel - Channel Number                          ******/
-/****** Param:  BeaconOrder - Beacon Order                               ******/
-/****** Param:  SuperframeOrder - Superframe Order                       ******/
-/****** Param:  PANCoordinator - 1 if Coordinator                        ******/
-/****** Param:  BatteryLifeExtension - 1 if battery save mode            ******/
-/****** Param:  CoordRealignment - 1 if a Coordinator Realignment        ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_START_request/confirm according to API Spec
+ *******************************************************************************
+ * \param PANId - PAN Identifier
+ * \param LogicalChannel - Channel Number
+ * \param BeaconOrder - Beacon Order
+ * \param SuperframeOrder - Superframe Order
+ * \param PANCoordinator - 1 if Coordinator
+ * \param BatteryLifeExtension - 1 if battery save mode
+ * \param CoordRealignment - 1 if a Coordinator Realignment
+ * \param pCoordRealignSecurity - Pointer to Security Structure or NULLP for
+ *                                coordinator realignment frames
+ * \param pBeaconSecurity - Pointer to Security Structure or NULLP for beacon
+ *                          frames
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_START_request_sync(
 	uint16_t          PANId,
 	uint8_t           LogicalChannel,
@@ -673,19 +700,17 @@ uint8_t MLME_START_request_sync(
 } // End of MLME_START_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** MLME_POLL_request_sync()                                         ******/
-/******************************************************************************/
-/****** Brief:  MLME_POLL_request/confirm according to API Spec          ******/
-/******************************************************************************/
-/****** Param:  CoordAddress - Coordinator Address                       ******/
-/****** Param:  Interval - Polling Interval in 0.1 Seconds Resolution    ******/
-/****** Param:  pSecurity - Pointer to Security Structure or NULLP       ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME_POLL_request/confirm according to API Spec
+ *******************************************************************************
+ * \param CoordAddress - Coordinator Address
+ * \param Interval - Polling Interval in 0.1 Seconds Resolution
+ * \param pSecurity - Pointer to Security Structure or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t MLME_POLL_request_sync(
 	struct FullAddr   CoordAddress,
 	uint8_t           Interval[2],    /* polling interval in 0.1 seconds res */
@@ -720,19 +745,17 @@ uint8_t MLME_POLL_request_sync(
 } // End of MLME_POLL_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** HWME_SET_request_sync()                                          ******/
-/******************************************************************************/
-/****** Brief:  HWME_SET_request/confirm according to API Spec           ******/
-/******************************************************************************/
-/****** Param:  HWAttribute - Attribute Number                           ******/
-/****** Param:  HWAttributeLength - Attribute Length                     ******/
-/****** Param:  pHWAttributeValue - Pointer to Attribute Value           ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief HWME_SET_request/confirm according to API Spec
+ *******************************************************************************
+ * \param HWAttribute - Attribute Number
+ * \param HWAttributeLength - Attribute Length
+ * \param pHWAttributeValue - Pointer to Attribute Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t HWME_SET_request_sync(
 	uint8_t      HWAttribute,
 	uint8_t      HWAttributeLength,
@@ -757,19 +780,17 @@ uint8_t HWME_SET_request_sync(
 } // End of HWME_SET_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** HWME_GET_request_sync()                                          ******/
-/******************************************************************************/
-/****** Brief:  HWME_GET_request/confirm according to API Spec           ******/
-/******************************************************************************/
-/****** Param:  HWAttribute - Attribute Number                           ******/
-/****** Param:  HWAttributeLength - Attribute Length                     ******/
-/****** Param:  pHWAttributeValue - Pointer to Attribute Value           ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief HWME_GET_request/confirm according to API Spec
+ *******************************************************************************
+ * \param HWAttribute - Attribute Number
+ * \param HWAttributeLength - Attribute Length
+ * \param pHWAttributeValue - Pointer to Attribute Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t HWME_GET_request_sync(
 	uint8_t      HWAttribute,
 	uint8_t     *HWAttributeLength,
@@ -797,18 +818,16 @@ uint8_t HWME_GET_request_sync(
 } // End of HWME_GET_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** HWME_HAES_request_sync()                                         ******/
-/******************************************************************************/
-/****** Brief:  HWME_HAES_request/confirm according to API Spec          ******/
-/******************************************************************************/
-/****** Param:  HAESMode - AES Mode (Encrypt/Decrypt)                    ******/
-/****** Param:  pHAESData - Pointer to AES Input/Output Data             ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief HWME_HAES_request/confirm according to API Spec
+ *******************************************************************************
+ * \param HAESMode - AES Mode (Encrypt/Decrypt)
+ * \param pHAESData - Pointer to AES Input/Output Data
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t HWME_HAES_request_sync(
 	uint8_t      HAESMode,
 	uint8_t     *pHAESData,
@@ -834,19 +853,17 @@ uint8_t HWME_HAES_request_sync(
 } // End of HWME_HAES_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_SETSFR_request_sync()                                       ******/
-/******************************************************************************/
-/****** Brief:  TDME_SETSFR_request/confirm according to API Spec        ******/
-/******************************************************************************/
-/****** Param:  SFRPage - SFR Page                                       ******/
-/****** Param:  SFRAddress - SFR Address                                 ******/
-/****** Param:  SFRValue - SFR Value                                     ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME_SETSFR_request/confirm according to API Spec
+ *******************************************************************************
+ * \param SFRPage - SFR Page
+ * \param SFRAddress - SFR Address
+ * \param SFRValue - SFR Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_SETSFR_request_sync(
 	uint8_t      SFRPage,
 	uint8_t      SFRAddress,
@@ -871,19 +888,17 @@ uint8_t TDME_SETSFR_request_sync(
 } // End of TDME_SETSFR_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_GETSFR_request_sync()                                       ******/
-/******************************************************************************/
-/****** Brief:  TDME_GETSFR_request/confirm according to API Spec        ******/
-/******************************************************************************/
-/****** Param:  SFRPage - SFR Page                                       ******/
-/****** Param:  SFRAddress - SFR Address                                 ******/
-/****** Param:  SFRValue - SFR Value                                     ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME_GETSFR_request/confirm according to API Spec
+ *******************************************************************************
+ * \param SFRPage - SFR Page
+ * \param SFRAddress - SFR Address
+ * \param SFRValue - SFR Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_GETSFR_request_sync(
 	uint8_t      SFRPage,
 	uint8_t      SFRAddress,
@@ -909,17 +924,15 @@ uint8_t TDME_GETSFR_request_sync(
 } // End of TDME_GETSFR_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_TESTMODE_request_sync()                                     ******/
-/******************************************************************************/
-/****** Brief:  TDME_TESTMODE_request/confirm according to API Spec      ******/
-/******************************************************************************/
-/****** Param:  TestMode - Test Mode to be set                           ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME_TESTMODE_request/confirm according to API Spec
+ *******************************************************************************
+ * \param TestMode - Test Mode to be set
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_TESTMODE_request_sync(
 	uint8_t      TestMode,
 	void        *pDeviceRef
@@ -940,19 +953,17 @@ uint8_t TDME_TESTMODE_request_sync(
 } // End of TDME_TESTMODE_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_SET_request_sync()                                          ******/
-/******************************************************************************/
-/****** Brief:  TDME_SET_request/confirm according to API Spec           ******/
-/******************************************************************************/
-/****** Param:  TestAttribute - Test Attribute Number                    ******/
-/****** Param:  TestAttributeLength - Test Attribute Length              ******/
-/****** Param:  pTestAttributeValue - Pointer to Test Attribute Value    ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME_SET_request/confirm according to API Spec
+ *******************************************************************************
+ * \param TestAttribute - Test Attribute Number
+ * \param TestAttributeLength - Test Attribute Length
+ * \param pTestAttributeValue - Pointer to Test Attribute Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_SET_request_sync(
 	uint8_t      TestAttribute,
 	uint8_t      TestAttributeLength,
@@ -984,20 +995,18 @@ uint8_t TDME_SET_request_sync(
 } // End of TDME_SET_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_TXPKT_request_sync()                                        ******/
-/******************************************************************************/
-/****** Brief:  TDME_TXPKT_request/confirm according to API Spec         ******/
-/******************************************************************************/
-/****** Param:  TestPacketDataType - Test Packet Data Type               ******/
-/****** Param:  TestPacketSequenceNumber - Pointer to Sequence Number    ******/
-/****** Param:  TestPacketLength - Pointer to Test Packet Length         ******/
-/****** Param:  pTestPacketData - Pointer to Test Packet Data or NULLP   ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME_TXPKT_request/confirm according to API Spec
+ *******************************************************************************
+ * \param TestPacketDataType - Test Packet Data Type
+ * \param TestPacketSequenceNumber - Pointer to Sequence Number
+ * \param TestPacketLength - Pointer to Test Packet Length
+ * \param pTestPacketData - Pointer to Test Packet Data or NULLP
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_TXPKT_request_sync(
 	uint8_t      TestPacketDataType,
 	uint8_t     *TestPacketSequenceNumber,
@@ -1037,21 +1046,19 @@ uint8_t TDME_TXPKT_request_sync(
 } // End of TDME_TXPKT_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_LOTLK_request_sync()                                        ******/
-/******************************************************************************/
-/****** Brief:  TDME_LOTLK_request/confirm according to API Spec         ******/
-/******************************************************************************/
-/****** Param:  TestChannel - Pointer to Channel                         ******/
-/****** Param:  TestRxTxb - Pointer to LO Mode (Rx when 1, Tx when 0)    ******/
-/****** Param:  TestLOFDACValue - Pointer LOFDAC Value                   ******/
-/****** Param:  TestLOAMPValue - Pointer LOAMP Value                     ******/
-/****** Param:  TestLOTXCALValue - Pointer LOTXCAL Value                 ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME_LOTLK_request/confirm according to API Spec
+ *******************************************************************************
+ * \param TestChannel - Pointer to Channel
+ * \param TestRxTxb - Pointer to LO Mode (Rx when 1, Tx when 0)
+ * \param TestLOFDACValue - Pointer LOFDAC Value
+ * \param TestLOAMPValue - Pointer LOAMP Value
+ * \param TestLOTXCALValue - Pointer LOTXCAL Value
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_LOTLK_request_sync(
 	uint8_t     *TestChannel,
 	uint8_t     *TestRxTxb,
@@ -1085,16 +1092,14 @@ uint8_t TDME_LOTLK_request_sync(
 } // End of TDME_LOTLK_request_sync()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_ChipInit()                                                  ******/
-/******************************************************************************/
-/****** Brief:  TDME Chip Register Default Initialisation Macro          ******/
-/******************************************************************************/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME Chip Register Default Initialisation Macro
+ *******************************************************************************
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of constituent commands
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_ChipInit(void *pDeviceRef)
 {
 	uint8_t status;
@@ -1126,17 +1131,15 @@ uint8_t TDME_ChipInit(void *pDeviceRef)
 } // End of TDME_ChipInit()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_ChannelInit()                                               ******/
-/******************************************************************************/
-/****** Brief:  TDME Channel Register Default Initialisation Macro (Tx)  ******/
-/******************************************************************************/
-/****** Param:  channel - 802.15.4 channel to initialise chip for        ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Return: Status                                                   ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME Channel Register Default Initialisation Macro (Tx)
+ *******************************************************************************
+ * \param channel - 802.15.4 channel to initialise chip for
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return: 802.15.4 status of constituent commands
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_ChannelInit(uint8_t channel, void *pDeviceRef)
 {
 	uint8_t txcalval;
@@ -1165,18 +1168,16 @@ uint8_t TDME_ChannelInit(uint8_t channel, void *pDeviceRef)
 } // End of TDME_ChannelInit()
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_CheckPIBAttribute()                                         ******/
-/******************************************************************************/
-/****** Brief:  Checks Attribute Values that are not checked in MAC      ******/
-/******************************************************************************/
-/****** Param:  PIBAttribute - Attribute Number                          ******/
-/****** Param:  PIBAttributeLength - Attribute Length                    ******/
-/****** Param:  pPIBAttributeValue - Pointer to Attribute Value          ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief Checks Attribute Values that are not checked in MAC
+ *******************************************************************************
+ * \param PIBAttribute - Attribute Number
+ * \param PIBAttributeLength - Attribute Length
+ * \param pPIBAttributeValue - Pointer to Attribute Value
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_CheckPIBAttribute(
 	uint8_t      PIBAttribute,
 	uint8_t      PIBAttributeLength,
@@ -1268,21 +1269,19 @@ uint8_t TDME_CheckPIBAttribute(
 }
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_SetTxPower()                                                ******/
-/******************************************************************************/
-/****** Brief:  Sets the tx power for MLME_SET phyTransmitPower          ******/
-/******************************************************************************/
-/****** Param:  txp - Transmit Power                                     ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Normalised to 802.15.4 Definition (6-bit, signed):               ******/
-/****** Bit 7-6: not used                                                ******/
-/****** Bit 5-0: tx power (-32 - +31 dB)                                 ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief Sets the tx power for MLME_SET phyTransmitPower
+ *******************************************************************************
+ *  Normalised to 802.15.4 Definition (6-bit, signed):\n
+ *  Bit 7-6: not used\n
+ *  Bit 5-0: tx power (-32 - +31 dB)
+ *******************************************************************************
+ * \param txp - Transmit Power
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_SetTxPower(uint8_t txp, void *pDeviceRef)
 {
 	uint8_t status;
@@ -1338,21 +1337,19 @@ uint8_t TDME_SetTxPower(uint8_t txp, void *pDeviceRef)
 
 
 /******************************************************************************/
-/******************************************************************************/
-/****** TDME_GetTxPower()                                                ******/
-/******************************************************************************/
-/****** Brief:  returns the tx power for MLME_GET phyTransmitPower       ******/
-/******************************************************************************/
-/****** Param:  *txp - Transmit Power                                    ******/
-/****** Param:  pDeviceRef - Nondescript pointer to target device        ******/
-/******************************************************************************/
-/****** Normalised to 802.15.4 Definition (6-bit, signed):               ******/
-/****** Bit 7-6: not used                                                ******/
-/****** Bit 5-0: tx power (-32 - +31 dB)                                 ******/
-/******************************************************************************/
-/****** Return: Confirm Status                                           ******/
-/******************************************************************************/
-/******************************************************************************/
+/***************************************************************************//**
+ * \brief Returns the tx power for MLME_GET phyTransmitPower
+ *******************************************************************************
+ * Normalised to 802.15.4 Definition (6-bit, signed):
+ * Bit 7-6: not used
+ * Bit 5-0: tx power (-32 - +31 dB)
+ *******************************************************************************
+ * \param *txp - Transmit Power
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 802.15.4 status of confirm
+ *******************************************************************************
+ ******************************************************************************/
 uint8_t TDME_GetTxPower(
 	uint8_t *txp,
 	void    *pDeviceRef
@@ -1399,11 +1396,29 @@ uint8_t TDME_GetTxPower(
 	return status;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Register callback routines for processing received commands
+ *******************************************************************************
+ * \param *in_callbacks - Set of available functions
+ *******************************************************************************
+ ******************************************************************************/
 void cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks)
 {
 	memcpy(&callbacks, in_callbacks, sizeof(struct cascoda_api_callbacks));
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Call the relevant callback routine if populated or the
+ *        generic_dispatch for a received command.
+ *******************************************************************************
+ * \param *buf - Receive buffer
+ * \param len - Length of command in octets
+ *******************************************************************************
+ * \return errno status
+ *******************************************************************************
+ ******************************************************************************/
 int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
 {
 	int ret;

@@ -1,7 +1,7 @@
-/*
+/**
  * @file cascoda_api.c
  * @brief API Access Function Declarations for MCPS, MLME, HWME and TDME.
- *
+ *//*
  * Copyright (C) 2016  Cascoda, Ltd.
  *
  * This program is free software: you can redistribute it and/or modify

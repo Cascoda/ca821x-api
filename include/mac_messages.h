@@ -1,7 +1,7 @@
-/*
+/**
  * @file mac_messages.h
  * @brief Definitions relating to API messages.
- *
+ *//*
  * Copyright (C) 2016  Cascoda, Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,75 +27,95 @@
 #include "ieee_802_15_4.h"
 #include "hwme_tdme.h"
 
-#define MAX_HWME_ATTRIBUTE_SIZE  16
-#define MAX_TDME_ATTRIBUTE_SIZE  2
+#define MAX_HWME_ATTRIBUTE_SIZE  16 /**< Longest hwme attribute in octets */
+#define MAX_TDME_ATTRIBUTE_SIZE  2 /**< Longest tdme attribute in octets */
 
 
 /******************************************************************************/
 /****** Structures used in the MAC MCPS/MLME Procedure Definitions       ******/
 /******************************************************************************/
 
+/** Contains full addressing information for a node */
 struct FullAddr {
+	/** Clarifies the contents of \ref Address (empty, short, extended)*/
 	uint8_t         AddressMode;
 	uint8_t         PANId[2];
+	/** Holds either short or extended address (little-endian) */
 	uint8_t         Address[8];
 };
 
+/** Holds either short or extended address (little-endian) */
 union MacAddr {
 	uint16_t        ShortAddress;
 	uint8_t         IEEEAddress[8];
 };
 
+/** Security specification to be applied to MAC frames */
 struct SecSpec {
+	/** Specifies level of authentication and encryption */
 	uint8_t         SecurityLevel;
+	/** How the key is to be retrieved */
 	uint8_t         KeyIdMode;
+	/** Source part of key lookup data (commonly addressing info) */
 	uint8_t         KeySource[8];
+	/** Index part of key lookup data */
 	uint8_t         KeyIndex;
 };
 
+/** Describes a discovered PAN */
 struct PanDescriptor {
-	struct FullAddr Coord;
-	uint8_t         LogicalChannel;
-	uint8_t         SuperframeSpec[2];
+	struct FullAddr Coord; /**< PAN coordinator addressing information */
+	uint8_t         LogicalChannel; /**< Current operating channel */
+	uint8_t         SuperframeSpec[2]; /**< Superframe specification */
+	/** True if the beacon originator is a PAN coordinator accepting
+	  * guaranteed time slot requests*/
 	uint8_t         GTSPermit;
-	uint8_t         LinkQuality;
+	uint8_t         LinkQuality; /**< LQI of the received beacon */
+	/** Time at which the beacon was received, in symbols*/
 	uint8_t         TimeStamp[4];
+	/** Security processing status of the beacon frame */
 	uint8_t         SecurityFailure;
+	/** Security specification of the beacon */
 	struct SecSpec  Security;
 };
 
-
-/******************************************************************************/
-/****** Downlink Functions Parameter Set Definitions                     ******/
-/******************************************************************************/
+/***************************************************************************//**
+ * \defgroup DownPSets Parameter set definitions (Downstream)
+ ************************************************************************** @{*/
 
 // MCPS
 
+/** MCPS_DATA_request parameter set */
 struct MCPS_DATA_request_pset {
-	uint8_t         SrcAddrMode;
-	struct FullAddr Dst;
-	uint8_t         MsduLength;
-	uint8_t         MsduHandle;
-	uint8_t         TxOptions;
-	uint8_t         Msdu[MAX_DATA_SIZE];
+	uint8_t         SrcAddrMode; /**< Source addressing mode */
+	struct FullAddr Dst; /**< Destination addressing information */
+	uint8_t         MsduLength; /**< Length of Data */
+	uint8_t         MsduHandle; /**< Handle of Data */
+	uint8_t         TxOptions; /**< Tx options bit field */
+	uint8_t         Msdu[MAX_DATA_SIZE]; /**< Data */
 };
 
 // MLME
 
+/** MLME_ASSOCIATE_request parameter set */
 struct MLME_ASSOCIATE_request_pset {
-	uint8_t         LogicalChannel;
-	struct FullAddr Dst;
+	uint8_t         LogicalChannel; /**< Channel number */
+	struct FullAddr Dst; /**< Destination addressing information */
+	/** Bitmap of operational capabilities */
 	uint8_t         CapabilityInfo;
-	struct SecSpec  Security;
+	struct SecSpec  Security; /**< Security specification */
 };
 
+/** MLME_ASSOCIATE_response parameter set */
 struct MLME_ASSOCIATE_response_pset {
+	/** IEEE address to give to associating device */
 	uint8_t         DeviceAddress[8];
 	uint8_t         AssocShortAddress[2];
 	uint8_t         Status;
 	struct SecSpec  Security;
 };
 
+/** MLME_DISASSOCIATE_request parameter set */
 struct MLME_DISASSOCIATE_request_pset {
 	struct FullAddr DevAddr;
 	uint8_t         DisassociateReason;
@@ -103,11 +123,13 @@ struct MLME_DISASSOCIATE_request_pset {
  	struct SecSpec  Security;
 };
 
+/** MLME_GET_request parameter set */
 struct MLME_GET_request_pset {
 	uint8_t         PIBAttribute;
 	uint8_t         PIBAttributeIndex;
 };
 
+/** MLME_ORPHAN_response parameter set */
 struct MLME_ORPHAN_response_pset {
 	uint8_t         OrphanAddress[8];
 	uint8_t         ShortAddress[2];
@@ -115,6 +137,7 @@ struct MLME_ORPHAN_response_pset {
 	struct SecSpec  Security;
 };
 
+/** MLME_POLL_request parameter set */
 struct MLME_POLL_request_pset {
 	struct FullAddr CoordAddress;
 	uint8_t         Interval[2];      /* polling interval in 0.1 seconds res */
@@ -123,12 +146,14 @@ struct MLME_POLL_request_pset {
 	struct SecSpec  Security;
 };
 
+/** MLME_RX_ENABLE_request parameter set */
 struct MLME_RX_ENABLE_request_pset {
 	uint8_t         DeferPermit;
 	uint8_t         RxOnTime[4];
 	uint8_t         RxOnDuration[4];
 };
 
+/** MLME_SCAN_request parameter set */
 struct MLME_SCAN_request_pset {
 	uint8_t         ScanType;
 	uint8_t         ScanChannels[4];
@@ -136,6 +161,7 @@ struct MLME_SCAN_request_pset {
 	struct SecSpec  Security;
 };
 
+/** MLME_SET_request parameter set */
 struct MLME_SET_request_pset {
 	uint8_t         PIBAttribute;
 	uint8_t         PIBAttributeIndex;
@@ -143,6 +169,7 @@ struct MLME_SET_request_pset {
 	uint8_t         PIBAttributeValue[MAX_ATTRIBUTE_SIZE];
 };
 
+/** MLME_START_request parameter set */
 struct MLME_START_request_pset {
 	uint8_t         PANId[2];
 	uint8_t         LogicalChannel;
@@ -157,16 +184,19 @@ struct MLME_START_request_pset {
 
 // HWME
 
+/** HWME_SET_request parameter set */
 struct HWME_SET_request_pset {
 	uint8_t         HWAttribute;
 	uint8_t         HWAttributeLength;
 	uint8_t         HWAttributeValue[MAX_HWME_ATTRIBUTE_SIZE];
 };
 
+/** HWME_GET_request parameter set */
 struct HWME_GET_request_pset {
 	uint8_t         HWAttribute;
 };
 
+/** HWME_HAES_request parameter set */
 struct HWME_HAES_request_pset {
 	uint8_t            HAESMode;
 	uint8_t            HAESData[16];
@@ -174,27 +204,32 @@ struct HWME_HAES_request_pset {
 
 // TDME
 
+/** TDME_SETSFR_request parameter set */
 struct TDME_SETSFR_request_pset {
 	uint8_t         SFRPage;
 	uint8_t         SFRAddress;
 	uint8_t         SFRValue;
 };
 
+/** TDME_GETSFR_request parameter set */
 struct TDME_GETSFR_request_pset {
 	uint8_t         SFRPage;
 	uint8_t         SFRAddress;
 };
 
+/** TDME_TESTMODE_request parameter set */
 struct TDME_TESTMODE_request_pset {
 	uint8_t            TestMode;
 };
 
+/** TDME_SET_request parameter set */
 struct TDME_SET_request_pset {
 	uint8_t         TDAttribute;
 	uint8_t         TDAttributeLength;
 	uint8_t         TDAttributeValue[MAX_TDME_ATTRIBUTE_SIZE];
 };
 
+/** TDME_TXPKT_request parameter set */
 struct TDME_TXPKT_request_pset {
 	uint8_t            TestPacketDataType;
 	uint8_t            TestPacketSequenceNumber;
@@ -202,29 +237,34 @@ struct TDME_TXPKT_request_pset {
 	uint8_t            TestPacketData[128];
 };
 
+/** TDME_LOTLK_request parameter set */
 struct TDME_LOTLK_request_pset {
 	uint8_t            TestChannel;
 	uint8_t            TestRxTxb;
 };
 
+/**@}*/
 
-/******************************************************************************/
-/****** Uplink Functions Parameter Set Definitions                       ******/
-/******************************************************************************/
+/***************************************************************************//**
+ * \defgroup UpPSets Parameter set definitions (Upstream)
+ ***************************************************************************@{*/
 
 // MCPS
 
+/** MCPS_DATA_confirm parameter set */
 struct MCPS_DATA_confirm_pset {
 	uint8_t            MsduHandle;
 	uint8_t            Status;
 	uint8_t            TimeStamp[4];
 };
 
+/** MCPS_PURGE_confirm parameter set */
 struct MCPS_PURGE_confirm_pset {
 	uint8_t            MsduHandle;
 	uint8_t            Status;
 };
 
+/** MCPS_DATA_indication parameter set */
 struct MCPS_DATA_indication_pset {
     struct FullAddr    Src;
     struct FullAddr    Dst;
@@ -237,30 +277,34 @@ struct MCPS_DATA_indication_pset {
 
 // MLME
 
+/** MLME_ASSOCIATE_indication parameter set */
 struct MLME_ASSOCIATE_indication_pset {
 	uint8_t            DeviceAddress[8];
 	uint8_t            CapabilityInformation;
 	struct SecSpec     Security;
 };
 
+/** MLME_ASSOCIATE_confirm parameter set */
 struct MLME_ASSOCIATE_confirm_pset {
 	uint8_t            AssocShortAddress[2];
 	uint8_t            Status;
 	struct SecSpec     Security;
 };
 
+/** MLME_DISASSOCIATE_confirm parameter set */
 struct MLME_DISASSOCIATE_confirm_pset {
 	uint8_t            Status;
 	struct FullAddr    Address;
 };
 
+/** MLME_DISASSOCIATE_indication parameter set */
 struct MLME_DISASSOCIATE_indication_pset {
 	uint8_t            DevAddr[8];
 	uint8_t            Reason;
 	struct SecSpec     Security;
 };
 
-
+/** MLME_BEACON_NOTIFY_indication parameter set */
 struct MLME_BEACON_NOTIFY_indication_pset {
 	uint8_t              BSN;
 	struct PanDescriptor PanDescriptor;    /* variable size and so following
@@ -271,6 +315,7 @@ struct MLME_BEACON_NOTIFY_indication_pset {
 	/* variable        Beacon payload */
 };
 
+/** MLME_GET_confirm parameter set */
 struct MLME_GET_confirm_pset {
 	uint8_t            Status;
 	uint8_t            PIBAttribute;
@@ -281,7 +326,9 @@ struct MLME_GET_confirm_pset {
 
 #define MLME_GET_CONFIRM_BASE_SIZE  (sizeof(struct MLME_GET_confirm_pset)-MAX_ATTRIBUTE_SIZE)
 
+/** Default size of scan results list */
 #define DEFAULT_RESULT_LIST_SIZE    (16)
+/** MLME_SCAN_confirm parameter set */
 struct MLME_SCAN_confirm_pset {
 	uint8_t            Status;
 	uint8_t            ScanType;
@@ -290,6 +337,7 @@ struct MLME_SCAN_confirm_pset {
 	uint8_t            ResultList[DEFAULT_RESULT_LIST_SIZE];
 };
 
+/** MLME_COMM_STATUS_indication parameter set */
 struct MLME_COMM_STATUS_indication_pset {
 	uint8_t            PANId[2];
 	uint8_t            SrcAddrMode;
@@ -300,11 +348,13 @@ struct MLME_COMM_STATUS_indication_pset {
 	struct SecSpec     Security;
 };
 
+/** MLME_ORPHAN_indication parameter set */
 struct MLME_ORPHAN_indication_pset {
 	uint8_t            OrphanAddr[8];
 	struct SecSpec     Security;
 };
 
+/** MLME_SYNC_LOSS_indication parameter set */
 struct MLME_SYNC_LOSS_indication_pset {
 	uint8_t            LossReason;
 	uint8_t            PANId[2];
@@ -314,11 +364,13 @@ struct MLME_SYNC_LOSS_indication_pset {
 
 // HWME
 
+/** HWME_SET_confirm parameter set */
 struct HWME_SET_confirm_pset {
 	uint8_t            Status;
 	uint8_t            HWAttribute;
 };
 
+/** HWME_GET_confirm parameter set */
 struct HWME_GET_confirm_pset {
 	uint8_t            Status;
 	uint8_t            HWAttribute;
@@ -326,23 +378,27 @@ struct HWME_GET_confirm_pset {
 	uint8_t            HWAttributeValue[MAX_HWME_ATTRIBUTE_SIZE];
 };
 
+/** HWME_HAES_confirm parameter set */
 struct HWME_HAES_confirm_pset {
 	uint8_t            Status;
 	uint8_t            HAESData[16];
 };
 
+/** HWME_WAKEUP_indication parameter set */
 struct HWME_WAKEUP_indication_pset {
 	uint8_t            WakeUpCondition;
 };
 
 // TDME
 
+/** TDME_SETSFR_confirm parameter set */
 struct TDME_SETSFR_confirm_pset {
 	uint8_t            Status;
 	uint8_t            SFRPage;
 	uint8_t            SFRAddress;
 };
 
+/** TDME_GETSFR_confirm parameter set */
 struct TDME_GETSFR_confirm_pset {
 	uint8_t            Status;
 	uint8_t            SFRPage;
@@ -350,16 +406,19 @@ struct TDME_GETSFR_confirm_pset {
 	uint8_t            SFRValue;
 };
 
+/** TDME_TESTMODE_confirm parameter set */
 struct TDME_TESTMODE_confirm_pset {
 	uint8_t            Status;
 	uint8_t            TestMode;
 };
 
+/** TDME_SET_confirm parameter set */
 struct TDME_SET_confirm_pset {
 	uint8_t            Status;
 	uint8_t            TDAttribute;
 };
 
+/** TDME_TXPKT_confirm parameter set */
 struct TDME_TXPKT_confirm_pset {
 	uint8_t            Status;
 	uint8_t            TestPacketSequenceNumber;
@@ -367,6 +426,7 @@ struct TDME_TXPKT_confirm_pset {
 	uint8_t            TestPacketData[128];
 };
 
+/** TDME_RXPKT_indication parameter set */
 struct TDME_RXPKT_indication_pset {
 	uint8_t            Status;
 	uint8_t            TestPacketEDValue;
@@ -376,6 +436,7 @@ struct TDME_RXPKT_indication_pset {
 	uint8_t            TestPacketData[128];
 };
 
+/** TDME_EDDET_indication parameter set */
 struct TDME_EDDET_indication_pset {
 	uint8_t            TestEDThreshold;
 	uint8_t            TestEDValue;
@@ -383,10 +444,12 @@ struct TDME_EDDET_indication_pset {
 	uint8_t            TestTimeAboveThreshold_us[2];
 };
 
+/** TDME_ERROR_indication parameter set */
 struct TDME_ERROR_indication_pset {
 	uint8_t            ErrorCode;
 };
 
+/** TDME_LOTLK_confirm parameter set */
 struct TDME_LOTLK_confirm_pset {
 	uint8_t            Status;
 	uint8_t            TestChannel;
@@ -396,6 +459,7 @@ struct TDME_LOTLK_confirm_pset {
 	uint8_t            TestLOTXCALValue;
 };
 
+/**@}*/
 
 /******************************************************************************/
 /****** Security PIB Table Size Definitions                              ******/
@@ -408,9 +472,9 @@ struct TDME_LOTLK_confirm_pset {
 #define DEVICE_TABLE_SIZE               (10)
 
 
-/******************************************************************************/
-/****** Structures used by Security PIB Attributes                       ******/
-/******************************************************************************/
+/***************************************************************************//**
+ * \defgroup SecPIBStructs Security PIB attribute structures
+ ***************************************************************************@{*/
 
 struct M_KeyIdLookupDesc {
     uint8_t      LookupData[9];
@@ -440,8 +504,11 @@ struct M_KeyDeviceDesc {
 
 };
 /* Masks for KeyDeviceDesc Flags*/
+/** Key Device Descriptor handle mask */
 #define KDD_DeviceDescHandleMask        (0x3F)
+/** Key Device Descriptor is unique device mask */
 #define KDD_UniqueDeviceMask            (0x40)
+/** Key Device Descriptor is blacklisted mask */
 #define KDD_BlacklistedMask             (0x80)
 
 struct M_KeyUsageDesc {
@@ -450,8 +517,11 @@ struct M_KeyUsageDesc {
 	uint8_t      Flags;
 };
 /* Masks for KeyUsageDesc Flags*/
+/** Key Usage Descriptor frame type mask */
 #define KUD_FrameTypeMask               (0x03)
+/** Key Usage Descriptor command frame identifier mask */
 #define KUD_CommandFrameIdentifierMask  (0xF0)
+/** Key Usage Descriptor command frame identifier offset shift */
 #define KUD_CommandFrameIdentifierShift (4)
 
 struct M_KeyTableEntryFixed {
@@ -468,11 +538,11 @@ struct M_KeyDescriptor {
 	struct M_KeyUsageDesc          KeyUsageList[SECURITY_LEVEL_TABLE_SIZE];
 };
 
+/**@}*/
 
-/******************************************************************************/
-/****** Message ID Codes in SPI Commands                                 ******/
-/******************************************************************************/
-// Downstream
+/***************************************************************************//**
+ * \defgroup MessageIdCodesDown Message ID codes in SPI commands (Downstream)
+ ***************************************************************************@{*/
 #define MCPS_DATA_REQUEST                     (0x00)
 #define MCPS_PURGE_REQUEST                    (0x01)
 #define MLME_ASSOCIATE_REQUEST                (0x02)
@@ -496,7 +566,10 @@ struct M_KeyDescriptor {
 #define TDME_SET_REQUEST                      (0x14)
 #define TDME_TXPKT_REQUEST                    (0x15)
 #define TDME_LOTLK_REQUEST                    (0x16)
-// Upstream
+/**@}*/
+/***************************************************************************//**
+ * \defgroup MessageIdCodesUp Message ID codes in SPI commands (Upstream)
+ ***************************************************************************@{*/
 #define MCPS_DATA_INDICATION                  (0x00)
 #define MCPS_DATA_CONFIRM                     (0x01)
 #define MCPS_PURGE_CONFIRM                    (0x02)
@@ -529,12 +602,11 @@ struct M_KeyDescriptor {
 #define TDME_EDDET_INDICATION                 (0x1D)
 #define TDME_ERROR_INDICATION                 (0x1E)
 #define TDME_LOTLK_CONFIRM                    (0x1F)
+/**@}*/
 
-
-/******************************************************************************/
-/****** SPI Message Format Typedef                                       ******/
-/******************************************************************************/
-
+/***************************************************************************//**
+ * SPI Message Format Typedef
+ ******************************************************************************/
 struct MAC_Message {
 	uint8_t      CommandId;
 	uint8_t      Length;
@@ -599,20 +671,20 @@ struct MAC_Message {
 /******************************************************************************/
 /****** SPI Command IDs                                                  ******/
 /******************************************************************************/
-// Mask to derive the Message ID Code from the Command ID
+/** Mask to derive the Message ID Code from the Command ID */
 #define SPI_MID_MASK                          (0x1F)
-// Bit indicating a Confirm or Indication from Slave to Master
+/** Bit indicating a Confirm or Indication from Slave to Master */
 #define SPI_S2M                               (0x20)
-// Bit indicating a Synchronous Message
+/** Bit indicating a Synchronous Message */
 #define SPI_SYN                               (0x40)
 
 
-/******************************************************************************/
-/****** SPI Command Definitions                                          ******/
-/******************************************************************************/
-// Idle Mode - No Data
+/***************************************************************************//**
+ * \defgroup SPICommands SPI Command IDs
+ ***************************************************************************@{*/
+/** Present on SPI when stream is idle - No Data */
 #define SPI_IDLE                           (0xFF)
-// NACK - Buffer full or busy - resend Request
+/** Present on SPI when buffer full or busy - resend Request */
 #define SPI_NACK                           (0xF0)
 // MAC MCPS
 #define SPI_MCPS_DATA_REQUEST              (MCPS_DATA_REQUEST)
@@ -673,6 +745,6 @@ struct MAC_Message {
 #define SPI_TDME_EDDET_INDICATION          (TDME_EDDET_INDICATION+SPI_S2M)
 #define SPI_TDME_ERROR_INDICATION          (TDME_ERROR_INDICATION+SPI_S2M)
 #define SPI_TDME_LOTLK_CONFIRM             (TDME_LOTLK_CONFIRM+SPI_S2M+SPI_SYN)
-
+/**@}*/
 
 #endif  // MAC_MESSAGES_H

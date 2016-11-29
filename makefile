@@ -1,6 +1,5 @@
 TARGET = libcascoda.a
 LIBS = -lm
-CC = gcc
 CFLAGS = -g -Wall -pthread
 INCLUDEDIR = include/
 SOURCEDIR = source/
@@ -19,7 +18,7 @@ HEADERS = $(wildcard $(INCLUDEDIR),*.h)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	ar rcs $(TARGET) $^
+	$(AR) rcs $(TARGET) $^
 
 clean:
 	-rm -f $(SOURCEDIR)*.o

@@ -79,6 +79,13 @@ struct PanDescriptor {
 	struct SecSpec  Security;
 };
 
+struct PendAddrSpec {
+	uint8_t         ShortAddrCount : 3;
+	uint8_t         /* Reserved */ : 1;
+	uint8_t         ExtAddrCount   : 3;
+	uint8_t         /* Reserved */ : 1;
+};
+
 /***************************************************************************//**
  * \defgroup DownPSets Parameter set definitions (Downstream)
  ************************************************************************** @{*/
@@ -310,7 +317,7 @@ struct MLME_BEACON_NOTIFY_indication_pset {
 	struct PanDescriptor PanDescriptor;    /* variable size and so following
                                          fields have to be dealt with
                                          separately */
-	/* uint8_t         PendAddrSpec; */
+	struct PendAddrSpec  PendAddrSpec;
 	/* variable        Address List  */
 	/* variable        Beacon payload */
 };

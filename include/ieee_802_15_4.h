@@ -1,7 +1,7 @@
-/*
+/**
  * @file ieee_802_15_4.h
  * @brief 802.15.4 specific definitions (status codes, attributes etc).
- *
+ *//*
  * Copyright (C) 2016  Cascoda, Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -82,40 +82,69 @@
 /******************************************************************************/
 // Made from Combinations of Source and Destination Addressing Modes
 #define AC_INVALID                      (0xFF)
+/** No dst pan id, no dst address, src pan id, short src address */
 #define AC_DP0DA0SP2SA2                 (0)
+/** No dst pan id, no dst address, src pan id, extended src address */
 #define AC_DP0DA0SP2SA8                 (1)
+/** Dst pan id, short dst address, no src pan id, no src address */
 #define AC_DP2DA2SP0SA0                 (2)
+/** Dst pan id, extended dst address, no src pan id, no src address */
 #define AC_DP2DA8SP0SA0                 (3)
+/** Dst pan id, short dst address, no src pan id, short src address */
 #define AC_DP2DA2SP0SA2                 (4)
+/** Dst pan id, extended dst address, no src pan id, short src address */
 #define AC_DP2DA8SP0SA2                 (5)
+/** Dst pan id, short dst address, no src pan id, extended src address */
 #define AC_DP2DA2SP0SA8                 (6)
+/** Dst pan id, extended dst address, no src pan id, extended src address */
 #define AC_DP2DA8SP0SA8                 (7)
+/** Dst pan id, short dst address, src pan id, short src address */
 #define AC_DP2DA2SP2SA2                 (8)
+/** Dst pan id, extended dst address, src pan id, short src address */
 #define AC_DP2DA8SP2SA2                 (9)
+/** Dst pan id, short dst address, src pan id, extended src address */
 #define AC_DP2DA2SP2SA8                 (10)
+/** Dst pan id, extended dst address, src pan id, extended src address */
 #define AC_DP2DA8SP2SA8                 (11)
 
 
 /******************************************************************************/
 /****** MAC Frame Control Field Definitions                              ******/
 /******************************************************************************/
+/** Frame control frame type mask */
 #define MAC_FC_FT_MASK                  (0x0003)
+/** Frame control beacon frame type */
 #define MAC_FC_FT_BEACON                (0x0000)
+/** Frame control data frame type */
 #define MAC_FC_FT_DATA                  (0x0001)
+/** Frame control acknowledgement frame type */
 #define MAC_FC_FT_ACK                   (0x0002)
+/** Frame control command frame type */
 #define MAC_FC_FT_COMMAND               (0x0003)
 
+/** Frame control security enabled bit */
 #define MAC_FC_SEC_ENA                  (0x0008)
+/** Frame control frame pending bit */
 #define MAC_FC_FP                       (0x0010)
+/** Frame control acknowledgement requested bit */
 #define MAC_FC_ACK_REQ                  (0x0020)
+/** Frame control pan id compression bit */
 #define MAC_FC_PAN_COMP                 (0x0040)
+/** Offset for frame control short destination addressing mode */
 #define MAC_FC_DAM_SHORT                (MAC_MODE_SHORT_ADDR<<10)
+/** Offset for frame control extended destination addressing mode */
 #define MAC_FC_DAM_LONG                 (MAC_MODE_LONG_ADDR<<10)
+/** Frame control 2006 version code */
 #define MAC_FC_VER2006                  (0x1000)
+/** Frame control version code getter */
 #define MAC_FC_VER(fc)                  ((fc>>12)&3)
+/** Offset for frame control short source addressing mode */
 #define MAC_FC_SAM_SHORT                (MAC_MODE_SHORT_ADDR<<14)
+/** Offset for frame control extended source addressing mode */
 #define MAC_FC_SAM_LONG                 (MAC_MODE_LONG_ADDR<<14)
+/** Frame control destination addressing mode getter */
 #define MAC_FC_DAM(fc)                  ((fc>>10)&3)
+/** Frame control source addressing mode getter */
 #define MAC_FC_SAM(fc)                  ((fc>>14)&3)
 
 

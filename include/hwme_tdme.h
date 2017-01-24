@@ -157,8 +157,9 @@
 /** LO Test 2 Configuration (VCO Open Loop / Initialisation) */
 #define TDME_LO_2_CONFIG      (0x05)
 #define TDME_ATM_CONFIG       (0x06) //!< Analog Test Bus Configuration
+#define TDME_MPW2_OVWR        (0x07)
 #define TDME_MIN_ATTRIBUTE    TDME_CHANNEL
-#define TDME_MAX_ATTRIBUTE    TDME_ATM_CONFIG
+#define TDME_MAX_ATTRIBUTE    TDME_MPW2_OVWR
 
 
 /******************************************************************************/

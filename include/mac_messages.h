@@ -317,9 +317,9 @@ struct MLME_BEACON_NOTIFY_indication_pset {
 	struct PanDescriptor PanDescriptor;    /* variable size and so following
                                          fields have to be dealt with
                                          separately */
-	struct PendAddrSpec  PendAddrSpec;
-	/* variable        Address List  */
-	/* variable        Beacon payload */
+	/* struct PendAddrSpec  PendAddrSpec */
+	/* variable             Address List  */
+	/* variable             Beacon payload */
 };
 
 /** MLME_GET_confirm parameter set */

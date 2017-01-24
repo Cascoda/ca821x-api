@@ -1,5 +1,5 @@
 /**
- * @file cascoda_api.c
+ * @file ca821x_api.c
  * @brief API Access Function Declarations for MCPS, MLME, HWME and TDME.
  *//*
  * Copyright (C) 2016  Cascoda, Ltd.
@@ -53,13 +53,13 @@
 #include <stdio.h>
 
 #include "mac_messages.h"
-#include "cascoda_api.h"
+#include "ca821x_api.h"
 
 uint8_t MAC_Workarounds = 0; /**< Flag to enable workarounds for ca8210 v1.1 */
 uint8_t MAC_MPW         = 0; /**< Flag to enable workarounds for ca8210 v0.x */
 
 /** Variable for storing callback routines registered by the user */
-static struct cascoda_api_callbacks callbacks;
+static struct ca821x_api_callbacks callbacks;
 
 /******************************************************************************/
 /***************************************************************************//**
@@ -79,7 +79,7 @@ static struct cascoda_api_callbacks callbacks;
  * \return Effectively a bool as far as API is concerned, 0 means exchange was
  *         successful, nonzero otherwise
  ******************************************************************************/
-int (*cascoda_api_downstream)(
+int (*ca821x_api_downstream)(
 	const uint8_t *buf,
 	size_t len,
 	uint8_t *response,
@@ -147,7 +147,7 @@ uint8_t MCPS_DATA_request(
 		Command.Length += sizeof(struct SecSpec);
 	}
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;
@@ -174,7 +174,7 @@ uint8_t MCPS_PURGE_request_sync(
 	Command.Length = 1;
 	Command.PData.u8Param = *MsduHandle;
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_MCPS_PURGE_CONFIRM)
@@ -243,7 +243,7 @@ uint8_t MLME_ASSOCIATE_request(
 		ASSOCREQ.Security = *pSecurity;
 	}
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;
@@ -286,7 +286,7 @@ uint8_t MLME_ASSOCIATE_response(
 		ASSOCRSP.Security = *pSecurity;
 	}
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;
@@ -329,7 +329,7 @@ uint8_t MLME_DISASSOCIATE_request(
 		Command.PData.DisassocReq.Security = *pSecurity;
 	}
 
-	if(cascoda_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
+	if(ca821x_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;
@@ -368,7 +368,7 @@ uint8_t MLME_GET_request_sync(
 		GETREQ.PIBAttribute = PIBAttribute;
 		GETREQ.PIBAttributeIndex = PIBAttributeIndex;
 
-		if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+		if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 			return MAC_SYSTEM_ERROR;
 
 		if (Response.CommandId != SPI_MLME_GET_CONFIRM)
@@ -421,7 +421,7 @@ uint8_t MLME_ORPHAN_response(
 		ORPHANRSP.Security = *pSecurity;
 	}
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length, NULL, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length, NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;
@@ -448,7 +448,7 @@ uint8_t MLME_RESET_request_sync(uint8_t SetDefaultPIB, void *pDeviceRef)
 	Command.Length = 1;
 	SIMPLEREQ.u8Param = SetDefaultPIB;
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_MLME_RESET_CONFIRM)
@@ -498,7 +498,7 @@ uint8_t MLME_RX_ENABLE_request_sync(
 	Command.PData.RxEnableReq.RxOnDuration[2] = LS2_BYTE(RxOnDuration);
 	Command.PData.RxEnableReq.RxOnDuration[3] = LS3_BYTE(RxOnDuration);
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_MLME_RX_ENABLE_CONFIRM)
@@ -545,7 +545,7 @@ uint8_t MLME_SCAN_request(
 		SCANREQ.Security = *pSecurity;
 	}
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;
@@ -598,7 +598,7 @@ uint8_t MLME_SET_request_sync(
 	SETREQ.PIBAttributeLength = PIBAttributeLength;
 	memcpy( SETREQ.PIBAttributeValue, pPIBAttributeValue, PIBAttributeLength );
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_MLME_SET_CONFIRM)
@@ -675,7 +675,7 @@ uint8_t MLME_START_request_sync(
 		*pBS = *pBeaconSecurity;
 	}
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_MLME_START_CONFIRM )
@@ -720,7 +720,7 @@ uint8_t MLME_POLL_request_sync(
 		POLLREQ.Security = *pSecurity;
 	}
 
-	if(cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if(ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_MLME_POLL_CONFIRM)
@@ -756,7 +756,7 @@ uint8_t HWME_SET_request_sync(
 	Command.PData.HWMESetReq.HWAttributeLength = HWAttributeLength;
 	memcpy(Command.PData.HWMESetReq.HWAttributeValue, pHWAttributeValue, HWAttributeLength);
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_HWME_SET_CONFIRM)
@@ -789,7 +789,7 @@ uint8_t HWME_GET_request_sync(
 	Command.Length = 1;
 	Command.PData.HWMEGetReq.HWAttribute = HWAttribute;
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_HWME_GET_CONFIRM)
@@ -826,7 +826,7 @@ uint8_t HWME_HAES_request_sync(
 	Command.PData.HWMEHAESReq.HAESMode = HAESMode;
 	memcpy(Command.PData.HWMEHAESReq.HAESData, pHAESData, 16);
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_HWME_HAES_CONFIRM)
@@ -864,7 +864,7 @@ uint8_t TDME_SETSFR_request_sync(
 	Command.PData.TDMESetSFRReq.SFRAddress = SFRAddress;
 	Command.PData.TDMESetSFRReq.SFRValue   = SFRValue;
 	Response.CommandId = 0xFF;
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_TDME_SETSFR_CONFIRM)
@@ -898,7 +898,7 @@ uint8_t TDME_GETSFR_request_sync(
 	Command.PData.TDMEGetSFRReq.SFRPage = SFRPage;
 	Command.PData.TDMEGetSFRReq.SFRAddress = SFRAddress;
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_TDME_GETSFR_CONFIRM)
@@ -929,7 +929,7 @@ uint8_t TDME_TESTMODE_request_sync(
 	Command.Length = 1;
 	Command.PData.TDMETestModeReq.TestMode = TestMode;
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_TDME_TESTMODE_CONFIRM)
@@ -971,7 +971,7 @@ uint8_t TDME_SET_request_sync(
 	Command.PData.TDMESetReq.TDAttributeLength = TestAttributeLength;
 	memcpy(Command.PData.TDMESetReq.TDAttributeValue, pTestAttributeValue, TestAttributeLength);
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_TDME_SET_CONFIRM)
@@ -1016,7 +1016,7 @@ uint8_t TDME_TXPKT_request_sync(
 	if (TestPacketDataType == TDME_TXD_APPENDED)
 		memcpy(Command.PData.TDMETxPktReq.TestPacketData, pTestPacketData, *TestPacketLength);
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_TDME_TXPKT_CONFIRM)
@@ -1060,7 +1060,7 @@ uint8_t TDME_LOTLK_request_sync(
 	Command.PData.TDMELOTlkReq.TestChannel = *TestChannel;
 	Command.PData.TDMELOTlkReq.TestRxTxb = *TestRxTxb;
 
-	if (cascoda_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
+	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, &Response.CommandId, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	if (Response.CommandId != SPI_TDME_LOTLK_CONFIRM)
@@ -1389,9 +1389,9 @@ uint8_t TDME_GetTxPower(
  * \param *in_callbacks - Set of available functions
  *******************************************************************************
  ******************************************************************************/
-void cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks)
+void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks)
 {
-	memcpy(&callbacks, in_callbacks, sizeof(struct cascoda_api_callbacks));
+	memcpy(&callbacks, in_callbacks, sizeof(struct ca821x_api_callbacks));
 }
 
 /******************************************************************************/
@@ -1405,7 +1405,7 @@ void cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks)
  * \return errno status
  *******************************************************************************
  ******************************************************************************/
-int cascoda_downstream_dispatch(const uint8_t *buf, size_t len)
+int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 {
 	int ret;
 

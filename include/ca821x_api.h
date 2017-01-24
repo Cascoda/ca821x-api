@@ -1,5 +1,5 @@
 /**
- * @file cascoda_api.h
+ * @file ca821x_api.h
  * @brief API Access Function Declarations for MCPS, MLME, HWME and TDME.
  *//*
  * Copyright (C) 2016  Cascoda, Ltd.
@@ -39,8 +39,8 @@
  * \def PUTLE32(x,y)
  * Put a 32-bit value x into a little-endian octet array y
  ******************************************************************************/
-#ifndef CASCODA_API_H
-#define CASCODA_API_H
+#ifndef CA821X_API_H
+#define CA821X_API_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -73,7 +73,7 @@
  * otherwise the generic_dispatch function will be. If neither are populated the
  * message is discarded.
  ******************************************************************************/
-struct cascoda_api_callbacks {
+struct ca821x_api_callbacks {
 	int (*MCPS_DATA_indication) (
 		struct MCPS_DATA_indication_pset *params);
 	int (*MCPS_DATA_confirm) (
@@ -312,13 +312,13 @@ uint8_t TDME_GetTxPower(uint8_t *txp, void *pDeviceRef);
 /****** API callback functions                                           ******/
 /******************************************************************************/
 
-void cascoda_register_callbacks(struct cascoda_api_callbacks *in_callbacks);
-int cascoda_downstream_dispatch(const uint8_t *buf, size_t len);
+void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks);
+int ca821x_downstream_dispatch(const uint8_t *buf, size_t len);
 
 /******************************************************************************/
 /****** External function pointers                                       ******/
 /******************************************************************************/
-extern int (*cascoda_api_downstream)(
+extern int (*ca821x_api_downstream)(
 	const uint8_t *buf,
 	size_t len,
 	uint8_t *response,
@@ -332,4 +332,4 @@ extern uint8_t MAC_Workarounds;
 extern uint8_t MAC_MPW;
 
 
-#endif // CASCODA_API_H
+#endif // CA821X_API_H

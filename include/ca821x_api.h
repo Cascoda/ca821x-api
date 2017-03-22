@@ -64,6 +64,8 @@
 
 #endif
 
+extern const uint8_t sync_pairings[23];
+
 /***************************************************************************//**
  * \brief API user callbacks structure
  *

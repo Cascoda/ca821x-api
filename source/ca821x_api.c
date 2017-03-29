@@ -1433,7 +1433,7 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks)
  ******************************************************************************/
 int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 {
-	int ret;
+	int ret = 0;
 
 	/* call appropriate api upstream callback */
 	switch (buf[0]) {
@@ -1564,10 +1564,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 	   routine */
 	if (callbacks.generic_dispatch) {
 		ret = callbacks.generic_dispatch(buf, len);
-		if (ret) {
-			return ret;
-		}
 	}
 
-	return 0;
+	return ret;
 }

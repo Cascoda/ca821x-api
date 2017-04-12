@@ -1,6 +1,5 @@
 TARGET = libca821x.a
 LIBS = -lm
-CFLAGS = -g -Wall -pthread
 INCLUDEDIR = include/
 SOURCEDIR = source/
 

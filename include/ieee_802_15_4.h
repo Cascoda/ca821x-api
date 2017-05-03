@@ -194,7 +194,7 @@ enum mlme_scan_type {
 	ACTIVE_SCAN      = 0x01,
 	PASSIVE_SCAN     = 0x02,
 	ORPHAN_SCAN      = 0x03
-}
+};
 
 /** MAC Command Frame Identifiers */
 enum mac_cmd_frame_id {

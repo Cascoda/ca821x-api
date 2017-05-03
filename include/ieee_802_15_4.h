@@ -83,7 +83,7 @@
 #define aMaxBeaconPayloadLength         (aMaxPHYPacketSize-aMaxBeaconOverhead)
 #define aUnitBackoffPeriod              (20)
 
-#define MAX_ATTRIBUTE_SIZE              (140)
+#define MAX_ATTRIBUTE_SIZE              (122)
 #define MAX_DATA_SIZE                   (114)
 
 #define M_MinimumChannel                (11)

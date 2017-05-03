@@ -1428,7 +1428,9 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks)
  * \param *buf - Receive buffer
  * \param len - Length of command in octets
  *******************************************************************************
- * \return errno status
+ * \return 0: command was unhandled<br>
+ *         1: command was handled<br>
+ *         -: errno status
  *******************************************************************************
  ******************************************************************************/
 int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)

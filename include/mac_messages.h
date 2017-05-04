@@ -471,11 +471,17 @@ struct TDME_LOTLK_confirm_pset {
 /******************************************************************************/
 /****** Security PIB Table Size Definitions                              ******/
 /******************************************************************************/
+/** Maximum value of macKeyTableEntries */
 #define KEY_TABLE_SIZE                  (4)
+/** Maximum value of KeyIdLookupListEntries */
 #define LOOKUP_DESC_TABLE_SIZE          (5)
+/** Maximum value of KeyDeviceListEntries */
 #define KEY_DEVICE_TABLE_SIZE           (10)
+/** Maximum value of KeyUsageListEntries */
 #define KEY_USAGE_TABLE_SIZE            (12)
+/** Maximum value of macSecurityLevelTableEntries */
 #define SECURITY_LEVEL_TABLE_SIZE       (2)
+/** Maximum value of macDeviceTableEntries */
 #define DEVICE_TABLE_SIZE               (10)
 
 
@@ -547,69 +553,68 @@ struct M_KeyDescriptor {
 
 /**@}*/
 
-/***************************************************************************//**
- * \defgroup MessageIdCodesDown Message ID codes in SPI commands (Downstream)
- ***************************************************************************@{*/
-#define MCPS_DATA_REQUEST                     (0x00)
-#define MCPS_PURGE_REQUEST                    (0x01)
-#define MLME_ASSOCIATE_REQUEST                (0x02)
-#define MLME_ASSOCIATE_RESPONSE               (0x03)
-#define MLME_DISASSOCIATE_REQUEST             (0x04)
-#define MLME_GET_REQUEST                      (0x05)
-#define MLME_ORPHAN_RESPONSE                  (0x06)
-#define MLME_RESET_REQUEST                    (0x07)
-#define MLME_RX_ENABLE_REQUEST                (0x08)
-#define MLME_SCAN_REQUEST                     (0x09)
-#define MLME_SET_REQUEST                      (0x0A)
-#define MLME_START_REQUEST                    (0x0B)
-#define MLME_SYNC_REQUEST                     (0x0C)
-#define MLME_POLL_REQUEST                     (0x0D)
-#define HWME_SET_REQUEST                      (0x0E)
-#define HWME_GET_REQUEST                      (0x0F)
-#define HWME_HAES_REQUEST                     (0x10)
-#define TDME_SETSFR_REQUEST                   (0x11)
-#define TDME_GETSFR_REQUEST                   (0x12)
-#define TDME_TESTMODE_REQUEST                 (0x13)
-#define TDME_SET_REQUEST                      (0x14)
-#define TDME_TXPKT_REQUEST                    (0x15)
-#define TDME_LOTLK_REQUEST                    (0x16)
-/**@}*/
-/***************************************************************************//**
- * \defgroup MessageIdCodesUp Message ID codes in SPI commands (Upstream)
- ***************************************************************************@{*/
-#define MCPS_DATA_INDICATION                  (0x00)
-#define MCPS_DATA_CONFIRM                     (0x01)
-#define MCPS_PURGE_CONFIRM                    (0x02)
-#define MLME_ASSOCIATE_INDICATION             (0x03)
-#define MLME_ASSOCIATE_CONFIRM                (0x04)
-#define MLME_DISASSOCIATE_INDICATION          (0x05)
-#define MLME_DISASSOCIATE_CONFIRM             (0x06)
-#define MLME_BEACON_NOTIFY_INDICATION         (0x07)
-#define MLME_GET_CONFIRM                      (0x08)
-#define MLME_ORPHAN_INDICATION                (0x09)
-#define MLME_RESET_CONFIRM                    (0x0A)
-#define MLME_RX_ENABLE_CONFIRM                (0x0B)
-#define MLME_SCAN_CONFIRM                     (0x0C)
-#define MLME_COMM_STATUS_INDICATION           (0x0D)
-#define MLME_SET_CONFIRM                      (0x0E)
-#define MLME_START_CONFIRM                    (0x0F)
-#define MLME_SYNC_LOSS_INDICATION             (0x10)
-#define MLME_POLL_CONFIRM                     (0x11)
-#define HWME_SET_CONFIRM                      (0x12)
-#define HWME_GET_CONFIRM                      (0x13)
-#define HWME_HAES_CONFIRM                     (0x14)
-#define HWME_WAKEUP_INDICATION                (0x15)
-#define TDME_MESSAGE_INDICATION               (0x16)
-#define TDME_SETSFR_CONFIRM                   (0x17)
-#define TDME_GETSFR_CONFIRM                   (0x18)
-#define TDME_TESTMODE_CONFIRM                 (0x19)
-#define TDME_SET_CONFIRM                      (0x1A)
-#define TDME_TXPKT_CONFIRM                    (0x1B)
-#define TDME_RXPKT_INDICATION                 (0x1C)
-#define TDME_EDDET_INDICATION                 (0x1D)
-#define TDME_ERROR_INDICATION                 (0x1E)
-#define TDME_LOTLK_CONFIRM                    (0x1F)
-/**@}*/
+/** Message ID codes in SPI commands (Downstream) */
+enum msg_id_code_down {
+	MCPS_DATA_REQUEST                    = 0x00,
+	MCPS_PURGE_REQUEST                   = 0x01,
+	MLME_ASSOCIATE_REQUEST               = 0x02,
+	MLME_ASSOCIATE_RESPONSE              = 0x03,
+	MLME_DISASSOCIATE_REQUEST            = 0x04,
+	MLME_GET_REQUEST                     = 0x05,
+	MLME_ORPHAN_RESPONSE                 = 0x06,
+	MLME_RESET_REQUEST                   = 0x07,
+	MLME_RX_ENABLE_REQUEST               = 0x08,
+	MLME_SCAN_REQUEST                    = 0x09,
+	MLME_SET_REQUEST                     = 0x0A,
+	MLME_START_REQUEST                   = 0x0B,
+	MLME_SYNC_REQUEST                    = 0x0C,
+	MLME_POLL_REQUEST                    = 0x0D,
+	HWME_SET_REQUEST                     = 0x0E,
+	HWME_GET_REQUEST                     = 0x0F,
+	HWME_HAES_REQUEST                    = 0x10,
+	TDME_SETSFR_REQUEST                  = 0x11,
+	TDME_GETSFR_REQUEST                  = 0x12,
+	TDME_TESTMODE_REQUEST                = 0x13,
+	TDME_SET_REQUEST                     = 0x14,
+	TDME_TXPKT_REQUEST                   = 0x15,
+	TDME_LOTLK_REQUEST                   = 0x16
+};
+
+/** Message ID codes in SPI commands (Upstream) */
+enum msg_id_code_up {
+	MCPS_DATA_INDICATION                 = 0x00,
+	MCPS_DATA_CONFIRM                    = 0x01,
+	MCPS_PURGE_CONFIRM                   = 0x02,
+	MLME_ASSOCIATE_INDICATION            = 0x03,
+	MLME_ASSOCIATE_CONFIRM               = 0x04,
+	MLME_DISASSOCIATE_INDICATION         = 0x05,
+	MLME_DISASSOCIATE_CONFIRM            = 0x06,
+	MLME_BEACON_NOTIFY_INDICATION        = 0x07,
+	MLME_GET_CONFIRM                     = 0x08,
+	MLME_ORPHAN_INDICATION               = 0x09,
+	MLME_RESET_CONFIRM                   = 0x0A,
+	MLME_RX_ENABLE_CONFIRM               = 0x0B,
+	MLME_SCAN_CONFIRM                    = 0x0C,
+	MLME_COMM_STATUS_INDICATION          = 0x0D,
+	MLME_SET_CONFIRM                     = 0x0E,
+	MLME_START_CONFIRM                   = 0x0F,
+	MLME_SYNC_LOSS_INDICATION            = 0x10,
+	MLME_POLL_CONFIRM                    = 0x11,
+	HWME_SET_CONFIRM                     = 0x12,
+	HWME_GET_CONFIRM                     = 0x13,
+	HWME_HAES_CONFIRM                    = 0x14,
+	HWME_WAKEUP_INDICATION               = 0x15,
+	TDME_MESSAGE_INDICATION              = 0x16,
+	TDME_SETSFR_CONFIRM                  = 0x17,
+	TDME_GETSFR_CONFIRM                  = 0x18,
+	TDME_TESTMODE_CONFIRM                = 0x19,
+	TDME_SET_CONFIRM                     = 0x1A,
+	TDME_TXPKT_CONFIRM                   = 0x1B,
+	TDME_RXPKT_INDICATION                = 0x1C,
+	TDME_EDDET_INDICATION                = 0x1D,
+	TDME_ERROR_INDICATION                = 0x1E,
+	TDME_LOTLK_CONFIRM                   = 0x1F
+};
 
 /***************************************************************************//**
  * SPI Message Format Typedef
@@ -685,73 +690,71 @@ struct MAC_Message {
 /** Bit indicating a Synchronous Message */
 #define SPI_SYN                               (0x40)
 
-
-/***************************************************************************//**
- * \defgroup SPICommands SPI Command IDs
- ***************************************************************************@{*/
-/** Present on SPI when stream is idle - No Data */
-#define SPI_IDLE                           (0xFF)
-/** Present on SPI when buffer full or busy - resend Request */
-#define SPI_NACK                           (0xF0)
-// MAC MCPS
-#define SPI_MCPS_DATA_REQUEST              (MCPS_DATA_REQUEST)
-#define SPI_MCPS_PURGE_REQUEST             (MCPS_PURGE_REQUEST+SPI_SYN)
-#define SPI_MCPS_DATA_INDICATION           (MCPS_DATA_INDICATION+SPI_S2M)
-#define SPI_MCPS_DATA_CONFIRM              (MCPS_DATA_CONFIRM+SPI_S2M)
-#define SPI_MCPS_PURGE_CONFIRM             (MCPS_PURGE_CONFIRM+SPI_S2M+SPI_SYN)
-// MAC MLME
-#define SPI_MLME_ASSOCIATE_REQUEST         (MLME_ASSOCIATE_REQUEST)
-#define SPI_MLME_ASSOCIATE_RESPONSE        (MLME_ASSOCIATE_RESPONSE)
-#define SPI_MLME_DISASSOCIATE_REQUEST      (MLME_DISASSOCIATE_REQUEST)
-#define SPI_MLME_GET_REQUEST               (MLME_GET_REQUEST+SPI_SYN)
-#define SPI_MLME_ORPHAN_RESPONSE           (MLME_ORPHAN_RESPONSE)
-#define SPI_MLME_RESET_REQUEST             (MLME_RESET_REQUEST+SPI_SYN)
-#define SPI_MLME_RX_ENABLE_REQUEST         (MLME_RX_ENABLE_REQUEST+SPI_SYN)
-#define SPI_MLME_SCAN_REQUEST              (MLME_SCAN_REQUEST)
-#define SPI_MLME_SET_REQUEST               (MLME_SET_REQUEST+SPI_SYN)
-#define SPI_MLME_START_REQUEST             (MLME_START_REQUEST+SPI_SYN)
-#define SPI_MLME_SYNC_REQUEST              (MLME_SYNC_REQUEST)
-#define SPI_MLME_POLL_REQUEST              (MLME_POLL_REQUEST+SPI_SYN)
-#define SPI_MLME_ASSOCIATE_INDICATION      (MLME_ASSOCIATE_INDICATION+SPI_S2M)
-#define SPI_MLME_ASSOCIATE_CONFIRM         (MLME_ASSOCIATE_CONFIRM+SPI_S2M)
-#define SPI_MLME_DISASSOCIATE_INDICATION   (MLME_DISASSOCIATE_INDICATION+SPI_S2M)
-#define SPI_MLME_DISASSOCIATE_CONFIRM      (MLME_DISASSOCIATE_CONFIRM+SPI_S2M)
-#define SPI_MLME_BEACON_NOTIFY_INDICATION  (MLME_BEACON_NOTIFY_INDICATION+SPI_S2M)
-#define SPI_MLME_GET_CONFIRM               (MLME_GET_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_MLME_ORPHAN_INDICATION         (MLME_ORPHAN_INDICATION+SPI_S2M)
-#define SPI_MLME_RESET_CONFIRM             (MLME_RESET_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_MLME_RX_ENABLE_CONFIRM         (MLME_RX_ENABLE_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_MLME_SCAN_CONFIRM              (MLME_SCAN_CONFIRM+SPI_S2M)
-#define SPI_MLME_COMM_STATUS_INDICATION    (MLME_COMM_STATUS_INDICATION+SPI_S2M)
-#define SPI_MLME_SET_CONFIRM               (MLME_SET_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_MLME_START_CONFIRM             (MLME_START_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_MLME_SYNC_LOSS_INDICATION      (MLME_SYNC_LOSS_INDICATION+SPI_S2M)
-#define SPI_MLME_POLL_CONFIRM              (MLME_POLL_CONFIRM+SPI_S2M+SPI_SYN)
-// HWME
-#define SPI_HWME_SET_REQUEST               (HWME_SET_REQUEST+SPI_SYN)
-#define SPI_HWME_GET_REQUEST               (HWME_GET_REQUEST+SPI_SYN)
-#define SPI_HWME_HAES_REQUEST              (HWME_HAES_REQUEST+SPI_SYN)
-#define SPI_HWME_SET_CONFIRM               (HWME_SET_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_HWME_GET_CONFIRM               (HWME_GET_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_HWME_HAES_CONFIRM              (HWME_HAES_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_HWME_WAKEUP_INDICATION         (HWME_WAKEUP_INDICATION+SPI_S2M)
-// TDME
-#define SPI_TDME_SETSFR_REQUEST            (TDME_SETSFR_REQUEST+SPI_SYN)
-#define SPI_TDME_GETSFR_REQUEST            (TDME_GETSFR_REQUEST+SPI_SYN)
-#define SPI_TDME_TESTMODE_REQUEST          (TDME_TESTMODE_REQUEST+SPI_SYN)
-#define SPI_TDME_SET_REQUEST               (TDME_SET_REQUEST+SPI_SYN)
-#define SPI_TDME_TXPKT_REQUEST             (TDME_TXPKT_REQUEST+SPI_SYN)
-#define SPI_TDME_LOTLK_REQUEST             (TDME_LOTLK_REQUEST+SPI_SYN)
-#define SPI_TDME_MESSAGE_INDICATION        (TDME_MESSAGE_INDICATION+SPI_S2M)
-#define SPI_TDME_SETSFR_CONFIRM            (TDME_SETSFR_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_TDME_GETSFR_CONFIRM            (TDME_GETSFR_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_TDME_TESTMODE_CONFIRM          (TDME_TESTMODE_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_TDME_SET_CONFIRM               (TDME_SET_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_TDME_TXPKT_CONFIRM             (TDME_TXPKT_CONFIRM+SPI_S2M+SPI_SYN)
-#define SPI_TDME_RXPKT_INDICATION          (TDME_RXPKT_INDICATION+SPI_S2M)
-#define SPI_TDME_EDDET_INDICATION          (TDME_EDDET_INDICATION+SPI_S2M)
-#define SPI_TDME_ERROR_INDICATION          (TDME_ERROR_INDICATION+SPI_S2M)
-#define SPI_TDME_LOTLK_CONFIRM             (TDME_LOTLK_CONFIRM+SPI_S2M+SPI_SYN)
-/**@}*/
+/** SPI Command IDs */
+enum spi_command_ids {
+	/** Present on SPI when stream is idle - No Data */
+	SPI_IDLE                          = 0xFF,
+	/** Present on SPI when buffer full or busy - resend Request */
+	SPI_NACK                          = 0xF0,
+	// MAC MCPS
+	SPI_MCPS_DATA_REQUEST             = MCPS_DATA_REQUEST,
+	SPI_MCPS_PURGE_REQUEST            = MCPS_PURGE_REQUEST+SPI_SYN,
+	SPI_MCPS_DATA_INDICATION          = MCPS_DATA_INDICATION+SPI_S2M,
+	SPI_MCPS_DATA_CONFIRM             = MCPS_DATA_CONFIRM+SPI_S2M,
+	SPI_MCPS_PURGE_CONFIRM            = MCPS_PURGE_CONFIRM+SPI_S2M+SPI_SYN,
+	// MAC MLME
+	SPI_MLME_ASSOCIATE_REQUEST        = MLME_ASSOCIATE_REQUEST,
+	SPI_MLME_ASSOCIATE_RESPONSE       = MLME_ASSOCIATE_RESPONSE,
+	SPI_MLME_DISASSOCIATE_REQUEST     = MLME_DISASSOCIATE_REQUEST,
+	SPI_MLME_GET_REQUEST              = MLME_GET_REQUEST+SPI_SYN,
+	SPI_MLME_ORPHAN_RESPONSE          = MLME_ORPHAN_RESPONSE,
+	SPI_MLME_RESET_REQUEST            = MLME_RESET_REQUEST+SPI_SYN,
+	SPI_MLME_RX_ENABLE_REQUEST        = MLME_RX_ENABLE_REQUEST+SPI_SYN,
+	SPI_MLME_SCAN_REQUEST             = MLME_SCAN_REQUEST,
+	SPI_MLME_SET_REQUEST              = MLME_SET_REQUEST+SPI_SYN,
+	SPI_MLME_START_REQUEST            = MLME_START_REQUEST+SPI_SYN,
+	SPI_MLME_SYNC_REQUEST             = MLME_SYNC_REQUEST,
+	SPI_MLME_POLL_REQUEST             = MLME_POLL_REQUEST+SPI_SYN,
+	SPI_MLME_ASSOCIATE_INDICATION     = MLME_ASSOCIATE_INDICATION+SPI_S2M,
+	SPI_MLME_ASSOCIATE_CONFIRM        = MLME_ASSOCIATE_CONFIRM+SPI_S2M,
+	SPI_MLME_DISASSOCIATE_INDICATION  = MLME_DISASSOCIATE_INDICATION+SPI_S2M,
+	SPI_MLME_DISASSOCIATE_CONFIRM     = MLME_DISASSOCIATE_CONFIRM+SPI_S2M,
+	SPI_MLME_BEACON_NOTIFY_INDICATION = MLME_BEACON_NOTIFY_INDICATION+SPI_S2M,
+	SPI_MLME_GET_CONFIRM              = MLME_GET_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_MLME_ORPHAN_INDICATION        = MLME_ORPHAN_INDICATION+SPI_S2M,
+	SPI_MLME_RESET_CONFIRM            = MLME_RESET_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_MLME_RX_ENABLE_CONFIRM        = MLME_RX_ENABLE_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_MLME_SCAN_CONFIRM             = MLME_SCAN_CONFIRM+SPI_S2M,
+	SPI_MLME_COMM_STATUS_INDICATION   = MLME_COMM_STATUS_INDICATION+SPI_S2M,
+	SPI_MLME_SET_CONFIRM              = MLME_SET_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_MLME_START_CONFIRM            = MLME_START_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_MLME_SYNC_LOSS_INDICATION     = MLME_SYNC_LOSS_INDICATION+SPI_S2M,
+	SPI_MLME_POLL_CONFIRM             = MLME_POLL_CONFIRM+SPI_S2M+SPI_SYN,
+	// HWME
+	SPI_HWME_SET_REQUEST              = HWME_SET_REQUEST+SPI_SYN,
+	SPI_HWME_GET_REQUEST              = HWME_GET_REQUEST+SPI_SYN,
+	SPI_HWME_HAES_REQUEST             = HWME_HAES_REQUEST+SPI_SYN,
+	SPI_HWME_SET_CONFIRM              = HWME_SET_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_HWME_GET_CONFIRM              = HWME_GET_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_HWME_HAES_CONFIRM             = HWME_HAES_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_HWME_WAKEUP_INDICATION        = HWME_WAKEUP_INDICATION+SPI_S2M,
+	// TDME
+	SPI_TDME_SETSFR_REQUEST           = TDME_SETSFR_REQUEST+SPI_SYN,
+	SPI_TDME_GETSFR_REQUEST           = TDME_GETSFR_REQUEST+SPI_SYN,
+	SPI_TDME_TESTMODE_REQUEST         = TDME_TESTMODE_REQUEST+SPI_SYN,
+	SPI_TDME_SET_REQUEST              = TDME_SET_REQUEST+SPI_SYN,
+	SPI_TDME_TXPKT_REQUEST            = TDME_TXPKT_REQUEST+SPI_SYN,
+	SPI_TDME_LOTLK_REQUEST            = TDME_LOTLK_REQUEST+SPI_SYN,
+	SPI_TDME_MESSAGE_INDICATION       = TDME_MESSAGE_INDICATION+SPI_S2M,
+	SPI_TDME_SETSFR_CONFIRM           = TDME_SETSFR_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_TDME_GETSFR_CONFIRM           = TDME_GETSFR_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_TDME_TESTMODE_CONFIRM         = TDME_TESTMODE_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_TDME_SET_CONFIRM              = TDME_SET_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_TDME_TXPKT_CONFIRM            = TDME_TXPKT_CONFIRM+SPI_S2M+SPI_SYN,
+	SPI_TDME_RXPKT_INDICATION         = TDME_RXPKT_INDICATION+SPI_S2M,
+	SPI_TDME_EDDET_INDICATION         = TDME_EDDET_INDICATION+SPI_S2M,
+	SPI_TDME_ERROR_INDICATION         = TDME_ERROR_INDICATION+SPI_S2M,
+	SPI_TDME_LOTLK_CONFIRM            = TDME_LOTLK_CONFIRM+SPI_S2M+SPI_SYN
+};
 
 #endif  // MAC_MESSAGES_H

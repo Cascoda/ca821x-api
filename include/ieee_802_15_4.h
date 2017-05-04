@@ -68,9 +68,9 @@
 #define TXOPT_GTS         (0x02) //!< Use guaranteed time slot
 #define TXOPT_INDIRECT    (0x04) //!< Transmit indirectly
 
-/******************************************************************************/
-/****** PHY/MAC Constants                                                ******/
-/******************************************************************************/
+/***************************************************************************//**
+ * \defgroup PMConstants PHY/MAC Constants
+ ************************************************************************** @{*/
 #define aMaxPHYPacketSize               (127)
 #define aMaxMACSafePayloadSize          (102)
 #define aTurnaroundTime                 (12)
@@ -91,6 +91,7 @@
 #define M_ValidChannels                 (0x07FFF800)
 
 #define MAX_FRAME_DURATION              (266)
+/**@}*/
 
 /******************************************************************************/
 /****** Length Definitions for different Commands                        ******/
@@ -98,6 +99,9 @@
 // Data Request includes 1 phylen, 2 fc, 1 dsn, 12 address, 1 payload, 2 fcs
 #define BASELEN_DATA_REQUEST            (19)
 
+/***************************************************************************//**
+* \defgroup MACEnums MAC Enumerations
+************************************************************************** @{*/
 /** MAC Status Codes (see 802.15.4 2006 spec table 78) */
 enum mac_status {
 	MAC_SUCCESS                   = 0x00,
@@ -277,6 +281,6 @@ enum pib_attribute {
 
 	nsIEEEAddress                  = 0xFF   /* Non-standard IEEE address */
 };
-
+/**@}*/
 
 #endif  // IEEE_802_15_4_H

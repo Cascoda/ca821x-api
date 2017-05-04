@@ -101,6 +101,14 @@ enum hwme_attribute {
 	HWME_MIN_ATTRIBUTE = HWME_POWERCON,
 	HWME_MAX_ATTRIBUTE = HWME_LQIMODE
 };
+
+/** CCA Mode */
+enum cca_mode {
+	CCAM_EDORCS  = 0,   //!< CCA Mode: Either ED or CS level exceeded
+	CCAM_ED      = 1,   //!< CCA Mode: ED level exceeded
+	CCAM_CS      = 2,   //!< CCA Mode: CS level exceeded
+	CCAM_EDANDCS = 3    //!< CCA Mode: Both ED and CS level exceeded
+};
 /**@}*/
 
 /***************************************************************************//**
@@ -190,16 +198,5 @@ enum tdme_attribute {
 	TDME_MAX_ATTRIBUTE  = TDME_MPW2_OVWR
 };
 /**@}*/
-
-/******************************************************************************/
-/****** HWME/TDME/MAC Additional Enumerations                            ******/
-/******************************************************************************/
-/** CCA Mode */
-enum cca_mode {
-	CCAM_EDORCS  = 0,   //!< CCA Mode: Either ED or CS level exceeded
-	CCAM_ED      = 1,   //!< CCA Mode: ED level exceeded
-	CCAM_CS      = 2,   //!< CCA Mode: CS level exceeded
-	CCAM_EDANDCS = 3    //!< CCA Mode: Both ED and CS level exceeded
-};
 
 #endif // HWME_TDME_H

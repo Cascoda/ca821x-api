@@ -58,6 +58,37 @@
 uint8_t MAC_Workarounds = 0; /**< Flag to enable workarounds for ca8210 v1.1 */
 uint8_t MAC_MPW         = 0; /**< Flag to enable workarounds for ca8210 v0.x */
 
+/**
+ * @brief Table for pairing synchronous requests with their confirms. Each
+ * confirm is aligned so that their index in the table is the request's command
+ * id.
+ *
+ * Request                       | Confirm
+ * ----------------------------- | ---------------------------
+ * SPI_MCPS_DATA_request         | SPI_IDLE
+ * SPI_MCPS_PURGE_request        | SPI_MCPS_PURGE_CONFIRM
+ * SPI_MLME_ASSOCIATE_REQUEST    | SPI_IDLE
+ * SPI_MLME_ASSOCIATE_RESPONSE   | SPI_IDLE
+ * SPI_MLME_DISASSOCIATE_REQUEST | SPI_IDLE
+ * SPI_MLME_GET_REQUEST          | SPI_MLME_GET_CONFIRM
+ * SPI_MLME_ORPHAN_RESPONSE      | SPI_IDLE
+ * SPI_MLME_RESET_REQUEST        | SPI_MLME_RESET_CONFIRM
+ * SPI_MLME_RX_ENABLE_REQUEST    | SPI_MLME_RX_ENABLE_CONFIRM
+ * SPI_MLME_SCAN_REQUEST         | SPI_IDLE
+ * SPI_MLME_SET_REQUEST          | SPI_MLME_SET_CONFIRM
+ * SPI_MLME_START_REQUEST        | SPI_MLME_START_CONFIRM
+ * SPI_MLME_SYNC_REQUEST         | SPI_IDLE
+ * SPI_MLME_POLL_REQUEST         | SPI_MLME_POLL_CONFIRM
+ * SPI_HWME_SET_REQUEST          | SPI_HWME_SET_CONFIRM
+ * SPI_HWME_GET_REQUEST          | SPI_HWME_GET_CONFIRM
+ * SPI_HWME_HAES_REQUEST         | SPI_HWME_HAES_CONFIRM
+ * SPI_TDME_SETSFR_REQUEST       | SPI_TDME_SETSFR_CONFIRM
+ * SPI_TDME_GETSFR_REQUEST       | SPI_TDME_GETSFR_CONFIRM
+ * SPI_TDME_TESTMODE_REQUEST     | SPI_TDME_TESTMODE_CONFIRM
+ * SPI_TDME_SET_REQUEST          | SPI_TDME_SET_CONFIRM
+ * SPI_TDME_TXPKT_REQUEST        | SPI_TDME_TXPKT_CONFIRM
+ * SPI_TDME_LOTLK_REQUEST        | SPI_TDME_LOTLK_CONFIRM
+ */
 const uint8_t sync_pairings[23] = {
 	SPI_IDLE,
 	SPI_MCPS_PURGE_CONFIRM,

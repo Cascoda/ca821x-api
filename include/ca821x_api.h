@@ -75,8 +75,11 @@ extern const uint8_t sync_pairings[23];
  * otherwise the generic_dispatch function will be. If neither are populated the
  * message is discarded.
  *
- * Every callback should return a 0 if the command was not handled, 1 if it was,
- * and the appropriate negative error code if encountered.
+ * Every callback should return:
+ * - 0 if the command was not handled, ie the command was unexpected/generated
+ *   by another application etc.
+ * - >0 if the command was successfully handled by the application.
+ * - The appropriate negative error code if encountered.
  ******************************************************************************/
 struct ca821x_api_callbacks {
 	int (*MCPS_DATA_indication) (

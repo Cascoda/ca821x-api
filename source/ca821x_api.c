@@ -145,6 +145,29 @@ int (*ca821x_api_downstream)(
 
 /******************************************************************************/
 /***************************************************************************//**
+ * \brief Function pointer for waiting for messages
+ *******************************************************************************
+ * This function pointer can be called by applications to wait for a specific
+ * primitive to be received by the interface driver underlying the api. The
+ * function should block until the primitive has been received, then copy this
+ * message into buf.
+ *******************************************************************************
+ * \param cmdid - The id of the command to wait for
+ * \param timeout_ms - Timeout for the wait in milliseconds
+ * \param buf - The buffer to populate with the received message
+ * \param pDeviceRef - Nondescript pointer to target device
+ *******************************************************************************
+ * \return 0: message successfully received
+ ******************************************************************************/
+int (*ca821x_wait_for_message)(
+	uint8_t cmdid,
+	int timeout_ms,
+	uint8_t *buf,
+	void *pDeviceRef
+);
+
+/******************************************************************************/
+/***************************************************************************//**
  * \brief MCPS_DATA_request (Send Data) according to API Spec
  *******************************************************************************
  * \param SrcAddrMode - Source Addressing Mode

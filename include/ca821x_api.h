@@ -333,6 +333,13 @@ extern int (*ca821x_api_downstream)(
 	void *pDeviceRef
 );
 
+extern int (*ca821x_wait_for_message)(
+	uint8_t cmdid,
+	int timeout_ms,
+	uint8_t *buf,
+	void *pDeviceRef
+);
+
 /******************************************************************************/
 /****** MAC Workarounds for V1.1 and MPW silicon (V0.x)                  ******/
 /******************************************************************************/

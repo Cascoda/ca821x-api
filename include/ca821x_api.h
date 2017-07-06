@@ -65,6 +65,7 @@
 #endif
 
 extern const uint8_t sync_pairings[23];
+extern uint8_t last_wakeup_cond;
 
 /***************************************************************************//**
  * \brief API user callbacks structure

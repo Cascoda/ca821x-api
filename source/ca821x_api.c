@@ -118,6 +118,8 @@ const uint8_t sync_pairings[23] = {
 /** Variable for storing callback routines registered by the user */
 static struct ca821x_api_callbacks callbacks;
 
+uint8_t last_wakeup_cond = 0xFF;
+
 /******************************************************************************/
 /***************************************************************************//**
  * \brief Function pointer for downstream api interface.
@@ -1571,6 +1573,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		}
 		break;
 	case SPI_HWME_WAKEUP_INDICATION:
+		last_wakeup_cond = buf[2];
 		if (callbacks.HWME_WAKEUP_indication) {
 			return callbacks.HWME_WAKEUP_indication(
 				(struct HWME_WAKEUP_indication_pset*)(buf + 2)

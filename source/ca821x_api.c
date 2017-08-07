@@ -55,6 +55,8 @@
 #include "mac_messages.h"
 #include "ca821x_api.h"
 
+#define API_LQI_LIMIT    (75) /**< LQI limit, below which received frames should be rejected */
+
 uint8_t MAC_Workarounds = 0; /**< Flag to enable workarounds for ca8210 v1.1 */
 uint8_t MAC_MPW         = 0; /**< Flag to enable workarounds for ca8210 v0.x */
 
@@ -1199,6 +1201,12 @@ uint8_t TDME_ChipInit(void *pDeviceRef)
 	if((status = TDME_SETSFR_request_sync(0, 0xFE, 0x3F, pDeviceRef))) // Tx Output Power 8 dBm
 		return(status);
 
+	/* TODO: Remove after relevant MAC fix */
+	/* Set hardware lqi limit to 0 to disable lqi-based frame filtering */
+	uint8_t lqi_limit = 0;
+	if((status = HWME_SET_request_sync(0x11, 1, &lqi_limit, pDeviceRef)))
+		return(status);
+
 	return MAC_SUCCESS;
 } // End of TDME_ChipInit()
 
@@ -1482,6 +1490,57 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks)
 
 /******************************************************************************/
 /***************************************************************************//**
+ * \brief Checks a scan confirm for pan descriptor entries that have a beacon
+ *        LQI below API_LQI_LIMIT and remove them.
+ *******************************************************************************
+ * \param *scan_cnf - Scan confirm message buffer
+ *******************************************************************************
+ ******************************************************************************/
+void verify_scancnf_results(struct MAC_Message *scan_cnf)
+{
+	struct MLME_SCAN_confirm_pset *scan_cnf_pset;
+	struct PanDescriptor *pdesc;
+	int pdesc_index, pdesc_length;
+
+	scan_cnf_pset = &scan_cnf->PData.ScanCnf;
+	if (lqi_mode == HWME_LQIMODE_ED) /* Cannot filter by ED */
+		return;
+	if (scan_cnf_pset->ScanType != ACTIVE_SCAN
+		&& scan_cnf_pset->ScanType != PASSIVE_SCAN)
+		return;
+
+	pdesc = (struct PanDescriptor*)scan_cnf_pset->ResultList;
+	pdesc_index = 0;
+	while (pdesc_index < scan_cnf_pset->ResultListSize) {
+		pdesc_length = 22;
+		if (pdesc->Security.SecurityLevel > 0) {
+			pdesc_length += 10;
+		}
+		if (pdesc->LinkQuality > API_LQI_LIMIT) {
+			/* LQI is acceptable, move to next entry */
+			pdesc = (struct PanDescriptor*)((uint8_t*)pdesc + pdesc_length);
+			pdesc_index++;
+			continue;
+		}
+		/* Copy rest of list forward one index */
+		memcpy(
+			pdesc,
+			(uint8_t*)pdesc + pdesc_length,
+			scan_cnf->Length - (7 + pdesc_length)
+		);
+		/* Update ResultListSize and command length */
+		scan_cnf_pset->ResultListSize--;
+		scan_cnf->Length -= pdesc_length;
+	}
+	if (scan_cnf_pset->ResultListSize == 0 &&
+	    (scan_cnf_pset->Status == MAC_SUCCESS ||
+	     scan_cnf_pset->Status == MAC_LIMIT_REACHED)) {
+		scan_cnf_pset->Status = MAC_NO_BEACON;
+	}
+}
+
+/******************************************************************************/
+/***************************************************************************//**
  * \brief Call the relevant callback routine if populated or the
  *        generic_dispatch for a received command.
  *******************************************************************************
@@ -1556,6 +1615,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		}
 		break;
 	case SPI_MLME_SCAN_CONFIRM:
+		verify_scancnf_results((struct MAC_Message*)buf);
 		if (callbacks.MLME_SCAN_confirm) {
 			return callbacks.MLME_SCAN_confirm(
 				(struct MLME_SCAN_confirm_pset*)(buf + 2)

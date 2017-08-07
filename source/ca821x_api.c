@@ -119,6 +119,7 @@ const uint8_t sync_pairings[23] = {
 static struct ca821x_api_callbacks callbacks;
 
 uint8_t last_wakeup_cond = 0xFF;
+uint8_t lqi_mode = HWME_LQIMODE_CS;
 
 /******************************************************************************/
 /***************************************************************************//**
@@ -843,6 +844,9 @@ uint8_t HWME_SET_request_sync(
 
 	if (Response.CommandId != SPI_HWME_SET_CONFIRM)
 		return MAC_SYSTEM_ERROR;
+
+	if (HWAttribute == HWME_LQIMODE && Response.PData.Status == MAC_SUCCESS)
+		lqi_mode = *pHWAttributeValue;
 
 	return Response.PData.HWMESetCnf.Status;
 } // End of HWME_SET_request_sync()

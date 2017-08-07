@@ -673,10 +673,9 @@ uint8_t MLME_SET_request_sync(
 		if (status) {
 			return status;
 		}
-	}
-
-	if (PIBAttribute == phyTransmitPower)
+	} else if (PIBAttribute == phyTransmitPower) {
 		return(TDME_SetTxPower(*((uint8_t*)pPIBAttributeValue), pDeviceRef));
+	}
 
 	Command.CommandId = SPI_MLME_SET_REQUEST;
 	Command.Length = sizeof(struct MLME_SET_request_pset) - MAX_ATTRIBUTE_SIZE + PIBAttributeLength;

@@ -1500,6 +1500,51 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks)
 
 /******************************************************************************/
 /***************************************************************************//**
+ * \brief Checks a data indication to ensure that its destination address
+ *        matches the address of this node.
+ *******************************************************************************
+ * \param *ind - Data indication parameter set
+ *******************************************************************************
+ * \return Result of address check
+ *         0: Success
+ *         -1: Address mismatch (non-unix)
+ *         -EFAULT: Address mismatch (unix)
+ *******************************************************************************
+ ******************************************************************************/
+static int check_data_ind_destaddr(struct MCPS_DATA_indication_pset *ind)
+{
+	int i;
+	if (ind->Dst.AddressMode == MAC_MODE_SHORT_ADDR) {
+		if (
+			GETLE16(ind->Dst.Address) != MAC_BROADCAST_ADDRESS &&
+			memcmp(ind->Dst.Address, &shortaddr, 2) &&
+			shortaddr != 0xFFFF) {
+#ifdef __unix__
+			return -EFAULT;
+#else
+			return -1;
+#endif
+		}
+	} else if (ind->Dst.AddressMode == MAC_MODE_LONG_ADDR) {
+		if (memcmp(ind->Dst.Address, extaddr, 8)) {
+			for (i = 0; i < 9; i++) {
+				if (i == 8)
+					return 0;
+				else if (extaddr[i] != 0)
+					break;
+			}
+#ifdef __unix__
+			return -EFAULT;
+#else
+			return -1;
+#endif
+		}
+	}
+	return 0;
+}
+
+/******************************************************************************/
+/***************************************************************************//**
  * \brief Checks an associate confirm for an assigned short address
  *******************************************************************************
  * \param *assoc_cnf - Associate confirm parameter set
@@ -1583,6 +1628,12 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 	/* call appropriate api upstream callback */
 	switch (buf[0]) {
 	case SPI_MCPS_DATA_INDICATION:
+		ret = check_data_ind_destaddr(
+			(struct MCPS_DATA_indication_pset*)(buf + 2)
+		);
+		if (ret) {
+			return ret;
+		}
 		if (callbacks.MCPS_DATA_indication) {
 			return callbacks.MCPS_DATA_indication(
 				(struct MCPS_DATA_indication_pset*)(buf + 2)

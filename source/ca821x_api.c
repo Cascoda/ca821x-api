@@ -120,6 +120,8 @@ const uint8_t sync_pairings[23] = {
 /** Variable for storing callback routines registered by the user */
 static struct ca821x_api_callbacks callbacks;
 
+static uint8_t extaddr[8] = { 0 }; /**< Mirrors nsIEEEAddress in the PIB */
+static uint16_t shortaddr = 0xFFFF; /**< Mirrors macShortAddress in the PIB */
 uint8_t last_wakeup_cond = 0xFF;
 uint8_t lqi_mode = HWME_LQIMODE_CS;
 
@@ -688,6 +690,14 @@ uint8_t MLME_SET_request_sync(
 
 	if (Response.CommandId != SPI_MLME_SET_CONFIRM)
 		return MAC_SYSTEM_ERROR;
+
+	if (SIMPLECNF.Status == MAC_SUCCESS) {
+		if (PIBAttribute == macShortAddress) {
+			shortaddr = *(uint16_t*)pPIBAttributeValue;
+		} else if (PIBAttribute == nsIEEEAddress) {
+			memcpy(extaddr, pPIBAttributeValue, 8);
+		}
+	}
 
 	return SIMPLECNF.Status;
 	#undef SETREQ
@@ -1490,6 +1500,20 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks)
 
 /******************************************************************************/
 /***************************************************************************//**
+ * \brief Checks an associate confirm for an assigned short address
+ *******************************************************************************
+ * \param *assoc_cnf - Associate confirm parameter set
+ *******************************************************************************
+ ******************************************************************************/
+void get_assoccnf_shortaddr(struct MLME_ASSOCIATE_confirm_pset *assoc_cnf)
+{
+	if (GETLE16(assoc_cnf->AssocShortAddress) != 0xFFFF) {
+		shortaddr = GETLE16(assoc_cnf->AssocShortAddress);
+	}
+}
+
+/******************************************************************************/
+/***************************************************************************//**
  * \brief Checks a scan confirm for pan descriptor entries that have a beacon
  *        LQI below API_LQI_LIMIT and remove them.
  *******************************************************************************
@@ -1580,6 +1604,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		}
 		break;
 	case SPI_MLME_ASSOCIATE_CONFIRM:
+		get_assoccnf_shortaddr((struct MLME_ASSOCIATE_confirm_pset*)(buf + 2));
 		if (callbacks.MLME_ASSOCIATE_confirm) {
 			return callbacks.MLME_ASSOCIATE_confirm(
 				(struct MLME_ASSOCIATE_confirm_pset*)(buf + 2)

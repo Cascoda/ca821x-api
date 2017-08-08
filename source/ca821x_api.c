@@ -598,7 +598,7 @@ uint8_t MLME_RX_ENABLE_request_sync(
 /***************************************************************************//**
  * \brief MLME_SCAN_request according to API Spec
  *******************************************************************************
- * \param ScanType - Scan Type (Energy, Active or Orphan)
+ * \param ScanType - Scan Type (see \ref mlme_scan_type)
  * \param ScanChannels -  Channel Bit mask (32 Bit)
  * \param ScanDuration - Time to scan for
  * \param pSecurity - Pointer to Security Structure or NULLP

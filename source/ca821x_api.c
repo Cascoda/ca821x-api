@@ -600,7 +600,7 @@ uint8_t MLME_RX_ENABLE_request_sync(
  *******************************************************************************
  * \param ScanType - Scan Type (see \ref mlme_scan_type)
  * \param ScanChannels -  Channel Bit mask (32 Bit)
- * \param ScanDuration - Time to scan for
+ * \param ScanDuration - Time to scan for (See \ref ca821x_scan_durations enum)
  * \param pSecurity - Pointer to Security Structure or NULLP
  * \param pDeviceRef - Nondescript pointer to target device
  *******************************************************************************

@@ -64,6 +64,25 @@
 
 #endif
 
+/** Real time translations for MLME-SCAN ScanDuration (per channel) */
+enum ca821x_scan_durations {
+	SCAN_DURATION_30MS = 0,
+	SCAN_DURATION_46MS = 1,
+	SCAN_DURATION_77MS = 2,
+	SCAN_DURATION_138MS = 3,
+	SCAN_DURATION_261MS = 4,
+	SCAN_DURATION_507MS = 5,
+	SCAN_DURATION_998MS = 6,
+	SCAN_DURATION_2S = 7,
+	SCAN_DURATION_4S = 8,
+	SCAN_DURATION_8S = 9,
+	SCAN_DURATION_16S = 10,
+	SCAN_DURATION_31S = 11,
+	SCAN_DURATION_63S = 12,
+	SCAN_DURATION_126S = 13,
+	SCAN_DURATION_252S = 14
+};
+
 extern const uint8_t sync_pairings[23];
 extern uint8_t last_wakeup_cond;
 

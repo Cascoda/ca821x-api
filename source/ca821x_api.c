@@ -1620,7 +1620,7 @@ void verify_scancnf_results(struct MAC_Message *scan_cnf)
  *         -: errno status
  *******************************************************************************
  ******************************************************************************/
-int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
+int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, void *pDeviceRef)
 {
 	int ret = 0;
 
@@ -1635,21 +1635,24 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		}
 		if (callbacks.MCPS_DATA_indication) {
 			return callbacks.MCPS_DATA_indication(
-				(struct MCPS_DATA_indication_pset*)(buf + 2)
+				(struct MCPS_DATA_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MCPS_DATA_CONFIRM:
 		if (callbacks.MCPS_DATA_confirm) {
 			return callbacks.MCPS_DATA_confirm(
-				(struct MCPS_DATA_confirm_pset*)(buf + 2)
+				(struct MCPS_DATA_confirm_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_ASSOCIATE_INDICATION:
 		if (callbacks.MLME_ASSOCIATE_indication) {
 			return callbacks.MLME_ASSOCIATE_indication(
-				(struct MLME_ASSOCIATE_indication_pset*)(buf + 2)
+				(struct MLME_ASSOCIATE_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
@@ -1657,35 +1660,40 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		get_assoccnf_shortaddr((struct MLME_ASSOCIATE_confirm_pset*)(buf + 2));
 		if (callbacks.MLME_ASSOCIATE_confirm) {
 			return callbacks.MLME_ASSOCIATE_confirm(
-				(struct MLME_ASSOCIATE_confirm_pset*)(buf + 2)
+				(struct MLME_ASSOCIATE_confirm_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_DISASSOCIATE_INDICATION:
 		if (callbacks.MLME_DISASSOCIATE_indication) {
 			return callbacks.MLME_DISASSOCIATE_indication(
-				(struct MLME_DISASSOCIATE_indication_pset*)(buf + 2)
+				(struct MLME_DISASSOCIATE_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_DISASSOCIATE_CONFIRM:
 		if (callbacks.MLME_DISASSOCIATE_confirm) {
 			return callbacks.MLME_DISASSOCIATE_confirm(
-				(struct MLME_DISASSOCIATE_confirm_pset*)(buf + 2)
+				(struct MLME_DISASSOCIATE_confirm_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_BEACON_NOTIFY_INDICATION:
 		if (callbacks.MLME_BEACON_NOTIFY_indication) {
 			return callbacks.MLME_BEACON_NOTIFY_indication(
-				(struct MLME_BEACON_NOTIFY_indication_pset*)(buf + 2)
+				(struct MLME_BEACON_NOTIFY_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_ORPHAN_INDICATION:
 		if (callbacks.MLME_ORPHAN_indication) {
 			return callbacks.MLME_ORPHAN_indication(
-				(struct MLME_ORPHAN_indication_pset*)(buf + 2)
+				(struct MLME_ORPHAN_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
@@ -1693,21 +1701,24 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		verify_scancnf_results((struct MAC_Message*)buf);
 		if (callbacks.MLME_SCAN_confirm) {
 			return callbacks.MLME_SCAN_confirm(
-				(struct MLME_SCAN_confirm_pset*)(buf + 2)
+				(struct MLME_SCAN_confirm_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_COMM_STATUS_INDICATION:
 		if (callbacks.MLME_COMM_STATUS_indication) {
 			return callbacks.MLME_COMM_STATUS_indication(
-				(struct MLME_COMM_STATUS_indication_pset*)(buf + 2)
+				(struct MLME_COMM_STATUS_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_MLME_SYNC_LOSS_INDICATION:
 		if (callbacks.MLME_SYNC_LOSS_indication) {
 			return callbacks.MLME_SYNC_LOSS_indication(
-				(struct MLME_SYNC_LOSS_indication_pset*)(buf + 2)
+				(struct MLME_SYNC_LOSS_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
@@ -1715,7 +1726,8 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		last_wakeup_cond = buf[2];
 		if (callbacks.HWME_WAKEUP_indication) {
 			return callbacks.HWME_WAKEUP_indication(
-				(struct HWME_WAKEUP_indication_pset*)(buf + 2)
+				(struct HWME_WAKEUP_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
@@ -1723,28 +1735,32 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 		if (callbacks.TDME_MESSAGE_indication) {
 			return callbacks.TDME_MESSAGE_indication(
 				(char *)(buf + 2),
-				len
+				len,
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_TDME_RXPKT_INDICATION:
 		if (callbacks.TDME_RXPKT_indication) {
 			return callbacks.TDME_RXPKT_indication(
-				(struct TDME_RXPKT_indication_pset*)(buf + 2)
+				(struct TDME_RXPKT_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_TDME_EDDET_INDICATION:
 		if (callbacks.TDME_EDDET_indication) {
 			return callbacks.TDME_EDDET_indication(
-				(struct TDME_EDDET_indication_pset*)(buf + 2)
+				(struct TDME_EDDET_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
 	case SPI_TDME_ERROR_INDICATION:
 		if (callbacks.TDME_ERROR_indication) {
 			return callbacks.TDME_ERROR_indication(
-				(struct TDME_ERROR_indication_pset*)(buf + 2)
+				(struct TDME_ERROR_indication_pset*)(buf + 2),
+				pDeviceRef
 			);
 		}
 		break;
@@ -1761,7 +1777,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len)
 	/* If specific command was not handled, try calling generic receive
 	   routine */
 	if (callbacks.generic_dispatch) {
-		ret = callbacks.generic_dispatch(buf, len);
+		ret = callbacks.generic_dispatch(buf, len, pDeviceRef);
 	}
 
 	return ret;

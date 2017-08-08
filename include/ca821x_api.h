@@ -103,41 +103,39 @@ extern uint8_t last_wakeup_cond;
  ******************************************************************************/
 struct ca821x_api_callbacks {
 	int (*MCPS_DATA_indication) (
-		struct MCPS_DATA_indication_pset *params);
+		struct MCPS_DATA_indication_pset *params, void *pDeviceRef);
 	int (*MCPS_DATA_confirm) (
-		struct MCPS_DATA_confirm_pset *params);
+		struct MCPS_DATA_confirm_pset *params, void *pDeviceRef);
 	int (*MLME_ASSOCIATE_indication) (
-		struct MLME_ASSOCIATE_indication_pset *params);
+		struct MLME_ASSOCIATE_indication_pset *params, void *pDeviceRef);
 	int (*MLME_ASSOCIATE_confirm) (
-		struct MLME_ASSOCIATE_confirm_pset *params);
+		struct MLME_ASSOCIATE_confirm_pset *params, void *pDeviceRef);
 	int (*MLME_DISASSOCIATE_indication) (
-		struct MLME_DISASSOCIATE_indication_pset *params);
+		struct MLME_DISASSOCIATE_indication_pset *params, void *pDeviceRef);
 	int (*MLME_DISASSOCIATE_confirm) (
-		struct MLME_DISASSOCIATE_confirm_pset *params);
+		struct MLME_DISASSOCIATE_confirm_pset *params, void *pDeviceRef);
 	int (*MLME_BEACON_NOTIFY_indication) (
-		struct MLME_BEACON_NOTIFY_indication_pset *params);
+		struct MLME_BEACON_NOTIFY_indication_pset *params, void *pDeviceRef);
 	int (*MLME_ORPHAN_indication) (
-		struct MLME_ORPHAN_indication_pset *params);
+		struct MLME_ORPHAN_indication_pset *params, void *pDeviceRef);
 	int (*MLME_SCAN_confirm) (
-		struct MLME_SCAN_confirm_pset *params);
+		struct MLME_SCAN_confirm_pset *params, void *pDeviceRef);
 	int (*MLME_COMM_STATUS_indication) (
-		struct MLME_COMM_STATUS_indication_pset *params);
+		struct MLME_COMM_STATUS_indication_pset *params, void *pDeviceRef);
 	int (*MLME_SYNC_LOSS_indication) (
-		struct MLME_SYNC_LOSS_indication_pset *params);
+		struct MLME_SYNC_LOSS_indication_pset *params, void *pDeviceRef);
 	int (*HWME_WAKEUP_indication) (
-		struct HWME_WAKEUP_indication_pset *params);
+		struct HWME_WAKEUP_indication_pset *params, void *pDeviceRef);
 	int (*TDME_MESSAGE_indication) (
-		const char *message,
-		size_t      len);
+		const char *message, size_t len, void *pDeviceRef);
 	int (*TDME_RXPKT_indication) (
-		struct TDME_RXPKT_indication_pset *params);
+		struct TDME_RXPKT_indication_pset *params, void *pDeviceRef);
 	int (*TDME_EDDET_indication) (
-		struct TDME_EDDET_indication_pset *params);
+		struct TDME_EDDET_indication_pset *params, void *pDeviceRef);
 	int (*TDME_ERROR_indication) (
-		struct TDME_ERROR_indication_pset *params);
+		struct TDME_ERROR_indication_pset *params, void *pDeviceRef);
 	int (*generic_dispatch) (
-		const uint8_t *buf,
-		size_t         len);
+		const uint8_t *buf, size_t len, void *pDeviceRef);
 };
 
 /******************************************************************************/
@@ -341,7 +339,7 @@ uint8_t TDME_GetTxPower(uint8_t *txp, void *pDeviceRef);
 /******************************************************************************/
 
 void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks);
-int ca821x_downstream_dispatch(const uint8_t *buf, size_t len);
+int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, void *pDeviceRef);
 
 /******************************************************************************/
 /****** External function pointers                                       ******/

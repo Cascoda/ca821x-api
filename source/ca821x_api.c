@@ -1549,7 +1549,7 @@ static int check_data_ind_destaddr(struct MCPS_DATA_indication_pset *ind)
  * \param *assoc_cnf - Associate confirm parameter set
  *******************************************************************************
  ******************************************************************************/
-void get_assoccnf_shortaddr(struct MLME_ASSOCIATE_confirm_pset *assoc_cnf)
+static void get_assoccnf_shortaddr(struct MLME_ASSOCIATE_confirm_pset *assoc_cnf)
 {
 	if (GETLE16(assoc_cnf->AssocShortAddress) != 0xFFFF) {
 		shortaddr = GETLE16(assoc_cnf->AssocShortAddress);
@@ -1564,7 +1564,7 @@ void get_assoccnf_shortaddr(struct MLME_ASSOCIATE_confirm_pset *assoc_cnf)
  * \param *scan_cnf - Scan confirm message buffer
  *******************************************************************************
  ******************************************************************************/
-void verify_scancnf_results(struct MAC_Message *scan_cnf)
+static void verify_scancnf_results(struct MAC_Message *scan_cnf)
 {
 	struct MLME_SCAN_confirm_pset *scan_cnf_pset;
 	struct PanDescriptor *pdesc;

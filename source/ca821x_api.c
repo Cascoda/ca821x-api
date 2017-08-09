@@ -1614,6 +1614,7 @@ static void verify_scancnf_results(struct MAC_Message *scan_cnf)
  *******************************************************************************
  * \param *buf - Receive buffer
  * \param len - Length of command in octets
+ * \param *pDeviceRef - Nondescript pointer to target device
  *******************************************************************************
  * \return 0: command was unhandled<br>
  *         1: command was handled<br>

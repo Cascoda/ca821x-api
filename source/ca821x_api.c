@@ -55,7 +55,8 @@
 #include "mac_messages.h"
 #include "ca821x_api.h"
 
-#define API_LQI_LIMIT    (75) /**< LQI limit, below which received frames should be rejected */
+/** LQI limit, below which received frames should be rejected */
+#define API_LQI_LIMIT    (75)
 
 uint8_t MAC_Workarounds = 0; /**< Flag to enable workarounds for ca8210 v1.1 */
 uint8_t MAC_MPW         = 0; /**< Flag to enable workarounds for ca8210 v0.x */

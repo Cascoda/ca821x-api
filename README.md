@@ -23,3 +23,5 @@ extern int (*ca821x_api_downstream)(
 ```
 This pointer must be populated with an implementation conforming to this prototype. The function should transmit the contents of `buf` to the CA-821X device and populate `response` with whatever synchronous response is received (if `buf` contains a synchronous command). If `buf` contains an asynchronous command, `response` can be ignored.<br>
 `pDeviceRef` is passed through to this function from the API call at the top level. It can be used to identify the CA-821X instance being controlled (e.g. passing a private data reference, device ID etc).
+
+The API is based off of 802.15.4-2006, please see the IEEE specification and the Cascoda datasheets [CA-8210](http://www.cascoda.com/wp/wp-content/uploads/CA-8210_datasheet_1016.pdf) (section 5) for more detailed information.

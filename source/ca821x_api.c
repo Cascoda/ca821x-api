@@ -1187,6 +1187,7 @@ uint8_t TDME_LOTLK_request_sync(
 uint8_t TDME_ChipInit(void *pDeviceRef)
 {
 	uint8_t status;
+	uint8_t lqi_limit;
 
 	if((status = TDME_SETSFR_request_sync(1, 0xE1, 0x29, pDeviceRef)))  // LNA Gain Settings
 		return(status);
@@ -1213,7 +1214,7 @@ uint8_t TDME_ChipInit(void *pDeviceRef)
 
 	/* TODO: Remove after relevant MAC fix */
 	/* Set hardware lqi limit to 0 to disable lqi-based frame filtering */
-	uint8_t lqi_limit = 0;
+	lqi_limit = 0;
 	if((status = HWME_SET_request_sync(0x11, 1, &lqi_limit, pDeviceRef)))
 		return(status);
 

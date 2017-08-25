@@ -1146,6 +1146,7 @@ uint8_t TDME_LOTLK_request_sync(
 uint8_t TDME_ChipInit(void *pDeviceRef)
 {
 	uint8_t status;
+    uint8_t cslimit;
 
 	if((status = TDME_SETSFR_request_sync(1, 0xE1, 0x29, pDeviceRef)))  // LNA Gain Settings
 		return(status);
@@ -1169,6 +1170,11 @@ uint8_t TDME_ChipInit(void *pDeviceRef)
 		return(status);
 	if((status = TDME_SETSFR_request_sync(0, 0xFE, 0x3F, pDeviceRef))) // Tx Output Power 8 dBm
 		return(status);
+
+    // set carrier sense limit (HWME_LQILimit) to 0
+    cslimit = 0;
+    if((status = HWME_SET_request_sync(0x11, 1, &cslimit, NULL)))
+        return(status);
 
 	return MAC_SUCCESS;
 } // End of TDME_ChipInit()

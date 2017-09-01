@@ -1729,7 +1729,6 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 		break;
 	default:
 #ifdef __unix__
-		fprintf(stderr, "Unrecognised upstream command id: %d", buf[0]);
 		return -EINVAL;
 #else
 		return -ERANGE;

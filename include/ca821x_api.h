@@ -64,6 +64,8 @@
 
 #endif
 
+struct ca821x_dev;
+
 /** Real time translations for MLME-SCAN ScanDuration (per channel) */
 enum ca821x_scan_durations {
 	SCAN_DURATION_30MS = 0,
@@ -135,31 +137,6 @@ extern int (*ca821x_wait_for_message)(
 	struct ca821x_dev *pDeviceRef
 );
 
-/******************************************************************************/
-/****** device_ref struct for all internal state                         ******/
-/******************************************************************************/
-struct ca821x_dev {
-	void *context; //For the application
-	void *exchange_context; //For the exchange
-
-	//For the API:
-	uint8_t last_wakeup_cond;
-	ca821x_api_downstream_t ca821x_api_downstream;
-
-	/** Variable for storing callback routines registered by the user */
-	struct ca821x_api_callbacks callbacks;
-
-	uint8_t extaddr[8]; /**< Mirrors nsIEEEAddress in the PIB */
-	uint16_t shortaddr; /**< Mirrors macShortAddress in the PIB */
-
-	uint8_t last_wakeup_cond;
-	uint8_t lqi_mode;
-
-	//MAC Workarounds for V1.1 and MPW silicon (V0.x)
-	uint8_t MAC_Workarounds; /**< Flag to enable workarounds for ca8210 v1.1 */
-	uint8_t MAC_MPW;         /**< Flag to enable workarounds for ca8210 v0.x */
-};
-
 extern const uint8_t sync_pairings[23];
 
 /***************************************************************************//**
@@ -212,6 +189,30 @@ struct ca821x_api_callbacks {
 		struct TDME_ERROR_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	int (*generic_dispatch) (
 		const uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef);
+};
+
+/******************************************************************************/
+/****** device_ref struct for all internal state                         ******/
+/******************************************************************************/
+struct ca821x_dev {
+	void *context; //For the application
+	void *exchange_context; //For the exchange
+
+	//For the API:
+	ca821x_api_downstream_t ca821x_api_downstream;
+
+	/** Variable for storing callback routines registered by the user */
+	struct ca821x_api_callbacks callbacks;
+
+	uint8_t extaddr[8]; /**< Mirrors nsIEEEAddress in the PIB */
+	uint16_t shortaddr; /**< Mirrors macShortAddress in the PIB */
+
+	uint8_t last_wakeup_cond;
+	uint8_t lqi_mode;
+
+	//MAC Workarounds for V1.1 and MPW silicon (V0.x)
+	uint8_t MAC_Workarounds; /**< Flag to enable workarounds for ca8210 v1.1 */
+	uint8_t MAC_MPW;         /**< Flag to enable workarounds for ca8210 v0.x */
 };
 
 /******************************************************************************/

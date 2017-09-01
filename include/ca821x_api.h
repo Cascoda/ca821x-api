@@ -100,7 +100,7 @@ enum ca821x_scan_durations {
  * \param len - The length of the command in octets
  * \param response - The buffer to populate with a received synchronous
  *                    response
- * \param pDeviceRef - Nondescript pointer to target device
+ * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
  *******************************************************************************
  * \return Effectively a bool as far as API is concerned, 0 means exchange was
  *         successful, nonzero otherwise
@@ -124,7 +124,7 @@ typedef int (*ca821x_api_downstream_t)(
  * \param cmdid - The id of the command to wait for
  * \param timeout_ms - Timeout for the wait in milliseconds
  * \param buf - The buffer to populate with the received message
- * \param pDeviceRef - Nondescript pointer to target device
+ * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
  *******************************************************************************
  * \return 0: message successfully received
  ******************************************************************************/
@@ -411,12 +411,48 @@ uint8_t TDME_SetTxPower(uint8_t txp, struct ca821x_dev *pDeviceRef);
 uint8_t TDME_GetTxPower(uint8_t *txp, struct ca821x_dev *pDeviceRef);
 
 /******************************************************************************/
-/****** API callback functions                                           ******/
+/****** API meta functions                                           ******/
 /******************************************************************************/
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Initialisation function for initialising a ca821x_dev data structure
+ *        for use with the API.
+ *******************************************************************************
+ * This function should be called to initialise a pDeviceRef. This should be
+ * done prior to any other use of the structure.
+ *******************************************************************************
+ * \param pDeviceRef - Pointer to ca821x_device_ref struct to be initialised.
+ *******************************************************************************
+ * \return 0: Structure successfully initialised
+ * \return -1: Structure initialisation failed (pDeviceRef cannot be NULL)
+ ******************************************************************************/
 int ca821x_api_init(struct ca821x_dev *pDeviceRef);
+
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Function for registering a callback struct for this device.
+ *******************************************************************************
+ * Depending on the exchange used, these callbacks may be called from a different
+ * processing context, and should be written accordingly.
+ *******************************************************************************
+ * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
+ ******************************************************************************/
 void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks,
                                struct ca821x_dev *pDeviceRef);
+
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Function called by the exchange to dispatch indications from the ca821x
+ *******************************************************************************
+ * FOR USE IN THE EXCHANGE ONLY. If the application needs to process incoming
+ * indications, this should be by connecting callbacks using
+ * ca821x_register_callbacks and a ca821x_api_callbacks struct.
+ *******************************************************************************
+ * \param buf - entire buffer of message, including command and length bytes
+ * \param len - length of buffer
+ * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
+ ******************************************************************************/
 int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef);
 
 #endif // CA821X_API_H

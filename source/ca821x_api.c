@@ -188,7 +188,9 @@ uint8_t MCPS_DATA_request(
 		Command.Length += sizeof(struct SecSpec);
 	}
 
-	if (ca821x_api_downstream(&Command.CommandId, Command.Length + 2, NULL, pDeviceRef))
+	if (pDeviceRef->ca821x_api_downstream(&Command.CommandId,
+	                                       Command.Length + 2,
+	                                       NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 
 	return MAC_SUCCESS;

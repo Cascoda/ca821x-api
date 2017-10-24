@@ -115,6 +115,13 @@ const uint8_t sync_pairings[23] = {
 	SPI_TDME_LOTLK_CONFIRM
 };
 
+int (*ca821x_wait_for_message)(
+	uint8_t cmdid,
+	int timeout_ms,
+	uint8_t *buf,
+	struct ca821x_dev *pDeviceRef
+);
+
 int ca821x_api_init(struct ca821x_dev *pDeviceRef)
 {
 	if(pDeviceRef == NULL) return -1;

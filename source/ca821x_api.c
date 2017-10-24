@@ -512,6 +512,10 @@ uint8_t MLME_RESET_request_sync(uint8_t SetDefaultPIB, struct ca821x_dev *pDevic
 
 	status = SIMPLECNF.Status;
 
+	if (SetDefaultPIB && status == MAC_SUCCESS) {
+		pDeviceRef->shortaddr = 0xFFFF;
+	}
+
 	/* reset COORD Bit for Channel Filtering as Coordinator */
 	if (pDeviceRef->MAC_Workarounds && SetDefaultPIB && (!status))
 		status = TDME_SETSFR_request_sync(0, 0xD8, 0, pDeviceRef);

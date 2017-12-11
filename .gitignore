@@ -3,3 +3,4 @@
 *.a
 docs/
 *.tag
+*.patch

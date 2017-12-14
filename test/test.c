@@ -1,8 +1,28 @@
+/**
+ * @file test.c
+ * @brief Simple test program for ca821x api
+ *//*
+ * Copyright (C) 2017  Cascoda, Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include "ca821x_api.h"
 
+/* Test parameters */
 #define TEST_DSTADDR 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88
 #define TEST_CHANNEL (13)
 #define TEST_PANID 0x5C, 0xCA
@@ -35,8 +55,7 @@
 
 #define TEST_SEQUENCENUM (0)
 
-#define TEST_DATAREQLEN (26+TEST_MSDULENGTH)
-
+/* Colour codes for printf */
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
@@ -45,9 +64,10 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
+/** MCPS-DATA.request reference buffer */
 uint8_t ref_mcps_data_req[] = {
 	SPI_MCPS_DATA_REQUEST, /* CmdId */
-	TEST_DATAREQLEN, /* Packet Length */
+	26+TEST_MSDULENGTH, /* Packet Length */
 	MAC_MODE_SHORT_ADDR, /* SrcAddrMode */
 	MAC_MODE_LONG_ADDR, /* DstAddrMode */
 	TEST_PANID, /* DstPANId */
@@ -62,12 +82,14 @@ uint8_t ref_mcps_data_req[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MCPS-PURGE.request reference buffer */
 uint8_t ref_mcps_purge_req[] = {
 	SPI_MCPS_PURGE_REQUEST, /* CmdId */
 	1, /* Packet Length */
 	TEST_MSDUHANDLE, /* MsduHandle */
 };
 
+/** MCPS-PURGE.confirm reference buffer */
 uint8_t ref_mcps_purge_cnf[] = {
 	SPI_MCPS_PURGE_CONFIRM, /* CmdId */
 	2, /* Packet Length */
@@ -75,6 +97,7 @@ uint8_t ref_mcps_purge_cnf[] = {
 	MAC_SUCCESS /* Status */
 };
 
+/** MLME-ASSOCIATE.request reference buffer */
 uint8_t ref_mlme_associate_req[] = {
 	SPI_MLME_ASSOCIATE_REQUEST, /* CmdId */
 	24, /* Packet Length */
@@ -89,6 +112,7 @@ uint8_t ref_mlme_associate_req[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MLME-ASSOCIATE.response reference buffer */
 uint8_t ref_mlme_associate_resp[] = {
 	SPI_MLME_ASSOCIATE_RESPONSE, /* CmdId */
 	22, /* Packet Length */
@@ -101,6 +125,7 @@ uint8_t ref_mlme_associate_resp[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MLME-DISASSOCIATE.request reference buffer */
 uint8_t ref_mlme_disassociate_req[] = {
 	SPI_MLME_DISASSOCIATE_REQUEST, /* CmdId */
 	24, /* Packet Length */
@@ -115,6 +140,7 @@ uint8_t ref_mlme_disassociate_req[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MLME-GET.request reference buffer */
 uint8_t ref_mlme_get_req[] = {
 	SPI_MLME_GET_REQUEST, /* CmdId */
 	2, /* Packet Length */
@@ -122,6 +148,7 @@ uint8_t ref_mlme_get_req[] = {
 	0x00 /* PIBAttributeIndex */
 };
 
+/** MLME-GET.confirm reference buffer */
 uint8_t ref_mlme_get_cnf[] = {
 	SPI_MLME_GET_CONFIRM, /* CmdId */
 	5, /* Packet Length */
@@ -132,6 +159,7 @@ uint8_t ref_mlme_get_cnf[] = {
 	TEST_PIBATTRIBUTEVALUE
 };
 
+/** MLME-ORPHAN.response reference buffer */
 uint8_t ref_mlme_orphan_resp[] = {
 	SPI_MLME_ORPHAN_RESPONSE, /* CmdId */
 	22, /* Packet Length */
@@ -144,18 +172,21 @@ uint8_t ref_mlme_orphan_resp[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MLME-RESET.request reference buffer */
 uint8_t ref_mlme_reset_req[] = {
 	SPI_MLME_RESET_REQUEST, /* CmdId */
 	1, /* Packet Length */
 	0 /* SetDefaultPIB */
 };
 
+/** MLME-RESET.confirm reference buffer */
 uint8_t ref_mlme_reset_cnf[] = {
 	SPI_MLME_RESET_CONFIRM, /* CmdId */
 	1, /* Packet Length */
 	MAC_SUCCESS /* Status */
 };
 
+/** MLME-RX-ENABLE.request reference buffer */
 uint8_t ref_mlme_rx_enable_req[] = {
 	SPI_MLME_RX_ENABLE_REQUEST, /* CmdId */
 	9, /* Packet Length */
@@ -164,12 +195,14 @@ uint8_t ref_mlme_rx_enable_req[] = {
 	0x0B, 0x00, 0x00, 0xB0 /* RxOnDuration */
 };
 
+/** MLME-RX-ENABLE.confirm reference buffer */
 uint8_t ref_mlme_rx_enable_cnf[] = {
 	SPI_MLME_RX_ENABLE_CONFIRM, /* CmdId */
 	1, /* Packet Length */
 	MAC_SUCCESS /* Status */
 };
 
+/** MLME-SCAN.request reference buffer */
 uint8_t ref_mlme_scan_req[] = {
 	SPI_MLME_SCAN_REQUEST, /* CmdId */
 	17, /* Packet Length */
@@ -182,6 +215,7 @@ uint8_t ref_mlme_scan_req[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MLME-SET.request reference buffer */
 uint8_t ref_mlme_set_req[] = {
 	SPI_MLME_SET_REQUEST, /* CmdId */
 	4, /* Packet Length */
@@ -191,6 +225,7 @@ uint8_t ref_mlme_set_req[] = {
 	TEST_PIBATTRIBUTEVALUE
 };
 
+/** MLME-SET.confirm reference buffer */
 uint8_t ref_mlme_set_cnf[] = {
 	SPI_MLME_SET_CONFIRM, /* CmdId */
 	3, /* Packet Length */
@@ -199,6 +234,7 @@ uint8_t ref_mlme_set_cnf[] = {
 	0x00 /* PIBAttributeIndex */
 };
 
+/** MLME-START.request reference buffer */
 uint8_t ref_mlme_start_req[] = {
 	SPI_MLME_START_REQUEST, /* CmdId */
 	30, /* Packet Length */
@@ -219,12 +255,14 @@ uint8_t ref_mlme_start_req[] = {
 	TEST_KEYINDEX, /* BeaconKeyIndex */
 };
 
+/** MLME-START.confirm reference buffer */
 uint8_t ref_mlme_start_cnf[] = {
 	SPI_MLME_START_CONFIRM, /* CmdId */
 	1, /* Packet Length */
 	MAC_SUCCESS /* Status */
 };
 
+/** MLME-POLL.request reference buffer */
 uint8_t ref_mlme_poll_req[] = {
 	SPI_MLME_POLL_REQUEST, /* CmdId */
 	24, /* Packet Length */
@@ -238,12 +276,14 @@ uint8_t ref_mlme_poll_req[] = {
 	TEST_KEYINDEX /* KeyIndex */
 };
 
+/** MLME-POLL.confirm reference buffer */
 uint8_t ref_mlme_poll_cnf[] = {
 	SPI_MLME_POLL_CONFIRM, /* CmdId */
 	1, /* Packet Length */
 	MAC_SUCCESS /* Status */
 };
 
+/** HWME-SET.request reference buffer */
 uint8_t ref_hwme_set_req[] = {
 	SPI_HWME_SET_REQUEST, /* CmdId */
 	3, /* Packet Length */
@@ -252,6 +292,7 @@ uint8_t ref_hwme_set_req[] = {
 	TEST_HWATTRIBUTEVALUE /* HWAttributeValue */
 };
 
+/** HWME-SET.confirm reference buffer */
 uint8_t ref_hwme_set_cnf[] = {
 	SPI_HWME_SET_CONFIRM, /* CmdId */
 	2, /* Packet Length */
@@ -259,12 +300,14 @@ uint8_t ref_hwme_set_cnf[] = {
 	TEST_HWATTRIBUTE /* HWAttribute */
 };
 
+/** HWME-GET.request reference buffer */
 uint8_t ref_hwme_get_req[] = {
 	SPI_HWME_GET_REQUEST, /* CmdId */
 	1, /* Packet Length */
 	TEST_HWATTRIBUTE /* HWAttribute */
 };
 
+/** HWME-GET.confirm reference buffer */
 uint8_t ref_hwme_get_cnf[] = {
 	SPI_HWME_GET_CONFIRM, /* CmdId */
 	4, /* Packet Length */
@@ -274,6 +317,7 @@ uint8_t ref_hwme_get_cnf[] = {
 	TEST_HWATTRIBUTEVALUE /* HWAttributeValue */
 };
 
+/** HWME-HAES.request reference buffer */
 uint8_t ref_hwme_haes_req[] = {
 	SPI_HWME_HAES_REQUEST, /* CmdId */
 	17, /* Packet Length */
@@ -281,6 +325,7 @@ uint8_t ref_hwme_haes_req[] = {
 	TEST_HAESDATA /* HAESData */
 };
 
+/** HWME-HAES.confirm reference buffer */
 uint8_t ref_hwme_haes_cnf[] = {
 	SPI_HWME_HAES_CONFIRM, /* CmdId */
 	17, /* Packet Length */
@@ -288,6 +333,7 @@ uint8_t ref_hwme_haes_cnf[] = {
 	TEST_HAESDATA /* HAESData (Encrypted/Descrypted) */
 };
 
+/** TDME-SETSFR.request reference buffer */
 uint8_t	ref_tdme_setsfr_req[] = {
 	SPI_TDME_SETSFR_REQUEST, /* CmdId */
 	3, /* Packet Length */
@@ -296,6 +342,7 @@ uint8_t	ref_tdme_setsfr_req[] = {
 	TEST_SFRVALUE /* SFRValue */
 };
 
+/** TDME-SETSFR.confirm reference buffer */
 uint8_t	ref_tdme_setsfr_cnf[] = {
 	SPI_TDME_SETSFR_CONFIRM, /* CmdId */
 	3, /* Packet Length */
@@ -304,6 +351,7 @@ uint8_t	ref_tdme_setsfr_cnf[] = {
 	TEST_SFRADDRESS /* SFRAddress */
 };
 
+/** TDME-GETSFR.request reference buffer */
 uint8_t	ref_tdme_getsfr_req[] = {
 	SPI_TDME_GETSFR_REQUEST, /* CmdId */
 	2, /* Packet Length */
@@ -311,6 +359,7 @@ uint8_t	ref_tdme_getsfr_req[] = {
 	TEST_SFRADDRESS /* SFRAddress */
 };
 
+/** TDME-GETSFR.confirm reference buffer */
 uint8_t	ref_tdme_getsfr_cnf[] = {
 	SPI_TDME_GETSFR_CONFIRM, /* CmdId */
 	4, /* Packet Length */
@@ -320,12 +369,14 @@ uint8_t	ref_tdme_getsfr_cnf[] = {
 	TEST_SFRVALUE /* SFRValue */
 };
 
+/** TDME-TESTMODE.request reference buffer */
 uint8_t	ref_tdme_testmode_req[] = {
 	SPI_TDME_TESTMODE_REQUEST, /* CmdId */
 	1, /* Packet Length */
 	TEST_TESTMODE /* TestMode */
 };
 
+/** TDME-TESTMODE.confirm reference buffer */
 uint8_t	ref_tdme_testmode_cnf[] = {
 	SPI_TDME_TESTMODE_CONFIRM, /* CmdId */
 	1, /* Packet Length */
@@ -333,6 +384,7 @@ uint8_t	ref_tdme_testmode_cnf[] = {
 	TEST_TESTMODE /* TestMode */
 };
 
+/** TDME-SET.request reference buffer */
 uint8_t	ref_tdme_set_req[] = {
 	SPI_TDME_SET_REQUEST, /* CmdId */
 	3, /* Packet Length */
@@ -341,6 +393,7 @@ uint8_t	ref_tdme_set_req[] = {
 	TEST_TDMEATTRIBUTEVALUE /* TDMEAttributeValue */
 };
 
+/** TDME-SET.confirm reference buffer */
 uint8_t	ref_tdme_set_cnf[] = {
 	SPI_TDME_SET_CONFIRM, /* CmdId */
 	2, /* Packet Length */
@@ -348,6 +401,7 @@ uint8_t	ref_tdme_set_cnf[] = {
 	TEST_TDMEATTRIBUTE /* TDMEAttribute */
 };
 
+/** TDME-TXPKT.request reference buffer */
 uint8_t	ref_tdme_txpkt_req[] = {
 	SPI_TDME_TXPKT_REQUEST, /* CmdId */
 	3+TEST_MSDULENGTH, /* Packet Length */
@@ -357,6 +411,7 @@ uint8_t	ref_tdme_txpkt_req[] = {
 	TEST_MSDU /* TestPacketData */
 };
 
+/** TDME-TXPKT.confirm reference buffer */
 uint8_t	ref_tdme_txpkt_cnf[] = {
 	SPI_TDME_TXPKT_CONFIRM, /* CmdId */
 	3+TEST_MSDULENGTH, /* Packet Length */
@@ -366,6 +421,7 @@ uint8_t	ref_tdme_txpkt_cnf[] = {
 	TEST_MSDU /* TestPacketData */
 };
 
+/** TDME-LOTLK.request reference buffer */
 uint8_t	ref_tdme_lotlk_req[] = {
 	SPI_TDME_LOTLK_REQUEST, /* CmdId */
 	2, /* Packet Length */
@@ -373,6 +429,7 @@ uint8_t	ref_tdme_lotlk_req[] = {
 	0 /* TestRxTxb */
 };
 
+/** TDME-LOTLK.confirm reference buffer */
 uint8_t	ref_tdme_lotlk_cnf[] = {
 	SPI_TDME_LOTLK_CONFIRM, /* CmdId */
 	6, /* Packet Length */
@@ -384,30 +441,43 @@ uint8_t	ref_tdme_lotlk_cnf[] = {
 	0 /* TestLOTXCALValue */
 };
 
+/** Flags for ensuring correct dispatch has been called for each message */
 struct dispatch_flags {
-	int data_ind           : 1;
-	int data_cnf           : 1;
-	int assoc_ind          : 1;
-	int assoc_cnf          : 1;
-	int disassoc_ind       : 1;
-	int disassoc_cnf       : 1;
-	int beacon_notify_ind  : 1;
-	int orphan_ind         : 1;
-	int scan_cnf           : 1;
-	int comm_status_ind    : 1;
-	int sync_loss_ind      : 1;
-	int wakeup_ind         : 1;
-	int message_ind        : 1;
-	int rxpkt_ind          : 1;
-	int eddet_ind          : 1;
-	int error_ind          : 1;
-	int generic            : 1;
+	int data_ind           : 1; //!< MCPS_DATA_indication
+	int data_cnf           : 1; //!< MCPS_DATA_confirm
+	int assoc_ind          : 1; //!< MLME_ASSOCIATE_indication
+	int assoc_cnf          : 1; //!< MLME_ASSOCIATE_confirm
+	int disassoc_ind       : 1; //!< MLME_DISASSOCIATE_indication
+	int disassoc_cnf       : 1; //!< MLME_DISASSOCIATE_confirm
+	int beacon_notify_ind  : 1; //!< MLME_BEACON_NOTIFY_indication
+	int orphan_ind         : 1; //!< MLME_ORPHAN_indication
+	int scan_cnf           : 1; //!< MLME_SCAN_confirm
+	int comm_status_ind    : 1; //!< MLME_COMM_STATUS_indication
+	int sync_loss_ind      : 1; //!< MLME_SYNC_LOSS_indication
+	int wakeup_ind         : 1; //!< HWME_WAKEUP_indication
+	int message_ind        : 1; //!< TDME_MESSAGE_indication
+	int rxpkt_ind          : 1; //!< TDME_RXPKT_indication
+	int eddet_ind          : 1; //!< TDME_EDDET_indication
+	int error_ind          : 1; //!< TDME_ERROR_indication
+	int generic            : 1; //!< generic dispatch
 };
 
+/** Private data for test application */
 struct test_context {
-	struct dispatch_flags dflags;
+	struct dispatch_flags dflags; //!< Dispatch flags
 };
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Fills a synchronous response buffer with the appropriate reference
+ *******************************************************************************
+ * When a synchronous command is tested, a valid response must be provided for
+ * the function to operate correctly.
+ *******************************************************************************
+ * \param request_id - the command id of the request to respond to
+ * \param response - Buffer to populate with synchronous response
+ *******************************************************************************
+ ******************************************************************************/
 void populate_response(uint8_t request_id, uint8_t *response)
 {
 	uint8_t *reference_buffer = NULL;
@@ -475,6 +545,19 @@ void populate_response(uint8_t request_id, uint8_t *response)
 		memcpy(response, reference_buffer, sizeof(reference_buffer));
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Verifies the command frame produced by an API function
+ *******************************************************************************
+ * This function is called by the API functions with their constructed frame.
+ * This frame is then compared to an expected reference.
+ *******************************************************************************
+ * \param buf - Constructed command frame
+ * \param len - Length of frame
+ * \param response - Buffer to populate with synchronous response
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ ******************************************************************************/
 int verify_command(
 	const uint8_t *buf,
 	size_t len,
@@ -590,6 +673,13 @@ int verify_command(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Prints the result of an API function call
+ *******************************************************************************
+ * \param result - The function's return code
+ *******************************************************************************
+ ******************************************************************************/
 void print_result(uint8_t result)
 {
 	printf("result: ");
@@ -603,7 +693,7 @@ void print_result(uint8_t result)
 
 /******************************************************************************/
 /***************************************************************************//**
- * \brief Main function for function test module
+ * \brief API functions test
  *******************************************************************************
  * Tests the cascoda_api command functions to ensure that they produce valid
  * command frames for the transceiver.
@@ -839,6 +929,16 @@ int api_functions_test(void)
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MCPS-DATA.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MCPS_DATA_indication(
 	struct MCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -850,6 +950,16 @@ int test_MCPS_DATA_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MCPS-DATA.confirm callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MCPS_DATA_confirm(
 	struct MCPS_DATA_confirm_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -861,6 +971,16 @@ int test_MCPS_DATA_confirm(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-ASSOCIATE.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_ASSOCIATE_indication(
 	struct MLME_ASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -872,6 +992,16 @@ int test_MLME_ASSOCIATE_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-ASSOCIATE.confirm callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_ASSOCIATE_confirm(
 	struct MLME_ASSOCIATE_confirm_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -883,6 +1013,16 @@ int test_MLME_ASSOCIATE_confirm(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-DISASSOCIATE.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_DISASSOCIATE_indication(
 	struct MLME_DISASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -894,6 +1034,16 @@ int test_MLME_DISASSOCIATE_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-DISASSOCIATE.confirm callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_DISASSOCIATE_confirm(
 	struct MLME_DISASSOCIATE_confirm_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -905,6 +1055,16 @@ int test_MLME_DISASSOCIATE_confirm(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-BEACON-NOTIFY.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_BEACON_NOTIFY_indication(
 	struct MLME_BEACON_NOTIFY_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -916,6 +1076,16 @@ int test_MLME_BEACON_NOTIFY_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-ORPHAN.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_ORPHAN_indication(
 	struct MLME_ORPHAN_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -927,6 +1097,16 @@ int test_MLME_ORPHAN_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-SCAN.confirm callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_SCAN_confirm(
 	struct MLME_SCAN_confirm_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -938,6 +1118,16 @@ int test_MLME_SCAN_confirm(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-COMM-STATUS.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_COMM_STATUS_indication(
 	struct MLME_COMM_STATUS_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -949,6 +1139,16 @@ int test_MLME_COMM_STATUS_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief MLME-SYNC-LOSS.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_MLME_SYNC_LOSS_indication(
 	struct MLME_SYNC_LOSS_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -960,6 +1160,16 @@ int test_MLME_SYNC_LOSS_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief HWME-WAKEUP.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_HWME_WAKEUP_indication(
 	struct HWME_WAKEUP_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -971,6 +1181,17 @@ int test_HWME_WAKEUP_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME-MESSAGE.indication callback function
+ *******************************************************************************
+ * \param message - ASCII buffer
+ * \param len - message length
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_TDME_MESSAGE_indication(
 	const char *message, size_t len, struct ca821x_dev *pDeviceRef)
 {
@@ -982,6 +1203,16 @@ int test_TDME_MESSAGE_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME-RXPKT.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_TDME_RXPKT_indication(
 	struct TDME_RXPKT_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -993,6 +1224,16 @@ int test_TDME_RXPKT_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME-EDDET.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_TDME_EDDET_indication(
 	struct TDME_EDDET_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -1004,6 +1245,16 @@ int test_TDME_EDDET_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief TDME-ERROR.indication callback function
+ *******************************************************************************
+ * \param params - Primitive parameters
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_TDME_ERROR_indication(
 	struct TDME_ERROR_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
@@ -1015,6 +1266,17 @@ int test_TDME_ERROR_indication(
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Generic callback function
+ *******************************************************************************
+ * \param buf - Message buffer
+ * \param len - Length of message
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ * \return 1 if this callback was expected, 0 otherwise
+ *******************************************************************************
+ ******************************************************************************/
 int test_generic_dispatch(const uint8_t *buf, size_t len,
 	struct ca821x_dev *pDeviceRef)
 {
@@ -1026,6 +1288,17 @@ int test_generic_dispatch(const uint8_t *buf, size_t len,
 	return 0;
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Wrapper for ca821x_downstream_dispatch
+ *******************************************************************************
+ * Calls ca821x_downstream_dispatch and prints the result
+ *******************************************************************************
+ * \param buf - Message buffer
+ * \param len - Length of message
+ * \param pDeviceRef - Device reference
+ *******************************************************************************
+ ******************************************************************************/
 void call_dispatch(uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef)
 {
 	if (ca821x_downstream_dispatch(buf, len, pDeviceRef)) {
@@ -1035,6 +1308,13 @@ void call_dispatch(uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef)
 	}
 }
 
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Callbacks test
+ *******************************************************************************
+ * \return TODO
+ *******************************************************************************
+ ******************************************************************************/
 int api_callbacks_test(void)
 {
 	struct ca821x_dev test_dev;

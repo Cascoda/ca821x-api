@@ -384,6 +384,30 @@ uint8_t	ref_tdme_lotlk_cnf[] = {
 	0 /* TestLOTXCALValue */
 };
 
+struct dispatch_flags {
+	int data_ind           : 1;
+	int data_cnf           : 1;
+	int assoc_ind          : 1;
+	int assoc_cnf          : 1;
+	int disassoc_ind       : 1;
+	int disassoc_cnf       : 1;
+	int beacon_notify_ind  : 1;
+	int orphan_ind         : 1;
+	int scan_cnf           : 1;
+	int comm_status_ind    : 1;
+	int sync_loss_ind      : 1;
+	int wakeup_ind         : 1;
+	int message_ind        : 1;
+	int rxpkt_ind          : 1;
+	int eddet_ind          : 1;
+	int error_ind          : 1;
+	int generic            : 1;
+};
+
+struct test_context {
+	struct dispatch_flags dflags;
+};
+
 void populate_response(uint8_t request_id, uint8_t *response)
 {
 	uint8_t *reference_buffer = NULL;
@@ -606,6 +630,7 @@ int api_functions_test(void)
 		.KeySource = {TEST_KEYSOURCE},
 		.KeyIndex = TEST_KEYINDEX
 	};
+	printf(ANSI_COLOR_CYAN "Testing API functions...\n" ANSI_COLOR_RESET);
 	/* TODO: check return */
 	ca821x_api_init(&test_dev);
 	test_dev.ca821x_api_downstream = verify_command;
@@ -617,7 +642,7 @@ int api_functions_test(void)
 	memcpy(full_address.Address, (uint8_t[]) {TEST_DSTADDR}, sizeof(full_address.Address));
 	memcpy(msdu_buffer, (uint8_t[]) {TEST_MSDU}, TEST_MSDULENGTH);
 	memcpy(haesdata, (uint8_t[]) {TEST_HAESDATA}, sizeof(haesdata));
-	printf("%-45s", "Testing MCPS_DATA_request()... ");
+	printf("%-35s", "MCPS_DATA_request()... ");
 	ret = MCPS_DATA_request(
 		MAC_MODE_SHORT_ADDR,
 		full_address.AddressMode,
@@ -631,13 +656,13 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MCPS_PURGE_request_sync()... ");
+	printf("%-35s", "MCPS_PURGE_request_sync()... ");
 	ret = MCPS_PURGE_request_sync(
 		&msduhandle,
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_ASSOCIATE_request()... ");
+	printf("%-35s", "MLME_ASSOCIATE_request()... ");
 	ret = MLME_ASSOCIATE_request(
 		TEST_CHANNEL,
 		full_address.AddressMode,
@@ -648,7 +673,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_ASSOCIATE_response()... ");
+	printf("%-35s", "MLME_ASSOCIATE_response()... ");
 	ret = MLME_ASSOCIATE_response(
 		full_address.Address,
 		0xCA01,
@@ -657,7 +682,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_DISASSOCIATE_request()... ");
+	printf("%-35s", "MLME_DISASSOCIATE_request()... ");
 	ret = MLME_DISASSOCIATE_request(
 		full_address,
 		0,
@@ -666,7 +691,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_SET_request_sync()... ");
+	printf("%-35s", "MLME_SET_request_sync()... ");
 	ret = MLME_SET_request_sync(
 		TEST_PIBATTRIBUTE,
 		0,
@@ -675,7 +700,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_GET_request_sync()... ");
+	printf("%-35s", "MLME_GET_request_sync()... ");
 	ret = MLME_GET_request_sync(
 		TEST_PIBATTRIBUTE,
 		0,
@@ -684,7 +709,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_ORPHAN_response()... ");
+	printf("%-35s", "MLME_ORPHAN_response()... ");
 	ret = MLME_ORPHAN_response(
 		full_address.Address,
 		0xCA01,
@@ -693,13 +718,13 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_RESET_request_sync()... ");
+	printf("%-35s", "MLME_RESET_request_sync()... ");
 	ret = MLME_RESET_request_sync(
 		0,
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_RX_ENABLE_request_sync()... ");
+	printf("%-35s", "MLME_RX_ENABLE_request_sync()... ");
 	ret = MLME_RX_ENABLE_request_sync(
 		0,
 		0xA000000A,
@@ -707,7 +732,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_SCAN_request()... ");
+	printf("%-35s", "MLME_SCAN_request()... ");
 	ret = MLME_SCAN_request(
 		ACTIVE_SCAN,
 		0x07FFF800,
@@ -716,7 +741,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_START_request_sync()... ");
+	printf("%-35s", "MLME_START_request_sync()... ");
 	ret = MLME_START_request_sync(
 		GETLE16(full_address.PANId),
 		TEST_CHANNEL,
@@ -730,7 +755,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing MLME_POLL_request_sync()... ");
+	printf("%-35s", "MLME_POLL_request_sync()... ");
 	ret = MLME_POLL_request_sync(
 		full_address,
 		pollinterval,
@@ -738,7 +763,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing HWME_SET_request_sync()... ");
+	printf("%-35s", "HWME_SET_request_sync()... ");
 	ret = HWME_SET_request_sync(
 		TEST_HWATTRIBUTE,
 		1,
@@ -746,7 +771,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing HWME_GET_request_sync()... ");
+	printf("%-35s", "HWME_GET_request_sync()... ");
 	ret = HWME_GET_request_sync(
 		TEST_HWATTRIBUTE,
 		&hwattributelength,
@@ -754,14 +779,14 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing HWME_HAES_request_sync()... ");
+	printf("%-35s", "HWME_HAES_request_sync()... ");
 	ret = HWME_HAES_request_sync(
 		TEST_HAESMODE,
 		haesdata,
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing TDME_SETSFR_request_sync()... ");
+	printf("%-35s", "TDME_SETSFR_request_sync()... ");
 	ret = TDME_SETSFR_request_sync(
 		TEST_SFRPAGE,
 		TEST_SFRADDRESS,
@@ -769,7 +794,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing TDME_GETSFR_request_sync()... ");
+	printf("%-35s", "TDME_GETSFR_request_sync()... ");
 	ret = TDME_GETSFR_request_sync(
 		TEST_SFRPAGE,
 		TEST_SFRADDRESS,
@@ -777,13 +802,13 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing TDME_TESTMODE_request_sync()... ");
+	printf("%-35s", "TDME_TESTMODE_request_sync()... ");
 	ret = TDME_TESTMODE_request_sync(
 		TEST_TESTMODE,
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing TDME_SET_request_sync()... ");
+	printf("%-35s", "TDME_SET_request_sync()... ");
 	ret = TDME_SET_request_sync(
 		TEST_TDMEATTRIBUTE,
 		1,
@@ -791,7 +816,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing TDME_TXPKT_request_sync()... ");
+	printf("%-35s", "TDME_TXPKT_request_sync()... ");
 	ret = TDME_TXPKT_request_sync(
 		TDME_TXD_APPENDED,
 		&sequencenum,
@@ -800,7 +825,7 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("%-45s", "Testing TDME_LOTLK_request_sync()... ");
+	printf("%-35s", "TDME_LOTLK_request_sync()... ");
 	ret = TDME_LOTLK_request_sync(
 		&testchannel,
 		&rxtxb,
@@ -810,11 +835,307 @@ int api_functions_test(void)
 		&test_dev
 	);
 	print_result(ret);
-	printf("Function test complete\n");
+	printf("Function test complete\n\n");
+	return 0;
+}
+
+int test_MCPS_DATA_indication(
+	struct MCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.data_ind) {
+		tcontext->dflags.data_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MCPS_DATA_confirm(
+	struct MCPS_DATA_confirm_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.data_cnf) {
+		tcontext->dflags.data_cnf = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_ASSOCIATE_indication(
+	struct MLME_ASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.assoc_ind) {
+		tcontext->dflags.assoc_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_ASSOCIATE_confirm(
+	struct MLME_ASSOCIATE_confirm_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.assoc_cnf) {
+		tcontext->dflags.assoc_cnf = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_DISASSOCIATE_indication(
+	struct MLME_DISASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.disassoc_ind) {
+		tcontext->dflags.disassoc_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_DISASSOCIATE_confirm(
+	struct MLME_DISASSOCIATE_confirm_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.disassoc_cnf) {
+		tcontext->dflags.disassoc_cnf = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_BEACON_NOTIFY_indication(
+	struct MLME_BEACON_NOTIFY_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.beacon_notify_ind) {
+		tcontext->dflags.beacon_notify_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_ORPHAN_indication(
+	struct MLME_ORPHAN_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.orphan_ind) {
+		tcontext->dflags.orphan_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_SCAN_confirm(
+	struct MLME_SCAN_confirm_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.scan_cnf) {
+		tcontext->dflags.scan_cnf = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_COMM_STATUS_indication(
+	struct MLME_COMM_STATUS_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.comm_status_ind) {
+		tcontext->dflags.comm_status_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_MLME_SYNC_LOSS_indication(
+	struct MLME_SYNC_LOSS_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.sync_loss_ind) {
+		tcontext->dflags.sync_loss_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_HWME_WAKEUP_indication(
+	struct HWME_WAKEUP_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.wakeup_ind) {
+		tcontext->dflags.wakeup_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_TDME_MESSAGE_indication(
+	const char *message, size_t len, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.message_ind) {
+		tcontext->dflags.message_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_TDME_RXPKT_indication(
+	struct TDME_RXPKT_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.rxpkt_ind) {
+		tcontext->dflags.rxpkt_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_TDME_EDDET_indication(
+	struct TDME_EDDET_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.eddet_ind) {
+		tcontext->dflags.eddet_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_TDME_ERROR_indication(
+	struct TDME_ERROR_indication_pset *params, struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.error_ind) {
+		tcontext->dflags.error_ind = 0;
+		return 1;
+	}
+	return 0;
+}
+
+int test_generic_dispatch(const uint8_t *buf, size_t len,
+	struct ca821x_dev *pDeviceRef)
+{
+	struct test_context *tcontext = pDeviceRef->context;
+	if (tcontext->dflags.generic) {
+		tcontext->dflags.generic = 0;
+		return 1;
+	}
+	return 0;
+}
+
+void call_dispatch(uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef)
+{
+	if (ca821x_downstream_dispatch(buf, len, pDeviceRef)) {
+		printf(ANSI_COLOR_GREEN "Success\n" ANSI_COLOR_RESET);
+	} else {
+		printf(ANSI_COLOR_RED "Fail\n" ANSI_COLOR_RESET);
+	}
+}
+
+int api_callbacks_test(void)
+{
+	struct ca821x_dev test_dev;
+	struct MAC_Message msgbuf;
+	struct test_context tcontext;
+	printf(ANSI_COLOR_CYAN "Testing callbacks...\n" ANSI_COLOR_RESET);
+	memset(&tcontext, 0, sizeof(tcontext));
+	ca821x_api_init(&test_dev);
+	test_dev.context = &tcontext;
+	test_dev.callbacks.MCPS_DATA_indication = test_MCPS_DATA_indication;
+	test_dev.callbacks.MCPS_DATA_confirm = test_MCPS_DATA_confirm;
+	test_dev.callbacks.MLME_ASSOCIATE_indication = test_MLME_ASSOCIATE_indication;
+	test_dev.callbacks.MLME_ASSOCIATE_confirm = test_MLME_ASSOCIATE_confirm;
+	test_dev.callbacks.MLME_DISASSOCIATE_indication = test_MLME_DISASSOCIATE_indication;
+	test_dev.callbacks.MLME_DISASSOCIATE_confirm = test_MLME_DISASSOCIATE_confirm;
+	test_dev.callbacks.MLME_BEACON_NOTIFY_indication = test_MLME_BEACON_NOTIFY_indication;
+	test_dev.callbacks.MLME_ORPHAN_indication = test_MLME_ORPHAN_indication;
+	test_dev.callbacks.MLME_SCAN_confirm = test_MLME_SCAN_confirm;
+	test_dev.callbacks.MLME_COMM_STATUS_indication = test_MLME_COMM_STATUS_indication;
+	test_dev.callbacks.MLME_SYNC_LOSS_indication = test_MLME_SYNC_LOSS_indication;
+	test_dev.callbacks.HWME_WAKEUP_indication = test_HWME_WAKEUP_indication;
+	test_dev.callbacks.TDME_MESSAGE_indication = test_TDME_MESSAGE_indication;
+	test_dev.callbacks.TDME_RXPKT_indication = test_TDME_RXPKT_indication;
+	test_dev.callbacks.TDME_EDDET_indication = test_TDME_EDDET_indication;
+	test_dev.callbacks.TDME_ERROR_indication = test_TDME_ERROR_indication;
+	test_dev.callbacks.generic_dispatch = test_generic_dispatch;
+	printf("%-35s", "MCPS_DATA_indication... ");
+	msgbuf.CommandId = SPI_MCPS_DATA_INDICATION;
+	tcontext.dflags.data_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MCPS_DATA_confirm... ");
+	msgbuf.CommandId = SPI_MCPS_DATA_CONFIRM;
+	tcontext.dflags.data_cnf = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_ASSOCIATE_indication... ");
+	msgbuf.CommandId = SPI_MLME_ASSOCIATE_INDICATION;
+	tcontext.dflags.assoc_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_ASSOCIATE_confirm... ");
+	msgbuf.CommandId = SPI_MLME_ASSOCIATE_CONFIRM;
+	tcontext.dflags.assoc_cnf = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_DISASSOCIATE_indication... ");
+	msgbuf.CommandId = SPI_MLME_DISASSOCIATE_INDICATION;
+	tcontext.dflags.disassoc_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_DISASSOCIATE_confirm... ");
+	msgbuf.CommandId = SPI_MLME_DISASSOCIATE_CONFIRM;
+	tcontext.dflags.disassoc_cnf = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_BEACON_NOTIFY_indication... ");
+	msgbuf.CommandId = SPI_MLME_BEACON_NOTIFY_INDICATION;
+	tcontext.dflags.beacon_notify_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_ORPHAN_indication... ");
+	msgbuf.CommandId = SPI_MLME_ORPHAN_INDICATION;
+	tcontext.dflags.orphan_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_SCAN_confirm... ");
+	msgbuf.CommandId = SPI_MLME_SCAN_CONFIRM;
+	tcontext.dflags.scan_cnf = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_COMM_STATUS_indication... ");
+	msgbuf.CommandId = SPI_MLME_COMM_STATUS_INDICATION;
+	tcontext.dflags.comm_status_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "MLME_SYNC_LOSS_indication... ");
+	msgbuf.CommandId = SPI_MLME_SYNC_LOSS_INDICATION;
+	tcontext.dflags.sync_loss_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "HWME_WAKEUP_indication... ");
+	msgbuf.CommandId = SPI_HWME_WAKEUP_INDICATION;
+	tcontext.dflags.wakeup_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "TDME_MESSAGE_indication... ");
+	msgbuf.CommandId = SPI_TDME_MESSAGE_INDICATION;
+	tcontext.dflags.message_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "TDME_RXPKT_indication... ");
+	msgbuf.CommandId = SPI_TDME_RXPKT_INDICATION;
+	tcontext.dflags.rxpkt_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "TDME_EDDET_indication... ");
+	msgbuf.CommandId = SPI_TDME_EDDET_INDICATION;
+	tcontext.dflags.eddet_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "TDME_ERROR_indication... ");
+	msgbuf.CommandId = SPI_TDME_ERROR_INDICATION;
+	tcontext.dflags.error_ind = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("%-35s", "generic_dispatch... ");
+	test_dev.callbacks.TDME_ERROR_indication = NULL;
+	tcontext.dflags.generic = 1;
+	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
+	printf("Callbacks test complete\n\n");
 	return 0;
 }
 
 int main(void)
 {
-	return api_functions_test();
+	api_functions_test();
+	api_callbacks_test();
+	return 0;
 }

@@ -475,7 +475,7 @@ uint8_t MLME_ORPHAN_response(
 		ORPHANRSP.Security = *pSecurity;
 	}
 
-	if (pDeviceRef->ca821x_api_downstream(&Command.CommandId, Command.Length,
+	if (pDeviceRef->ca821x_api_downstream(&Command.CommandId, Command.Length + 2,
 	                                       NULL, pDeviceRef))
 		return MAC_SYSTEM_ERROR;
 

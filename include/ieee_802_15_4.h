@@ -215,6 +215,12 @@ enum mac_cmd_frame_id {
 	CMD_GTS_REQ              = 9
 };
 
+/** Reason for disassociation (see 802.15.4-2006 7.3.3.2) */
+enum mac_disassociate_reason {
+	DISASSOC_REASON_EVICT; //!< The coordinator wishes the device to leave the PAN
+	DISASSOC_REASON_LEAVE; //!< The device wishes to leave the PAN
+};
+
 /** PHY/MAC PIB Attribute Enumerations */
 enum pib_attribute {
 	phyCurrentChannel              = 0x00,

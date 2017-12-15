@@ -43,7 +43,7 @@
 #define TEST_TDMEATTRIBUTE (TDME_CHANNEL)
 #define TEST_TDMEATTRIBUTEVALUE (TEST_CHANNEL)
 
-#define TEST_HAESMODE (0)
+#define TEST_HAESMODE (HAES_MODE_ENCRYPT)
 #define TEST_HAESDATA 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, \
                       0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
 
@@ -132,7 +132,7 @@ uint8_t ref_mlme_disassociate_req[] = {
 	MAC_MODE_LONG_ADDR, /* DeviceAddrMode */
 	TEST_PANID, /* DevicePANId */
 	TEST_DSTADDR, /* DeviceAddress */
-	0x00, /* DisassociateReason */
+	DISASSOC_REASON_EVICT, /* DisassociateReason */
 	0, /* TxIndirect */
 	TEST_SECURITYLEVEL, /* SecurityLevel */
 	TEST_KEYIDMODE, /* KeyIdMode */
@@ -775,7 +775,7 @@ int api_functions_test(void)
 	printf("%-35s", "MLME_DISASSOCIATE_request()... ");
 	ret = MLME_DISASSOCIATE_request(
 		full_address,
-		0,
+		DISASSOC_REASON_EVICT,
 		0,
 		&test_secspec,
 		&test_dev

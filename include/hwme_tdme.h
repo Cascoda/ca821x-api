@@ -102,6 +102,12 @@ enum hwme_attribute {
 	HWME_MAX_ATTRIBUTE = HWME_LQIMODE
 };
 
+/** Hardware AES mode values */
+enum haes_mode {
+	HAES_MODE_ENCRYPT = 0, //!< Encrypt given buffer
+	HAES_MODE_DECRYPT = 1 //!< Decrypt given buffer
+};
+
 /** CCA Mode */
 enum cca_mode {
 	CCAM_EDORCS  = 0,   //!< CCA Mode: Either ED or CS level exceeded

@@ -254,7 +254,7 @@ uint8_t MLME_ASSOCIATE_request(
 	Command.CommandId = SPI_MLME_ASSOCIATE_REQUEST;
 	Command.Length = sizeof(struct MLME_ASSOCIATE_request_pset);
 	ASSOCREQ.LogicalChannel = LogicalChannel;
-	ASSOCREQ.Dst.AddressMode = DstAddr;
+	ASSOCREQ.Dst = DstAddr;
 	ASSOCREQ.CapabilityInfo = CapabilityInfo;
 	if ((pSecurity == NULL) || (pSecurity->SecurityLevel == 0)) {
 		ASSOCREQ.Security.SecurityLevel = 0;

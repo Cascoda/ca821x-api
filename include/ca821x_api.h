@@ -220,15 +220,13 @@ struct ca821x_dev {
 /******************************************************************************/
 
 uint8_t MCPS_DATA_request(
-	uint8_t            SrcAddrMode,
-	uint8_t            DstAddrMode,
-	uint16_t           DstPANId,
-	union MacAddr     *pDstAddr,
-	uint8_t            MsduLength,
-	uint8_t           *pMsdu,
-	uint8_t            MsduHandle,
-	uint8_t            TxOptions,
-	struct SecSpec    *pSecurity,
+	uint8_t          SrcAddrMode,
+	struct FullAddr  DstAddr,
+	uint8_t          MsduLength,
+	uint8_t         *pMsdu,
+	uint8_t          MsduHandle,
+	uint8_t          TxOptions,
+	struct SecSpec  *pSecurity,
 	struct ca821x_dev *pDeviceRef
 );
 
@@ -238,12 +236,10 @@ uint8_t MCPS_PURGE_request_sync(
 );
 
 uint8_t MLME_ASSOCIATE_request(
-	uint8_t            LogicalChannel,
-	uint8_t            DstAddrMode,
-	uint16_t           DstPANId,
-	union MacAddr     *pDstAddr,
-	uint8_t            CapabilityInfo,
-	struct SecSpec    *pSecurity,
+	uint8_t          LogicalChannel,
+	struct FullAddr  DstAddr,
+	uint8_t          CapabilityInfo,
+	struct SecSpec  *pSecurity,
 	struct ca821x_dev *pDeviceRef
 );
 

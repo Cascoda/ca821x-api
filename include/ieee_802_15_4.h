@@ -84,7 +84,7 @@
 #define aUnitBackoffPeriod              (20)
 
 #define MAX_ATTRIBUTE_SIZE              (122)
-#define MAX_DATA_SIZE                   (114)
+#define MAX_DATA_SIZE                   (aMaxPHYPacketSize)
 
 #define M_MinimumChannel                (11)
 #define M_MaximumChannel                (26)

@@ -519,6 +519,8 @@ struct M_KeyDeviceDesc {
 /* Masks for KeyDeviceDesc Flags*/
 /** Key Device Descriptor handle mask */
 #define KDD_DeviceDescHandleMask        (0x3F)
+/** Key Device Descriptor nonstandard 'is new' key-device pair */
+#define KDD_NewMask                     (0x20)
 /** Key Device Descriptor is unique device mask */
 #define KDD_UniqueDeviceMask            (0x40)
 /** Key Device Descriptor is blacklisted mask */

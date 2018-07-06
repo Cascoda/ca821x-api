@@ -263,6 +263,7 @@ struct MCPS_DATA_confirm_pset {
 	uint8_t            MsduHandle;
 	uint8_t            Status;
 	uint8_t            TimeStamp[4];
+	uint8_t            FramePending;
 };
 
 /** MCPS_PURGE_confirm parameter set */
@@ -279,6 +280,7 @@ struct MCPS_DATA_indication_pset {
     uint8_t            MpduLinkQuality;
     uint8_t            DSN;
     uint8_t            TimeStamp[4];
+    uint8_t            FramePending;
     uint8_t            Msdu[MAX_DATA_SIZE];
 };
 

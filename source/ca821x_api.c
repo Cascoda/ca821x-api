@@ -139,9 +139,7 @@ int ca821x_api_init(struct ca821x_dev *pDeviceRef)
  * \brief MCPS_DATA_request (Send Data) according to API Spec
  *******************************************************************************
  * \param SrcAddrMode - Source Addressing Mode
- * \param DstAddrMode - Destination Addressing Mode
- * \param DstPANId - Destination PAN ID
- * \param pDstAddr - Pointer to Destination Address
+ * \param DstAddr - Destination Address and PanId
  * \param MsduLength - Length of Data
  * \param pMsdu - Pointer to Data
  * \param MsduHandle - Handle of Data
@@ -154,9 +152,7 @@ int ca821x_api_init(struct ca821x_dev *pDeviceRef)
  ******************************************************************************/
 uint8_t MCPS_DATA_request(
 	uint8_t          SrcAddrMode,
-	uint8_t          DstAddrMode,
-	uint16_t         DstPANId,
-	union MacAddr   *pDstAddr,
+	struct FullAddr  DstAddr,
 	uint8_t          MsduLength,
 	uint8_t         *pMsdu,
 	uint8_t          MsduHandle,
@@ -170,17 +166,7 @@ uint8_t MCPS_DATA_request(
 	#define DATAREQ (Command.PData.DataReq)
 	Command.CommandId = SPI_MCPS_DATA_REQUEST;
 	DATAREQ.SrcAddrMode = SrcAddrMode;
-	DATAREQ.Dst.AddressMode = DstAddrMode;
-	if (DstAddrMode != MAC_MODE_NO_ADDR) {
-		DATAREQ.Dst.PANId[0] = LS_BYTE(DstPANId);
-		DATAREQ.Dst.PANId[1] = MS_BYTE(DstPANId);
-		if (DstAddrMode == MAC_MODE_SHORT_ADDR) {
-			DATAREQ.Dst.Address[0] = LS_BYTE(pDstAddr->ShortAddress);
-			DATAREQ.Dst.Address[1] = MS_BYTE(pDstAddr->ShortAddress);
-		} else {   // MAC_MODE_LONG_ADDR
-			memcpy(DATAREQ.Dst.Address, pDstAddr->IEEEAddress, 8);
-		}
-	}
+	DATAREQ.Dst = DstAddr;
 	DATAREQ.MsduLength = MsduLength;
 	DATAREQ.MsduHandle = MsduHandle;
 	DATAREQ.TxOptions = TxOptions;
@@ -252,9 +238,7 @@ uint8_t MCPS_PURGE_request_sync(
  ******************************************************************************/
 uint8_t MLME_ASSOCIATE_request(
 	uint8_t          LogicalChannel,
-	uint8_t          DstAddrMode,
-	uint16_t         DstPANId,
-	union MacAddr   *pDstAddr,
+	struct FullAddr  DstAddr,
 	uint8_t          CapabilityInfo,
 	struct SecSpec  *pSecurity,
 	struct ca821x_dev *pDeviceRef
@@ -270,21 +254,7 @@ uint8_t MLME_ASSOCIATE_request(
 	Command.CommandId = SPI_MLME_ASSOCIATE_REQUEST;
 	Command.Length = sizeof(struct MLME_ASSOCIATE_request_pset);
 	ASSOCREQ.LogicalChannel = LogicalChannel;
-	ASSOCREQ.Dst.AddressMode = DstAddrMode;
-	ASSOCREQ.Dst.PANId[0] = LS_BYTE(DstPANId);
-	ASSOCREQ.Dst.PANId[1] = MS_BYTE(DstPANId);
-	switch (DstAddrMode) {
-	case MAC_MODE_SHORT_ADDR:
-		ASSOCREQ.Dst.Address[0] = LS_BYTE(pDstAddr->ShortAddress);
-		ASSOCREQ.Dst.Address[1] = MS_BYTE(pDstAddr->ShortAddress);
-		break;
-	case MAC_MODE_LONG_ADDR:
-		memcpy(ASSOCREQ.Dst.Address, pDstAddr->IEEEAddress, 8);
-		break;
-	default:
-		memset(ASSOCREQ.Dst.Address, 0 , 8);
-		break;
-	}
+	ASSOCREQ.Dst = DstAddr;
 	ASSOCREQ.CapabilityInfo = CapabilityInfo;
 	if ((pSecurity == NULL) || (pSecurity->SecurityLevel == 0)) {
 		ASSOCREQ.Security.SecurityLevel = 0;

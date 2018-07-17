@@ -735,9 +735,7 @@ int api_functions_test(void)
 	printf("%-35s", "MCPS_DATA_request()... ");
 	ret = MCPS_DATA_request(
 		MAC_MODE_SHORT_ADDR,
-		full_address.AddressMode,
-		GETLE16(full_address.PANId),
-		(union MacAddr*)full_address.Address,
+		full_address,
 		TEST_MSDULENGTH,
 		msdu_buffer,
 		TEST_MSDUHANDLE,
@@ -755,9 +753,7 @@ int api_functions_test(void)
 	printf("%-35s", "MLME_ASSOCIATE_request()... ");
 	ret = MLME_ASSOCIATE_request(
 		TEST_CHANNEL,
-		full_address.AddressMode,
-		GETLE16(full_address.PANId),
-		(union MacAddr*)full_address.Address,
+		full_address,
 		0,
 		&test_secspec,
 		&test_dev

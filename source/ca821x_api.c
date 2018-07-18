@@ -51,6 +51,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "mac_messages.h"
 #include "ca821x_api.h"
@@ -1531,6 +1532,7 @@ static void verify_scancnf_results(struct MAC_Message *scan_cnf,
 	struct MLME_SCAN_confirm_pset *scan_cnf_pset;
 	struct PanDescriptor *pdesc;
 	int pdesc_index, pdesc_length;
+	bool list_modified = false;
 
 	scan_cnf_pset = &scan_cnf->PData.ScanCnf;
 	if (pDeviceRef->lqi_mode == HWME_LQIMODE_ED) /* Cannot filter by ED */
@@ -1552,6 +1554,7 @@ static void verify_scancnf_results(struct MAC_Message *scan_cnf,
 			pdesc_index++;
 			continue;
 		}
+		list_modified = true;
 		/* Copy rest of list forward one index */
 		memcpy(
 			pdesc,
@@ -1563,6 +1566,7 @@ static void verify_scancnf_results(struct MAC_Message *scan_cnf,
 		scan_cnf->Length -= pdesc_length;
 	}
 	if (scan_cnf_pset->ResultListSize == 0 &&
+	    list_modified &&
 	    (scan_cnf_pset->Status == MAC_SUCCESS ||
 	     scan_cnf_pset->Status == MAC_LIMIT_REACHED)) {
 		scan_cnf_pset->Status = MAC_NO_BEACON;

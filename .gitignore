@@ -4,3 +4,4 @@
 docs/
 *.tag
 *.patch
+test/test_app

@@ -1600,6 +1600,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 			(struct MCPS_DATA_indication_pset*)(buf + 2), pDeviceRef
 		);
 		if (ret) {
+			printf("Erroneous rx from %x\n", GETLE16(((struct MCPS_DATA_indication_pset*)(buf + 2))->Src.Address));
 			return ret;
 		}
 		if (callbacks->MCPS_DATA_indication) {

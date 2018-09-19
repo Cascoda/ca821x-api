@@ -147,9 +147,6 @@ struct MLME_ORPHAN_response_pset {
 /** MLME_POLL_request parameter set */
 struct MLME_POLL_request_pset {
 	struct FullAddr CoordAddress;
-	uint8_t         Interval[2];      /* polling interval in 0.1 seconds res */
-	                                  /* 0 means poll once */
-	                                  /* 0xFFFF means stop polling */
 	struct SecSpec  Security;
 };
 

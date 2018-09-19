@@ -315,9 +315,6 @@ uint8_t MLME_START_request_sync(
 
 uint8_t MLME_POLL_request_sync(
 	struct FullAddr    CoordAddress,
-	uint8_t            Interval[2],    /* polling interval in 0.1 seconds res */
-	                                   /* 0 means poll once */
-	                                   /* 0xFFFF means stop polling */
 	struct SecSpec    *pSecurity,
 	struct ca821x_dev *pDeviceRef
 );

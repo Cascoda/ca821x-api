@@ -269,7 +269,6 @@ uint8_t ref_mlme_poll_req[] = {
 	MAC_MODE_LONG_ADDR, /* CoordAddressMode */
 	TEST_PANID, /* CoordinatorPANId */
 	TEST_DSTADDR, /* CoordAddress */
-	0x00, 0x00, /* IntervalTime */
 	TEST_SECURITYLEVEL, /* SecurityLevel */
 	TEST_KEYIDMODE, /* KeyIdMode */
 	TEST_KEYSOURCE, /* KeySource */
@@ -706,7 +705,6 @@ int api_functions_test(void)
 	uint8_t ret, msdu_buffer[TEST_MSDULENGTH];
 	uint8_t msduhandle=TEST_MSDUHANDLE;
 	uint8_t pibattributelength=1, pibattributevalue=TEST_CHANNEL;
-	uint8_t pollinterval[2]={0,0};
 	uint8_t hwattributelength=1, hwattributevalue=TEST_HWATTRIBUTEVALUE;
 	uint8_t haesdata[16];
 	uint8_t sfrvalue, tdmeattributevalue=TEST_TDMEATTRIBUTEVALUE;
@@ -844,7 +842,6 @@ int api_functions_test(void)
 	printf("%-35s", "MLME_POLL_request_sync()... ");
 	ret = MLME_POLL_request_sync(
 		full_address,
-		pollinterval,
 		&test_secspec,
 		&test_dev
 	);

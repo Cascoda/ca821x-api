@@ -11,22 +11,19 @@ if(NOT CASCODA_CA_VER IN_LIST CASCODA_CA_VERS)
     message(FATAL_ERROR "CASCODA_CA_VER must be one of ${CASCODA_CA_VERS}")
 endif()
 
-# Header file setup -----------------------------------------------------------
-include_directories(
-	${PROJECT_SOURCE_DIR}/include
-	)
-
+# Config file generation ------------------------------------------------------
 configure_file(
 	"${PROJECT_SOURCE_DIR}/include/ca821x_config.h.in"
 	"${PROJECT_SOURCE_DIR}/include/ca821x_config.h"
 	)
 
 # Main library config ---------------------------------------------------------
-file(GLOB MAIN_SOURCES
-	${PROJECT_SOURCE_DIR}/source/*)
-
 add_library(ca821x
 	${PROJECT_SOURCE_DIR}/source/ca821x_api.c
+	)
+
+target_include_directories( ca821x
+	PUBLIC ${PROJECT_SOURCE_DIR}/include
 	)
 
 # Test app config -------------------------------------------------------------

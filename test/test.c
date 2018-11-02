@@ -267,10 +267,17 @@ uint8_t ref_mlme_start_cnf[] = {
 /** MLME-POLL.request reference buffer */
 uint8_t ref_mlme_poll_req[] = {
 	SPI_MLME_POLL_REQUEST, /* CmdId */
+#if CASCODA_CA_VER == 8210
 	24, /* Packet Length */
+#else
+	22, /* Packet Length */
+#endif
 	MAC_MODE_LONG_ADDR, /* CoordAddressMode */
 	TEST_PANID, /* CoordinatorPANId */
 	TEST_DSTADDR, /* CoordAddress */
+#if CASCODA_CA_VER == 8210
+	00, 00, /*Interval*/
+#endif
 	TEST_SECURITYLEVEL, /* SecurityLevel */
 	TEST_KEYIDMODE, /* KeyIdMode */
 	TEST_KEYSOURCE, /* KeySource */

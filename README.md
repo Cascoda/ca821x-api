@@ -1,7 +1,14 @@
 # ca821x-api
 This is Cascoda's IEEE 802.15.4 API library used for communication with the CA-821X family of devices.
 
-The API models the SAP interface of the 802.15.4 specification (MCPS+MLME) as well as two proprietary entities, the HWME (Hardware Management Entity) and the TDME (Test & Debug Management Entity). The API defines two main types of command; synchronous and asynchronous. Synchronous command functions will not return until the corresponding response has been received from the device whereas asynchronous functions will return immediately after the command is issued. 
+The API models the SAP interface of the 802.15.4 specification (MCPS+MLME) as well as two proprietary entities, the HWME (Hardware Management Entity) and the TDME (Test & Debug Management Entity). The API defines two main types of command; synchronous and asynchronous. Synchronous command functions will not return until the corresponding response has been received from the device whereas asynchronous functions will return immediately after the command is issued.
+
+## Building
+This project must be configured with cmake before building. It is recommended to use the cmake gui, ccmake or cmake interactive mode, as there are user-configurable options. This will generate the required config files and setup whatever build system/projects you need.
+
+For more information, consult https://cmake.org/runningcmake/
+
+## Usage
 
 Before using the api, a ca821x_dev struct must be allocated and initialised.
 ```C

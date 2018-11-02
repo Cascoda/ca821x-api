@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 
+#include "ca821x_config.h"
 #include "ieee_802_15_4.h"
 #include "hwme_tdme.h"
 
@@ -147,6 +148,11 @@ struct MLME_ORPHAN_response_pset {
 /** MLME_POLL_request parameter set */
 struct MLME_POLL_request_pset {
 	struct FullAddr CoordAddress;
+#if CASCODA_CA_VER == 8210
+	uint8_t Interval[2];     /* polling interval in 0.1 seconds res */
+	                         /* 0 means poll once */
+	                         /* 0xFFFF means stop polling */
+#endif
 	struct SecSpec  Security;
 };
 
@@ -260,7 +266,9 @@ struct MCPS_DATA_confirm_pset {
 	uint8_t            MsduHandle;
 	uint8_t            Status;
 	uint8_t            TimeStamp[4];
+#if CASCODA_CA_VER == 8211
 	uint8_t            FramePending;
+#endif
 };
 
 /** MCPS_PURGE_confirm parameter set */
@@ -277,7 +285,9 @@ struct MCPS_DATA_indication_pset {
     uint8_t            MpduLinkQuality;
     uint8_t            DSN;
     uint8_t            TimeStamp[4];
+#if CASCODA_CA_VER == 8211
     uint8_t            FramePending;
+#endif
     uint8_t            Msdu[MAX_DATA_SIZE];
 };
 
@@ -474,14 +484,22 @@ struct TDME_LOTLK_confirm_pset {
 #define KEY_TABLE_SIZE                  (4)
 /** Maximum value of KeyIdLookupListEntries */
 #define LOOKUP_DESC_TABLE_SIZE          (5)
-/** Maximum value of KeyDeviceListEntries */
-#define KEY_DEVICE_TABLE_SIZE           (10)
 /** Maximum value of KeyUsageListEntries */
 #define KEY_USAGE_TABLE_SIZE            (12)
 /** Maximum value of macSecurityLevelTableEntries */
 #define SECURITY_LEVEL_TABLE_SIZE       (2)
-/** Maximum value of macDeviceTableEntries */
-#define DEVICE_TABLE_SIZE               (10)
+
+#if CASCODA_CA_VER == 8210
+	/** Maximum value of KeyDeviceListEntries */
+	#define KEY_DEVICE_TABLE_SIZE           (10)
+	/** Maximum value of macDeviceTableEntries */
+	#define DEVICE_TABLE_SIZE               (10)
+#elif CASCODA_CA_VER == 8211
+	/** Maximum value of KeyDeviceListEntries */
+	#define KEY_DEVICE_TABLE_SIZE           (32)
+	/** Maximum value of macDeviceTableEntries */
+	#define DEVICE_TABLE_SIZE               (32)
+#endif
 
 
 /***************************************************************************//**
@@ -518,8 +536,10 @@ struct M_KeyDeviceDesc {
 /* Masks for KeyDeviceDesc Flags*/
 /** Key Device Descriptor handle mask */
 #define KDD_DeviceDescHandleMask        (0x3F)
+#if CASCODA_CA_VER == 8211
 /** Key Device Descriptor nonstandard 'is new' key-device pair */
 #define KDD_NewMask                     (0x20)
+#endif
 /** Key Device Descriptor is unique device mask */
 #define KDD_UniqueDeviceMask            (0x40)
 /** Key Device Descriptor is blacklisted mask */

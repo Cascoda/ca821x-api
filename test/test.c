@@ -22,6 +22,8 @@
 #include <string.h>
 #include "ca821x_api.h"
 
+static int sReturnValue;
+
 /* Test parameters */
 #define TEST_DSTADDR 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88
 #define TEST_CHANNEL (13)
@@ -541,7 +543,7 @@ void populate_response(uint8_t request_id, uint8_t *response)
 		break;
 	}
 	if (reference_buffer)
-		memcpy(response, reference_buffer, sizeof(reference_buffer));
+		memcpy(response, reference_buffer, reference_buffer[1]+2);
 }
 
 /******************************************************************************/
@@ -652,6 +654,7 @@ int verify_command(
 		if (memcmp(buf, reference_buffer, reference_len)) {
 			/* buffers differ */
 			printf(ANSI_COLOR_RED "Output failed" ANSI_COLOR_RESET "\n");
+			sReturnValue = -1;
 			printf("result  reference\n");
 			for(int i = 0; i < reference_len; i++) {
 				if(buf[i] != reference_buffer[i]) {
@@ -710,6 +713,7 @@ int api_functions_test(void)
 	uint8_t sfrvalue, tdmeattributevalue=TEST_TDMEATTRIBUTEVALUE;
 	uint8_t sequencenum=TEST_SEQUENCENUM, txpktlength=TEST_MSDULENGTH;
 	uint8_t testchannel=TEST_CHANNEL, rxtxb=0, lo_vals[3];
+	uint8_t interval[2] = {0,0};
 	struct FullAddr full_address;
 	struct ca821x_dev test_dev;
 	struct SecSpec test_secspec = {
@@ -842,6 +846,9 @@ int api_functions_test(void)
 	printf("%-35s", "MLME_POLL_request_sync()... ");
 	ret = MLME_POLL_request_sync(
 		full_address,
+#if CASCODA_CA_VER == 8210
+		interval,
+#endif
 		&test_secspec,
 		&test_dev
 	);
@@ -1298,6 +1305,7 @@ void call_dispatch(uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef)
 		printf(ANSI_COLOR_GREEN "Success\n" ANSI_COLOR_RESET);
 	} else {
 		printf(ANSI_COLOR_RED "Fail\n" ANSI_COLOR_RESET);
+		sReturnValue = -1;
 	}
 }
 
@@ -1408,7 +1416,8 @@ int api_callbacks_test(void)
 
 int main(void)
 {
+	sReturnValue = 0;
 	api_functions_test();
 	api_callbacks_test();
-	return 0;
+	return sReturnValue;
 }

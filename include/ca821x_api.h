@@ -45,7 +45,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "ca821x_config.h"
 #include "mac_messages.h"
+
+#if CASCODA_CA_VER != 8210 && CASCODA_CA_VER != 8211
+#error "UNSUPPORTED CASCODA_CA_VER VERSION (or build incorrectly configured - use cmake)"
+#endif
 
 #ifndef _CASCODA_MACROS
 #define _CASCODA_MACROS
@@ -315,9 +320,11 @@ uint8_t MLME_START_request_sync(
 
 uint8_t MLME_POLL_request_sync(
 	struct FullAddr    CoordAddress,
-	uint8_t            Interval[2],    /* polling interval in 0.1 seconds res */
-	                                   /* 0 means poll once */
-	                                   /* 0xFFFF means stop polling */
+#if CASCODA_CA_VER == 8210
+	uint8_t Interval[2],     /* polling interval in 0.1 seconds res */
+	                         /* 0 means poll once */
+	                         /* 0xFFFF means stop polling */
+#endif
 	struct SecSpec    *pSecurity,
 	struct ca821x_dev *pDeviceRef
 );

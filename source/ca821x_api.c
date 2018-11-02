@@ -50,7 +50,6 @@
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdbool.h>
 
 #include "mac_messages.h"
@@ -741,9 +740,11 @@ uint8_t MLME_START_request_sync(
  ******************************************************************************/
 uint8_t MLME_POLL_request_sync(
 	struct FullAddr   CoordAddress,
-	uint8_t           Interval[2],    /* polling interval in 0.1 seconds res */
-	                                  /* 0 means poll once */
-	                                  /* 0xFFFF means stop polling */
+#if CASCODA_CA_VER == 8210
+	uint8_t Interval[2],     /* polling interval in 0.1 seconds res */
+	                         /* 0 means poll once */
+	                         /* 0xFFFF means stop polling */
+#endif
 	struct SecSpec   *pSecurity,
 	struct ca821x_dev *pDeviceRef
 )
@@ -753,8 +754,10 @@ uint8_t MLME_POLL_request_sync(
 	Command.CommandId = SPI_MLME_POLL_REQUEST;
 	Command.Length = sizeof(struct MLME_POLL_request_pset);
 	POLLREQ.CoordAddress = CoordAddress;
+#if CASCODA_CA_VER == 8210
 	POLLREQ.Interval[0] = Interval[0];
 	POLLREQ.Interval[1] = Interval[1];
+#endif
 	if ((pSecurity == NULL) || (pSecurity->SecurityLevel == 0)) {
 		POLLREQ.Security.SecurityLevel = 0;
 		Command.Length -= sizeof(struct SecSpec) - 1;

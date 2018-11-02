@@ -22,9 +22,10 @@
 #ifndef HWME_TDME_H
 #define HWME_TDME_H
 
+#include "ca821x_config.h"
+
 #define MAX_HWME_ATTRIBUTE_SIZE  16
 #define MAX_TDME_ATTRIBUTE_SIZE  2
-
 
 /***************************************************************************//**
 * \defgroup HWMEEnums HWME Enumerations
@@ -98,8 +99,15 @@ enum hwme_attribute {
 	HWME_SYSCLKOUT     = 0x0F,
 	/** LQI Reporting Mode for Data Indications and PanDescriptors */
 	HWME_LQIMODE       = 0x10,
-	HWME_MIN_ATTRIBUTE = HWME_POWERCON,
-	HWME_MAX_ATTRIBUTE = HWME_LQIMODE
+	HWME_LQILIMIT      = 0x11,
+#if CASCODA_CA_VER == 8211
+	HWME_RXMODE        = 0x12,
+	HWME_POLLINDMODE   = 0x13,
+	HWME_ENHANCEDFP    = 0x14,
+	HWME_MAXDIRECTS    = 0x15,
+	HWME_MAXINDIRECTS  = 0x16,
+	HWME_IMAGINARYINDIRECT = 0x17,
+#endif
 };
 
 /** Hardware AES mode values */

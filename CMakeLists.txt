@@ -1,6 +1,6 @@
 # Global config ---------------------------------------------------------------
 cmake_minimum_required (VERSION 3.5)
-project (ca821x-api)
+project (ca821x-api-lib)
 
 # Set configuration variables -------------------------------------------------
 set(CASCODA_CA_VERS 8210 8211)
@@ -18,11 +18,11 @@ configure_file(
 	)
 
 # Main library config ---------------------------------------------------------
-add_library(ca821x
+add_library(ca821x-api
 	${PROJECT_SOURCE_DIR}/source/ca821x_api.c
 	)
 
-target_include_directories( ca821x
+target_include_directories( ca821x-api
 	PUBLIC ${PROJECT_SOURCE_DIR}/include
 	)
 
@@ -31,7 +31,7 @@ add_executable(test_app
 	${PROJECT_SOURCE_DIR}/test/test.c
 	)
 
-target_link_libraries(test_app ca821x)
+target_link_libraries(test_app ca821x-api)
 
 # Run tests -------------------------------------------------------------------
 include(CTest)

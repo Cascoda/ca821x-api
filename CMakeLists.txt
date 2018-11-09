@@ -14,7 +14,7 @@ endif()
 # Config file generation ------------------------------------------------------
 configure_file(
 	"${PROJECT_SOURCE_DIR}/include/ca821x_config.h.in"
-	"${PROJECT_SOURCE_DIR}/include/ca821x_config.h"
+	"${PROJECT_BINARY_DIR}/include/ca821x_config.h"
 	)
 
 # Main library config ---------------------------------------------------------
@@ -23,7 +23,9 @@ add_library(ca821x-api
 	)
 
 target_include_directories( ca821x-api
-	PUBLIC ${PROJECT_SOURCE_DIR}/include
+	PUBLIC
+		${PROJECT_SOURCE_DIR}/include
+		${PROJECT_BINARY_DIR}/include
 	)
 
 # Test app config -------------------------------------------------------------

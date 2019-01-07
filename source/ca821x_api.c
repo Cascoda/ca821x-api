@@ -234,6 +234,7 @@ uint8_t MCPS_PURGE_request_sync(
  * \return 802.15.4 status
  *******************************************************************************
  ******************************************************************************/
+#if CASCODA_CA_VER >= 8211
 uint8_t PCPS_DATA_request(
 	uint8_t          PsduHandle,
 	uint8_t          TxOpts,
@@ -261,6 +262,7 @@ uint8_t PCPS_DATA_request(
 	return MAC_SUCCESS;
 	#undef DATAREQ
 } // End of PCPS_DATA_request()
+#endif // CASCODA_CA_VER >= 8211
 
 /******************************************************************************/
 /***************************************************************************//**
@@ -1661,6 +1663,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 			);
 		}
 		break;
+#if CASCODA_CA_VER >= 8211
 	case SPI_PCPS_DATA_INDICATION:
 		if (callbacks->PCPS_DATA_indication) {
 			return callbacks->PCPS_DATA_indication(
@@ -1677,6 +1680,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 			);
 		}
 		break;
+#endif //CASCODA_CA_VER >= 8211
 	case SPI_MLME_ASSOCIATE_INDICATION:
 		if (callbacks->MLME_ASSOCIATE_indication) {
 			return callbacks->MLME_ASSOCIATE_indication(

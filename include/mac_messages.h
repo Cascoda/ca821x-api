@@ -106,6 +106,7 @@ struct MCPS_DATA_request_pset {
 // PCPS
 
 /** PCPS_DATA_request parameter set */
+#if CASCODA_CA_VER >= 8211
 struct PCPS_DATA_request_pset
 {
 	uint8_t            PsduHandle; /**< Handle to identify PCPS request */
@@ -113,6 +114,7 @@ struct PCPS_DATA_request_pset
 	uint8_t            PsduLength; /**< Length of the PSDU */
 	uint8_t            Psdu[aMaxPHYPacketSize]; /**< PSDU data */
 };
+#endif //CASCODA_CA_VER >= 8211
 
 // MLME
 
@@ -303,7 +305,7 @@ struct MCPS_DATA_indication_pset {
 };
 
 // PCPS
-
+#if CASCODA_CA_VER >= 8211
 /** PCPS_DATA_indication parameter set */
 struct PCPS_DATA_indication_pset {
 	uint8_t            CS; /**< Carrier sense value of received frame*/
@@ -318,6 +320,7 @@ struct PCPS_DATA_confirm_pset {
 	uint8_t            Status; /**< Status of the PSDU Data Request */
 	uint8_t            FramePending; /**< Value of 'Frame Pending' on the ack that was received (if any) */
 };
+#endif //CASCODA_CA_VER >= 8211
 
 // MLME
 
@@ -698,9 +701,11 @@ struct MAC_Message {
 		struct MLME_SYNC_LOSS_indication_pset       SyncLossInd;
 		struct MLME_ORPHAN_indication_pset          OrphanInd;
 		/* PCPS */
+#if CASCODA_CA_VER >= 8211
 		struct PCPS_DATA_request_pset               PhyDataReq;
 		struct PCPS_DATA_confirm_pset               PhyDataCnf;
 		struct PCPS_DATA_indication_pset            PhyDataInd;
+#endif
 		/* HWME */
 		struct HWME_SET_request_pset                HWMESetReq;
 		struct HWME_GET_request_pset                HWMEGetReq;
@@ -756,9 +761,11 @@ enum spi_command_ids {
 	SPI_MCPS_DATA_CONFIRM             = MCPS_DATA_CONFIRM+SPI_S2M,
 	SPI_MCPS_PURGE_CONFIRM            = MCPS_PURGE_CONFIRM+SPI_S2M+SPI_SYN,
 	// MAC PCPS
+#if CASCODA_CA_VER >= 8211
 	SPI_PCPS_DATA_REQUEST             = 0x07,
 	SPI_PCPS_DATA_CONFIRM             = 0x38,
 	SPI_PCPS_DATA_INDICATION          = 0x28,
+#endif //CASCODA_CA_VER >= 8211
 	// MAC MLME
 	SPI_MLME_ASSOCIATE_REQUEST        = MLME_ASSOCIATE_REQUEST,
 	SPI_MLME_ASSOCIATE_RESPONSE       = MLME_ASSOCIATE_RESPONSE,

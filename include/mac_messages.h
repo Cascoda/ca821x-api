@@ -683,7 +683,9 @@ struct MAC_Message {
 		struct MLME_COMM_STATUS_indication_pset     CommStatusInd;
 		struct MLME_SYNC_LOSS_indication_pset       SyncLossInd;
 		struct MLME_ORPHAN_indication_pset          OrphanInd;
+#if CASCODA_CA_VER >= 8211
 		struct MLME_POLL_indication_pset            PollInd;
+#endif
 		/* HWME */
 		struct HWME_SET_request_pset                HWMESetReq;
 		struct HWME_GET_request_pset                HWMEGetReq;

@@ -1695,6 +1695,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 			);
 		}
 		break;
+#if CASCODA_CA_VER >= 8211
 	case SPI_MLME_POLL_INDICATION:
 		if (callbacks->MLME_POLL_indication) {
 			return callbacks->MLME_POLL_indication(
@@ -1703,6 +1704,7 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 			);
 		}
 		break;
+#endif //CASCODA_CA_VER >= 8211
 	case SPI_HWME_WAKEUP_INDICATION:
 		pDeviceRef->last_wakeup_cond = buf[2];
 		if (callbacks->HWME_WAKEUP_indication) {

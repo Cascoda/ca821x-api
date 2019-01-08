@@ -378,6 +378,7 @@ struct MLME_SYNC_LOSS_indication_pset {
 	struct SecSpec     Security;
 };
 
+#if CASCODA_CA_VER >= 8211
 struct MLME_POLL_indication_pset
 {
     struct FullAddr   Src;
@@ -386,6 +387,7 @@ struct MLME_POLL_indication_pset
     uint8_t           DSN;
     struct SecSpec    Security;
 };
+#endif //CASCODA_CA_VER >= 8211
 
 // HWME
 
@@ -508,6 +510,8 @@ struct TDME_LOTLK_confirm_pset {
 	#define KEY_DEVICE_TABLE_SIZE           (32)
 	/** Maximum value of macDeviceTableEntries */
 	#define DEVICE_TABLE_SIZE               (32)
+#elif
+#error "Security table sizes undefined"
 #endif
 
 
@@ -762,7 +766,9 @@ enum spi_command_ids {
 	SPI_MLME_START_CONFIRM            = MLME_START_CONFIRM+SPI_S2M+SPI_SYN,
 	SPI_MLME_SYNC_LOSS_INDICATION     = MLME_SYNC_LOSS_INDICATION+SPI_S2M,
 	SPI_MLME_POLL_CONFIRM             = MLME_POLL_CONFIRM+SPI_S2M+SPI_SYN,
+#if CASCODA_CA_VER >= 8211
 	SPI_MLME_POLL_INDICATION          = MLME_POLL_INDICATION+SPI_S2M,
+#endif
 	// HWME
 	SPI_HWME_SET_REQUEST              = HWME_SET_REQUEST+SPI_SYN,
 	SPI_HWME_GET_REQUEST              = HWME_GET_REQUEST+SPI_SYN,

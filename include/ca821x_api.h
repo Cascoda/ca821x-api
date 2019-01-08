@@ -180,6 +180,8 @@ struct ca821x_api_callbacks {
 		struct MLME_SCAN_confirm_pset *params, struct ca821x_dev *pDeviceRef);
 	int (*MLME_COMM_STATUS_indication) (
 		struct MLME_COMM_STATUS_indication_pset *params, struct ca821x_dev *pDeviceRef);
+	int (*MLME_POLL_indication) (
+		struct MLME_POLL_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	int (*MLME_SYNC_LOSS_indication) (
 		struct MLME_SYNC_LOSS_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	int (*HWME_WAKEUP_indication) (

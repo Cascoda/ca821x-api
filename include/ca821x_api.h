@@ -164,6 +164,12 @@ struct ca821x_api_callbacks {
 		struct MCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	int (*MCPS_DATA_confirm) (
 		struct MCPS_DATA_confirm_pset *params, struct ca821x_dev *pDeviceRef);
+#if CASCODA_CA_VER >= 8211
+	int (*PCPS_DATA_indication) (
+		struct PCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef);
+	int (*PCPS_DATA_confirm) (
+		struct PCPS_DATA_confirm_pset *params, struct ca821x_dev *pDeviceRef);
+#endif
 	int (*MLME_ASSOCIATE_indication) (
 		struct MLME_ASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	int (*MLME_ASSOCIATE_confirm) (

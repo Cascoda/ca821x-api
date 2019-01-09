@@ -223,6 +223,49 @@ uint8_t MCPS_PURGE_request_sync(
 
 /******************************************************************************/
 /***************************************************************************//**
+ * \brief PCPS_DATA_request (Send Data) according to API Spec
+ *******************************************************************************
+ * \param PsduHandle - User-assigned handle to identify data request
+ * \param TxOpts - TxOpts (such as for sending indirectly)
+ * \param PsduLength - Length of Data
+ * \param pPsdu - Pointer to Data
+ * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
+ *******************************************************************************
+ * \return 802.15.4 status
+ *******************************************************************************
+ ******************************************************************************/
+#if CASCODA_CA_VER >= 8211
+uint8_t PCPS_DATA_request(
+	uint8_t          PsduHandle,
+	uint8_t          TxOpts,
+	uint8_t          PsduLength,
+	uint8_t          *pPsdu,
+	struct ca821x_dev *pDeviceRef
+)
+{
+	struct MAC_Message Command;
+
+	if(PsduLength > aMaxPHYPacketSize) return MAC_FRAME_TOO_LONG;
+
+	#define DATAREQ (Command.PData.PhyDataReq)
+	Command.CommandId = SPI_PCPS_DATA_REQUEST;
+	DATAREQ.PsduHandle = PsduHandle;
+	DATAREQ.TxOpts = TxOpts;
+	DATAREQ.PsduLength = PsduLength;
+	memcpy(DATAREQ.Psdu, pPsdu, PsduLength);
+	Command.Length = PsduLength + sizeof(struct PCPS_DATA_request_pset) - aMaxPHYPacketSize;
+
+	if (pDeviceRef->ca821x_api_downstream(&Command.CommandId, Command.Length + 2,
+	                                       NULL, pDeviceRef))
+		return MAC_SYSTEM_ERROR;
+
+	return MAC_SUCCESS;
+	#undef DATAREQ
+} // End of PCPS_DATA_request()
+#endif // CASCODA_CA_VER >= 8211
+
+/******************************************************************************/
+/***************************************************************************//**
  * \brief MLME_ASSOCIATE_request according to API Spec
  *******************************************************************************
  * \param LogicalChannel - Channel Number
@@ -1620,6 +1663,24 @@ int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev
 			);
 		}
 		break;
+#if CASCODA_CA_VER >= 8211
+	case SPI_PCPS_DATA_INDICATION:
+		if (callbacks->PCPS_DATA_indication) {
+			return callbacks->PCPS_DATA_indication(
+				(struct PCPS_DATA_indication_pset*)(buf + 2),
+				pDeviceRef
+			);
+		}
+		break;
+	case SPI_PCPS_DATA_CONFIRM:
+		if (callbacks->PCPS_DATA_confirm) {
+			return callbacks->PCPS_DATA_confirm(
+				(struct PCPS_DATA_confirm_pset*)(buf + 2),
+				pDeviceRef
+			);
+		}
+		break;
+#endif //CASCODA_CA_VER >= 8211
 	case SPI_MLME_ASSOCIATE_INDICATION:
 		if (callbacks->MLME_ASSOCIATE_indication) {
 			return callbacks->MLME_ASSOCIATE_indication(

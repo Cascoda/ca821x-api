@@ -103,6 +103,19 @@ struct MCPS_DATA_request_pset {
 	uint8_t         Msdu[MAX_DATA_SIZE]; /**< Data */
 };
 
+// PCPS
+
+/** PCPS_DATA_request parameter set */
+#if CASCODA_CA_VER >= 8211
+struct PCPS_DATA_request_pset
+{
+	uint8_t            PsduHandle; /**< Handle to identify PCPS request */
+	uint8_t            TxOpts; /**< TxOpts for data request (such as indirect sending) */
+	uint8_t            PsduLength; /**< Length of the PSDU */
+	uint8_t            Psdu[aMaxPHYPacketSize]; /**< PSDU data */
+};
+#endif //CASCODA_CA_VER >= 8211
+
 // MLME
 
 /** MLME_ASSOCIATE_request parameter set */
@@ -290,6 +303,24 @@ struct MCPS_DATA_indication_pset {
 #endif
     uint8_t            Msdu[MAX_DATA_SIZE];
 };
+
+// PCPS
+#if CASCODA_CA_VER >= 8211
+/** PCPS_DATA_indication parameter set */
+struct PCPS_DATA_indication_pset {
+	uint8_t            CS; /**< Carrier sense value of received frame*/
+	uint8_t            ED; /**< Energy detect value of received frame */
+	uint8_t            PsduLength; /**< Length of received PSDU */
+	uint8_t            Psdu[aMaxPHYPacketSize]; /**< Received PSDU */
+};
+
+/** PCPS_DATA_confirm parameter set */
+struct PCPS_DATA_confirm_pset {
+	uint8_t            PsduHandle; /**< PSDU handle identifying the PSDU request */
+	uint8_t            Status; /**< Status of the PSDU Data Request */
+	uint8_t            FramePending; /**< Value of 'Frame Pending' on the ack that was received (if any) */
+};
+#endif //CASCODA_CA_VER >= 8211
 
 // MLME
 
@@ -685,6 +716,10 @@ struct MAC_Message {
 		struct MLME_ORPHAN_indication_pset          OrphanInd;
 #if CASCODA_CA_VER >= 8211
 		struct MLME_POLL_indication_pset            PollInd;
+		/* PCPS */
+		struct PCPS_DATA_request_pset               PhyDataReq;
+		struct PCPS_DATA_confirm_pset               PhyDataCnf;
+		struct PCPS_DATA_indication_pset            PhyDataInd;
 #endif
 		/* HWME */
 		struct HWME_SET_request_pset                HWMESetReq;
@@ -740,6 +775,12 @@ enum spi_command_ids {
 	SPI_MCPS_DATA_INDICATION          = MCPS_DATA_INDICATION+SPI_S2M,
 	SPI_MCPS_DATA_CONFIRM             = MCPS_DATA_CONFIRM+SPI_S2M,
 	SPI_MCPS_PURGE_CONFIRM            = MCPS_PURGE_CONFIRM+SPI_S2M+SPI_SYN,
+	// MAC PCPS
+#if CASCODA_CA_VER >= 8211
+	SPI_PCPS_DATA_REQUEST             = 0x07,
+	SPI_PCPS_DATA_CONFIRM             = 0x38,
+	SPI_PCPS_DATA_INDICATION          = 0x28,
+#endif //CASCODA_CA_VER >= 8211
 	// MAC MLME
 	SPI_MLME_ASSOCIATE_REQUEST        = MLME_ASSOCIATE_REQUEST,
 	SPI_MLME_ASSOCIATE_RESPONSE       = MLME_ASSOCIATE_RESPONSE,

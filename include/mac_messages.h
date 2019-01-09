@@ -409,6 +409,17 @@ struct MLME_SYNC_LOSS_indication_pset {
 	struct SecSpec     Security;
 };
 
+#if CASCODA_CA_VER >= 8211
+struct MLME_POLL_indication_pset
+{
+    struct FullAddr   Src;
+    struct FullAddr   Dst;
+    uint8_t           LQI;
+    uint8_t           DSN;
+    struct SecSpec    Security;
+};
+#endif //CASCODA_CA_VER >= 8211
+
 // HWME
 
 /** HWME_SET_confirm parameter set */
@@ -530,6 +541,8 @@ struct TDME_LOTLK_confirm_pset {
 	#define KEY_DEVICE_TABLE_SIZE           (32)
 	/** Maximum value of macDeviceTableEntries */
 	#define DEVICE_TABLE_SIZE               (32)
+#elif
+#error "Security table sizes undefined"
 #endif
 
 
@@ -652,6 +665,7 @@ enum msg_id_code_up {
 	MLME_START_CONFIRM                   = 0x0F,
 	MLME_SYNC_LOSS_INDICATION            = 0x10,
 	MLME_POLL_CONFIRM                    = 0x11,
+	MLME_POLL_INDICATION                 = 0x11,
 	HWME_SET_CONFIRM                     = 0x12,
 	HWME_GET_CONFIRM                     = 0x13,
 	HWME_HAES_CONFIRM                    = 0x14,
@@ -700,8 +714,9 @@ struct MAC_Message {
 		struct MLME_COMM_STATUS_indication_pset     CommStatusInd;
 		struct MLME_SYNC_LOSS_indication_pset       SyncLossInd;
 		struct MLME_ORPHAN_indication_pset          OrphanInd;
-		/* PCPS */
 #if CASCODA_CA_VER >= 8211
+		struct MLME_POLL_indication_pset            PollInd;
+		/* PCPS */
 		struct PCPS_DATA_request_pset               PhyDataReq;
 		struct PCPS_DATA_confirm_pset               PhyDataCnf;
 		struct PCPS_DATA_indication_pset            PhyDataInd;
@@ -794,6 +809,9 @@ enum spi_command_ids {
 	SPI_MLME_START_CONFIRM            = MLME_START_CONFIRM+SPI_S2M+SPI_SYN,
 	SPI_MLME_SYNC_LOSS_INDICATION     = MLME_SYNC_LOSS_INDICATION+SPI_S2M,
 	SPI_MLME_POLL_CONFIRM             = MLME_POLL_CONFIRM+SPI_S2M+SPI_SYN,
+#if CASCODA_CA_VER >= 8211
+	SPI_MLME_POLL_INDICATION          = MLME_POLL_INDICATION+SPI_S2M,
+#endif
 	// HWME
 	SPI_HWME_SET_REQUEST              = HWME_SET_REQUEST+SPI_SYN,
 	SPI_HWME_GET_REQUEST              = HWME_GET_REQUEST+SPI_SYN,

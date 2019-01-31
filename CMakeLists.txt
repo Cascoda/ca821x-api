@@ -22,10 +22,26 @@ add_library(ca821x-api
 	${PROJECT_SOURCE_DIR}/source/ca821x_api.c
 	)
 
-target_include_directories( ca821x-api
+target_include_directories(ca821x-api
 	PUBLIC
 		${PROJECT_SOURCE_DIR}/include
 		${PROJECT_BINARY_DIR}/include
+	)
+
+# Test15-4 library ------------------------------------------------------------
+add_library(test15-4-api
+	${PROJECT_SOURCE_DIR}/test15_4/source/test15_4_phy_tests.c
+	${PROJECT_SOURCE_DIR}/test15_4/source/test15_4_phy_tests_mac.c
+	)
+
+target_include_directories(test15-4-api
+	PUBLIC
+		${PROJECT_SOURCE_DIR}/test15_4/include
+	)
+
+target_link_libraries(test15-4-api
+	PUBLIC
+		ca821x-api
 	)
 
 # Test app config -------------------------------------------------------------

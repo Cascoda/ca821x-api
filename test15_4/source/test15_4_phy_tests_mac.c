@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "cascoda-bm/cascoda_types.h"
 #include "ca821x_api.h"
 
 #include "test15_4_phy_tests.h"
@@ -240,7 +239,7 @@ uint8_t PHY_TXPKT_MAC_request(struct ca821x_dev *pDeviceRef)
 		PHYBuffer+2,                          /* *pMsdu */
 		LS_BYTE(PHY_TESTRES.SEQUENCENUMBER),  /* MsduHandle */
 		TXOPT_ACKREQ,                         /* TxOptions */
-		NULLP,                                /* *pSecurity */
+		NULL,                                /* *pSecurity */
 		pDeviceRef
 	);
 

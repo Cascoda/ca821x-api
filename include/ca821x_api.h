@@ -159,49 +159,92 @@ extern const uint8_t sync_pairings[23];
  * - >0 if the command was successfully handled by the application.
  * - The appropriate negative error code if encountered.
  ******************************************************************************/
-struct ca821x_api_callbacks {
-	int (*MCPS_DATA_indication) (
+	typedef int (*MCPS_DATA_indication_callback) (
 		struct MCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MCPS_DATA_confirm) (
+	typedef int (*MCPS_DATA_confirm_callback) (
 		struct MCPS_DATA_confirm_pset *params, struct ca821x_dev *pDeviceRef);
-#if CASCODA_CA_VER >= 8211
-	int (*PCPS_DATA_indication) (
+	typedef int (*PCPS_DATA_indication_callback) (
 		struct PCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*PCPS_DATA_confirm) (
+	typedef int (*PCPS_DATA_confirm_callback) (
 		struct PCPS_DATA_confirm_pset *params, struct ca821x_dev *pDeviceRef);
-#endif
-	int (*MLME_ASSOCIATE_indication) (
+	typedef int (*MLME_ASSOCIATE_indication_callback) (
 		struct MLME_ASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_ASSOCIATE_confirm) (
+	typedef int (*MLME_ASSOCIATE_confirm_callback) (
 		struct MLME_ASSOCIATE_confirm_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_DISASSOCIATE_indication) (
+	typedef int (*MLME_DISASSOCIATE_indication_callback) (
 		struct MLME_DISASSOCIATE_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_DISASSOCIATE_confirm) (
+	typedef int (*MLME_DISASSOCIATE_confirm_callback) (
 		struct MLME_DISASSOCIATE_confirm_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_BEACON_NOTIFY_indication) (
+	typedef int (*MLME_BEACON_NOTIFY_indication_callback) (
 		struct MLME_BEACON_NOTIFY_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_ORPHAN_indication) (
+	typedef int (*MLME_ORPHAN_indication_callback) (
 		struct MLME_ORPHAN_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_SCAN_confirm) (
+	typedef int (*MLME_SCAN_confirm_callback) (
 		struct MLME_SCAN_confirm_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*MLME_COMM_STATUS_indication) (
+	typedef int (*MLME_COMM_STATUS_indication_callback) (
 		struct MLME_COMM_STATUS_indication_pset *params, struct ca821x_dev *pDeviceRef);
-#if CASCODA_CA_VER >= 8211
-	int (*MLME_POLL_indication) (
+	typedef int (*MLME_POLL_indication_callback) (
 		struct MLME_POLL_indication_pset *params, struct ca821x_dev *pDeviceRef);
-#endif
-	int (*MLME_SYNC_LOSS_indication) (
+	typedef int (*MLME_SYNC_LOSS_indication_callback) (
 		struct MLME_SYNC_LOSS_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*HWME_WAKEUP_indication) (
+	typedef int (*HWME_WAKEUP_indication_callback) (
 		struct HWME_WAKEUP_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*TDME_MESSAGE_indication) (
+	typedef int (*TDME_MESSAGE_indication_callback) (
 		const char *message, size_t len, struct ca821x_dev *pDeviceRef);
-	int (*TDME_RXPKT_indication) (
+	typedef int (*TDME_RXPKT_indication_callback) (
 		struct TDME_RXPKT_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*TDME_EDDET_indication) (
+	typedef int (*TDME_EDDET_indication_callback) (
 		struct TDME_EDDET_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	int (*TDME_ERROR_indication) (
+	typedef int (*TDME_ERROR_indication_callback) (
 		struct TDME_ERROR_indication_pset *params, struct ca821x_dev *pDeviceRef);
+
+union ca821x_api_callback {
+		MCPS_DATA_indication_callback MCPS_DATA_indication;
+		MCPS_DATA_confirm_callback MCPS_DATA_confirm;
+		PCPS_DATA_indication_callback PCPS_DATA_indication;
+		PCPS_DATA_confirm_callback PCPS_DATA_confirm;
+		MLME_ASSOCIATE_indication_callback MLME_ASSOCIATE_indication;
+		MLME_ASSOCIATE_confirm_callback MLME_ASSOCIATE_confirm;
+		MLME_DISASSOCIATE_indication_callback MLME_DISASSOCIATE_indication;
+		MLME_DISASSOCIATE_confirm_callback MLME_DISASSOCIATE_confirm;
+		MLME_BEACON_NOTIFY_indication_callback MLME_BEACON_NOTIFY_indication;
+		MLME_ORPHAN_indication_callback MLME_ORPHAN_indication;
+		MLME_SCAN_confirm_callback MLME_SCAN_confirm;
+		MLME_COMM_STATUS_indication_callback MLME_COMM_STATUS_indication;
+		MLME_POLL_indication_callback MLME_POLL_indication;
+		MLME_SYNC_LOSS_indication_callback MLME_SYNC_LOSS_indication;
+		HWME_WAKEUP_indication_callback HWME_WAKEUP_indication;
+		TDME_MESSAGE_indication_callback TDME_MESSAGE_indication;
+		TDME_RXPKT_indication_callback TDME_RXPKT_indication;
+		TDME_EDDET_indication_callback TDME_EDDET_indication;
+		TDME_ERROR_indication_callback TDME_ERROR_indication;
+		int (*generic_callback) (void *params, struct ca821x_dev *pDeviceRef);
+	};
+
+struct ca821x_api_callbacks {
+	MCPS_DATA_indication_callback MCPS_DATA_indication;
+	MCPS_DATA_confirm_callback MCPS_DATA_confirm;
+#if CASCODA_CA_VER >= 8211
+	PCPS_DATA_indication_callback PCPS_DATA_indication;
+	PCPS_DATA_confirm_callback PCPS_DATA_confirm;
+#endif
+	MLME_ASSOCIATE_indication_callback MLME_ASSOCIATE_indication;
+	MLME_ASSOCIATE_confirm_callback MLME_ASSOCIATE_confirm;
+	MLME_DISASSOCIATE_indication_callback MLME_DISASSOCIATE_indication;
+	MLME_DISASSOCIATE_confirm_callback MLME_DISASSOCIATE_confirm;
+	MLME_BEACON_NOTIFY_indication_callback MLME_BEACON_NOTIFY_indication;
+	MLME_ORPHAN_indication_callback MLME_ORPHAN_indication;
+	MLME_SCAN_confirm_callback MLME_SCAN_confirm;
+	MLME_COMM_STATUS_indication_callback MLME_COMM_STATUS_indication;
+#if CASCODA_CA_VER >= 8211
+	MLME_POLL_indication_callback MLME_POLL_indication;
+#endif
+	MLME_SYNC_LOSS_indication_callback MLME_SYNC_LOSS_indication;
+	HWME_WAKEUP_indication_callback HWME_WAKEUP_indication;
+	TDME_MESSAGE_indication_callback TDME_MESSAGE_indication;
+	TDME_RXPKT_indication_callback TDME_RXPKT_indication;
+	TDME_EDDET_indication_callback TDME_EDDET_indication;
+	TDME_ERROR_indication_callback TDME_ERROR_indication;
 	int (*generic_dispatch) (
 		const uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef);
 };

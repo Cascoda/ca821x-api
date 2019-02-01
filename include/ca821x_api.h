@@ -189,8 +189,6 @@ extern const uint8_t sync_pairings[23];
 		struct MLME_SYNC_LOSS_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	typedef int (*HWME_WAKEUP_indication_callback) (
 		struct HWME_WAKEUP_indication_pset *params, struct ca821x_dev *pDeviceRef);
-	typedef int (*TDME_MESSAGE_indication_callback) (
-		const char *message, size_t len, struct ca821x_dev *pDeviceRef);
 	typedef int (*TDME_RXPKT_indication_callback) (
 		struct TDME_RXPKT_indication_pset *params, struct ca821x_dev *pDeviceRef);
 	typedef int (*TDME_EDDET_indication_callback) (
@@ -214,7 +212,6 @@ union ca821x_api_callback {
 		MLME_POLL_indication_callback MLME_POLL_indication;
 		MLME_SYNC_LOSS_indication_callback MLME_SYNC_LOSS_indication;
 		HWME_WAKEUP_indication_callback HWME_WAKEUP_indication;
-		TDME_MESSAGE_indication_callback TDME_MESSAGE_indication;
 		TDME_RXPKT_indication_callback TDME_RXPKT_indication;
 		TDME_EDDET_indication_callback TDME_EDDET_indication;
 		TDME_ERROR_indication_callback TDME_ERROR_indication;
@@ -241,7 +238,6 @@ struct ca821x_api_callbacks {
 #endif
 	MLME_SYNC_LOSS_indication_callback MLME_SYNC_LOSS_indication;
 	HWME_WAKEUP_indication_callback HWME_WAKEUP_indication;
-	TDME_MESSAGE_indication_callback TDME_MESSAGE_indication;
 	TDME_RXPKT_indication_callback TDME_RXPKT_indication;
 	TDME_EDDET_indication_callback TDME_EDDET_indication;
 	TDME_ERROR_indication_callback TDME_ERROR_indication;
@@ -265,7 +261,6 @@ struct ca821x_dev {
 	uint8_t extaddr[8]; /**< Mirrors nsIEEEAddress in the PIB */
 	uint16_t shortaddr; /**< Mirrors macShortAddress in the PIB */
 
-	uint8_t last_wakeup_cond;
 	uint8_t lqi_mode;
 
 	//MAC Workarounds for V1.1 and MPW silicon (V0.x)
@@ -500,6 +495,19 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks,
 
 /******************************************************************************/
 /***************************************************************************//**
+ * \brief Function to get a reference to the callback for a certain command ID
+ *******************************************************************************
+ * This is mainly used internally, and is probably not useful for most user
+ * applications.
+ *******************************************************************************
+ * \param cmdid - The command ID of the desired callback
+ * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
+ * \retval  A reference to the relevant callback, or NULL if the cmdid is not recognised
+ ******************************************************************************/
+union ca821x_api_callback* ca821x_get_callback(uint8_t cmdid, struct ca821x_dev *pDeviceRef);
+
+/******************************************************************************/
+/***************************************************************************//**
  * \brief Function called by the exchange to dispatch indications from the ca821x
  *******************************************************************************
  * FOR USE IN THE EXCHANGE ONLY. If the application needs to process incoming
@@ -510,6 +518,6 @@ void ca821x_register_callbacks(struct ca821x_api_callbacks *in_callbacks,
  * \param len - length of buffer
  * \param pDeviceRef - Pointer to initialised ca821x_device_ref struct
  ******************************************************************************/
-int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef);
+int ca821x_downstream_dispatch(uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef);
 
 #endif // CA821X_API_H

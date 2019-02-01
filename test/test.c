@@ -463,7 +463,6 @@ struct dispatch_flags {
 	int comm_status_ind    : 1; //!< MLME_COMM_STATUS_indication
 	int sync_loss_ind      : 1; //!< MLME_SYNC_LOSS_indication
 	int wakeup_ind         : 1; //!< HWME_WAKEUP_indication
-	int message_ind        : 1; //!< TDME_MESSAGE_indication
 	int rxpkt_ind          : 1; //!< TDME_RXPKT_indication
 	int eddet_ind          : 1; //!< TDME_EDDET_indication
 	int error_ind          : 1; //!< TDME_ERROR_indication
@@ -1190,28 +1189,6 @@ int test_HWME_WAKEUP_indication(
 
 /******************************************************************************/
 /***************************************************************************//**
- * \brief TDME-MESSAGE.indication callback function
- *******************************************************************************
- * \param message - ASCII buffer
- * \param len - message length
- * \param pDeviceRef - Device reference
- *******************************************************************************
- * \return 1 if this callback was expected, 0 otherwise
- *******************************************************************************
- ******************************************************************************/
-int test_TDME_MESSAGE_indication(
-	const char *message, size_t len, struct ca821x_dev *pDeviceRef)
-{
-	struct test_context *tcontext = pDeviceRef->context;
-	if (tcontext->dflags.message_ind) {
-		tcontext->dflags.message_ind = 0;
-		return 1;
-	}
-	return 0;
-}
-
-/******************************************************************************/
-/***************************************************************************//**
  * \brief TDME-RXPKT.indication callback function
  *******************************************************************************
  * \param params - Primitive parameters
@@ -1344,7 +1321,6 @@ int api_callbacks_test(void)
 	test_dev.callbacks.MLME_COMM_STATUS_indication = test_MLME_COMM_STATUS_indication;
 	test_dev.callbacks.MLME_SYNC_LOSS_indication = test_MLME_SYNC_LOSS_indication;
 	test_dev.callbacks.HWME_WAKEUP_indication = test_HWME_WAKEUP_indication;
-	test_dev.callbacks.TDME_MESSAGE_indication = test_TDME_MESSAGE_indication;
 	test_dev.callbacks.TDME_RXPKT_indication = test_TDME_RXPKT_indication;
 	test_dev.callbacks.TDME_EDDET_indication = test_TDME_EDDET_indication;
 	test_dev.callbacks.TDME_ERROR_indication = test_TDME_ERROR_indication;
@@ -1396,10 +1372,6 @@ int api_callbacks_test(void)
 	printf("%-35s", "HWME_WAKEUP_indication... ");
 	msgbuf.CommandId = SPI_HWME_WAKEUP_INDICATION;
 	tcontext.dflags.wakeup_ind = 1;
-	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
-	printf("%-35s", "TDME_MESSAGE_indication... ");
-	msgbuf.CommandId = SPI_TDME_MESSAGE_INDICATION;
-	tcontext.dflags.message_ind = 1;
 	call_dispatch(&msgbuf.CommandId, 0, &test_dev);
 	printf("%-35s", "TDME_RXPKT_indication... ");
 	msgbuf.CommandId = SPI_TDME_RXPKT_INDICATION;

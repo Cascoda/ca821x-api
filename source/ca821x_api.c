@@ -128,7 +128,6 @@ int ca821x_api_init(struct ca821x_dev *pDeviceRef)
 
 	memset(pDeviceRef, 0, sizeof(*pDeviceRef));
 	pDeviceRef->shortaddr = 0xFFFF;
-	pDeviceRef->last_wakeup_cond = 0xFF;
 	pDeviceRef->lqi_mode = HWME_LQIMODE_CS;
 
 	return 0;
@@ -1619,6 +1618,76 @@ static void verify_scancnf_results(struct MAC_Message *scan_cnf,
 	}
 }
 
+union ca821x_api_callback* ca821x_get_callback(uint8_t cmdid, struct ca821x_dev *pDeviceRef)
+{
+	union ca821x_api_callback* rval = NULL;
+	struct ca821x_api_callbacks *callbacks = &(pDeviceRef->callbacks);
+
+	switch(cmdid)
+	{
+	case SPI_MCPS_DATA_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MCPS_DATA_indication;
+		break;
+	case SPI_MCPS_DATA_CONFIRM:
+		rval = (union ca821x_api_callback*) &callbacks->MCPS_DATA_confirm;
+		break;
+#if CASCODA_CA_VER >= 8211
+	case SPI_PCPS_DATA_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->PCPS_DATA_indication;
+		break;
+	case SPI_PCPS_DATA_CONFIRM:
+		rval = (union ca821x_api_callback*) &callbacks->PCPS_DATA_confirm;
+		break;
+#endif //CASCODA_CA_VER >= 8211
+	case SPI_MLME_ASSOCIATE_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_ASSOCIATE_indication;
+		break;
+	case SPI_MLME_ASSOCIATE_CONFIRM:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_ASSOCIATE_confirm;
+		break;
+	case SPI_MLME_DISASSOCIATE_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_DISASSOCIATE_indication;
+		break;
+	case SPI_MLME_DISASSOCIATE_CONFIRM:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_DISASSOCIATE_confirm;
+		break;
+	case SPI_MLME_BEACON_NOTIFY_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_BEACON_NOTIFY_indication;
+		break;
+	case SPI_MLME_ORPHAN_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_ORPHAN_indication;
+		break;
+	case SPI_MLME_SCAN_CONFIRM:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_SCAN_confirm;
+		break;
+	case SPI_MLME_COMM_STATUS_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_COMM_STATUS_indication;
+		break;
+	case SPI_MLME_SYNC_LOSS_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_SYNC_LOSS_indication;
+		break;
+#if CASCODA_CA_VER >= 8211
+	case SPI_MLME_POLL_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->MLME_POLL_indication;
+		break;
+#endif //CASCODA_CA_VER >= 8211
+	case SPI_HWME_WAKEUP_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->HWME_WAKEUP_indication;
+		break;
+	case SPI_TDME_RXPKT_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->TDME_RXPKT_indication;
+		break;
+	case SPI_TDME_EDDET_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->TDME_EDDET_indication;
+		break;
+	case SPI_TDME_ERROR_INDICATION:
+		rval = (union ca821x_api_callback*) &callbacks->TDME_ERROR_indication;
+		break;
+	}
+
+	return rval;
+}
+
 /******************************************************************************/
 /***************************************************************************//**
  * \brief Call the relevant callback routine if populated or the
@@ -1633,194 +1702,50 @@ static void verify_scancnf_results(struct MAC_Message *scan_cnf,
  *         -: errno status
  *******************************************************************************
  ******************************************************************************/
-int ca821x_downstream_dispatch(const uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef)
+int ca821x_downstream_dispatch(uint8_t *buf, size_t len, struct ca821x_dev *pDeviceRef)
 {
 	int ret = 0;
 
-	struct ca821x_api_callbacks *callbacks = &(pDeviceRef->callbacks);
+	union ca821x_api_callback* rval = ca821x_get_callback(buf[0], pDeviceRef);
 
-	/* call appropriate api upstream callback */
+	if(!rval) //Unrecognised command ID
+	{
+#ifdef __unix__
+		return -EINVAL;
+#else
+		return -ERANGE;
+#endif
+	}
+
+	/* call appropriate checks/updates/workarounds */
 	switch (buf[0]) {
 	case SPI_MCPS_DATA_INDICATION:
+#if CASCODA_CA_VER == 8210
 		ret = check_data_ind_destaddr(
 			(struct MCPS_DATA_indication_pset*)(buf + 2), pDeviceRef
 		);
 		if (ret) {
 			return ret;
 		}
-		if (callbacks->MCPS_DATA_indication) {
-			return callbacks->MCPS_DATA_indication(
-				(struct MCPS_DATA_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MCPS_DATA_CONFIRM:
-		if (callbacks->MCPS_DATA_confirm) {
-			return callbacks->MCPS_DATA_confirm(
-				(struct MCPS_DATA_confirm_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-#if CASCODA_CA_VER >= 8211
-	case SPI_PCPS_DATA_INDICATION:
-		if (callbacks->PCPS_DATA_indication) {
-			return callbacks->PCPS_DATA_indication(
-				(struct PCPS_DATA_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_PCPS_DATA_CONFIRM:
-		if (callbacks->PCPS_DATA_confirm) {
-			return callbacks->PCPS_DATA_confirm(
-				(struct PCPS_DATA_confirm_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-#endif //CASCODA_CA_VER >= 8211
-	case SPI_MLME_ASSOCIATE_INDICATION:
-		if (callbacks->MLME_ASSOCIATE_indication) {
-			return callbacks->MLME_ASSOCIATE_indication(
-				(struct MLME_ASSOCIATE_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
+#endif
 		break;
 	case SPI_MLME_ASSOCIATE_CONFIRM:
 		get_assoccnf_shortaddr((struct MLME_ASSOCIATE_confirm_pset*)(buf + 2),
 		                       pDeviceRef);
-		if (callbacks->MLME_ASSOCIATE_confirm) {
-			return callbacks->MLME_ASSOCIATE_confirm(
-				(struct MLME_ASSOCIATE_confirm_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MLME_DISASSOCIATE_INDICATION:
-		if (callbacks->MLME_DISASSOCIATE_indication) {
-			return callbacks->MLME_DISASSOCIATE_indication(
-				(struct MLME_DISASSOCIATE_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MLME_DISASSOCIATE_CONFIRM:
-		if (callbacks->MLME_DISASSOCIATE_confirm) {
-			return callbacks->MLME_DISASSOCIATE_confirm(
-				(struct MLME_DISASSOCIATE_confirm_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MLME_BEACON_NOTIFY_INDICATION:
-		if (callbacks->MLME_BEACON_NOTIFY_indication) {
-			return callbacks->MLME_BEACON_NOTIFY_indication(
-				(struct MLME_BEACON_NOTIFY_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MLME_ORPHAN_INDICATION:
-		if (callbacks->MLME_ORPHAN_indication) {
-			return callbacks->MLME_ORPHAN_indication(
-				(struct MLME_ORPHAN_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
 		break;
 	case SPI_MLME_SCAN_CONFIRM:
 		verify_scancnf_results((struct MAC_Message*)buf, pDeviceRef);
-		if (callbacks->MLME_SCAN_confirm) {
-			return callbacks->MLME_SCAN_confirm(
-				(struct MLME_SCAN_confirm_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MLME_COMM_STATUS_INDICATION:
-		if (callbacks->MLME_COMM_STATUS_indication) {
-			return callbacks->MLME_COMM_STATUS_indication(
-				(struct MLME_COMM_STATUS_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_MLME_SYNC_LOSS_INDICATION:
-		if (callbacks->MLME_SYNC_LOSS_indication) {
-			return callbacks->MLME_SYNC_LOSS_indication(
-				(struct MLME_SYNC_LOSS_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-#if CASCODA_CA_VER >= 8211
-	case SPI_MLME_POLL_INDICATION:
-		if (callbacks->MLME_POLL_indication) {
-			return callbacks->MLME_POLL_indication(
-				(struct MLME_POLL_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-#endif //CASCODA_CA_VER >= 8211
-	case SPI_HWME_WAKEUP_INDICATION:
-		pDeviceRef->last_wakeup_cond = buf[2];
-		if (callbacks->HWME_WAKEUP_indication) {
-			return callbacks->HWME_WAKEUP_indication(
-				(struct HWME_WAKEUP_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_TDME_MESSAGE_INDICATION:
-		if (callbacks->TDME_MESSAGE_indication) {
-			return callbacks->TDME_MESSAGE_indication(
-				(char *)(buf + 2),
-				len,
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_TDME_RXPKT_INDICATION:
-		if (callbacks->TDME_RXPKT_indication) {
-			return callbacks->TDME_RXPKT_indication(
-				(struct TDME_RXPKT_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_TDME_EDDET_INDICATION:
-		if (callbacks->TDME_EDDET_indication) {
-			return callbacks->TDME_EDDET_indication(
-				(struct TDME_EDDET_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	case SPI_TDME_ERROR_INDICATION:
-		if (callbacks->TDME_ERROR_indication) {
-			return callbacks->TDME_ERROR_indication(
-				(struct TDME_ERROR_indication_pset*)(buf + 2),
-				pDeviceRef
-			);
-		}
-		break;
-	default:
-#ifdef __unix__
-		return -EINVAL;
-#else
-		return -ERANGE;
-#endif
 		break;
 	}
 
-	/* If specific command was not handled, try calling generic receive
-	   routine */
-	if (callbacks->generic_dispatch) {
-		ret = callbacks->generic_dispatch(buf, len, pDeviceRef);
+	//If there is a callback registered, call it. Otherwise, call the generic dispatch.
+	if (rval->generic_callback)
+	{
+		ret = rval->generic_callback(buf+2, pDeviceRef);
+	}
+	else if (pDeviceRef->callbacks.generic_dispatch)
+	{
+		ret = pDeviceRef->callbacks.generic_dispatch(buf, len, pDeviceRef);
 	}
 
 	return ret;

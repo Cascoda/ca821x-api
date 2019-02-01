@@ -106,7 +106,6 @@ struct MCPS_DATA_request_pset {
 // PCPS
 
 /** PCPS_DATA_request parameter set */
-#if CASCODA_CA_VER >= 8211
 struct PCPS_DATA_request_pset
 {
 	uint8_t            PsduHandle; /**< Handle to identify PCPS request */
@@ -114,7 +113,6 @@ struct PCPS_DATA_request_pset
 	uint8_t            PsduLength; /**< Length of the PSDU */
 	uint8_t            Psdu[aMaxPHYPacketSize]; /**< PSDU data */
 };
-#endif //CASCODA_CA_VER >= 8211
 
 // MLME
 
@@ -304,8 +302,7 @@ struct MCPS_DATA_indication_pset {
     uint8_t            Msdu[MAX_DATA_SIZE];
 };
 
-// PCPS
-#if CASCODA_CA_VER >= 8211
+// PCPS - CA8211 only!
 /** PCPS_DATA_indication parameter set */
 struct PCPS_DATA_indication_pset {
 	uint8_t            CS; /**< Carrier sense value of received frame*/
@@ -320,7 +317,6 @@ struct PCPS_DATA_confirm_pset {
 	uint8_t            Status; /**< Status of the PSDU Data Request */
 	uint8_t            FramePending; /**< Value of 'Frame Pending' on the ack that was received (if any) */
 };
-#endif //CASCODA_CA_VER >= 8211
 
 // MLME
 
@@ -409,7 +405,6 @@ struct MLME_SYNC_LOSS_indication_pset {
 	struct SecSpec     Security;
 };
 
-#if CASCODA_CA_VER >= 8211
 struct MLME_POLL_indication_pset
 {
     struct FullAddr   Src;
@@ -418,7 +413,6 @@ struct MLME_POLL_indication_pset
     uint8_t           DSN;
     struct SecSpec    Security;
 };
-#endif //CASCODA_CA_VER >= 8211
 
 // HWME
 

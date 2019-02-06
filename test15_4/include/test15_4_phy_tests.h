@@ -29,13 +29,6 @@
 /******************************************************************************/
 /****** PHY Testmode Definitions                                         ******/
 /******************************************************************************/
-//! Initialisation Bitmask
-#define PHY_TEST_INIT     0x80
-//! Re-Initialisation Bitmask
-#define PHY_TEST_REINIT   0x40
-//! Testmode Bitmask
-#define PHY_TEST_CMD      0x0F
-// Testmode Definitions
 #define PHY_TEST_OFF      0x00    //!< Testmode Off
 #define PHY_TEST_TX_PKT   0x01    //!< Transmit Periodic Packets
 #define PHY_TEST_TX_CONT  0x02    //!< Transmit Continuous
@@ -75,8 +68,8 @@
  ************************************************************************** @{*/
 #define PHY_TESTPARDEF_PACKETPERIOD    1000
 #define PHY_TESTPARDEF_PACKETLENGTH    20
-#define PHY_TESTPARDEF_PACKETDATATYPE  TDME_TXD_RANDOM
 #define PHY_TESTPARDEF_NUMBEROFPKTS    10000
+#define PHY_TESTPARDEF_PACKETDATATYPE  TDME_TXD_RANDOM
 #define PHY_TESTPARDEF_CHANNEL         0x12
 #define PHY_TESTPARDEF_TXPOWER_IB      1
 #define PHY_TESTPARDEF_TXPOWER_PB      3
@@ -86,14 +79,13 @@
 #define PHY_TESTPARDEF_RX_FFSYNC       0
 #define PHY_TESTPARDEF_LO_1_RXTXB      0
 #define PHY_TESTPARDEF_LO_2_FDAC       32
-#define PHY_TESTPARDEF_ATM             0x00
-#define PHY_TESTPARDEF_MPW2_OVWR       0x03
 #define PHY_TESTPARDEF_LO_3_LOCKS      20
 #define PHY_TESTPARDEF_LO_3_PERIOD     10
+#define PHY_TESTPARDEF_ATM             0x00
+#define PHY_TESTPARDEF_MPW2_OVWR       0x03
 #define PHY_TESTPARDEF_MACENABLED      0
 /**@}*/
 
-struct MAC_Message;
 
 /** PHY Testmode Setup Parameter Structure */
 struct PHYTestPar
@@ -119,7 +111,7 @@ struct PHYTestPar
 };
 
 
-/** PHY Testmode Results/Runtime Parameter Structure */
+/* PHY Testmode Results/Runtime Parameter Structure */
 struct PHYTestRes
 {
 	uint16_t           SEQUENCENUMBER;    //!< Packet Sequence Number (SN)
@@ -130,13 +122,14 @@ struct PHYTestRes
 	uint32_t           CRCERR_COUNT;      //!< Error Counter for CRC/FCS Errors
 	uint32_t           PHRERR_COUNT;      //!< Error Counter for PHR (Packet Header) Errors
 	uint32_t           SHRERR_COUNT;      //!< Error Counter for SHR (SFD) Errors
-	uint32_t           PREERR_COUNT;      //!< Error Counter for Preamble Errors / Missed Packets
-	int16_t            FO_AVG;            //!< Averaged Frequency Offset (between Analysis Reports)
-	uint16_t           ED_AVG;            //!< Averaged ED Value         (between Analysis Reports)
-	uint16_t           CS_AVG;            //!< Averaged CS Value         (between Analysis Reports)
-	int16_t            FO_AVG_TOTAL;      //!< Total Averaged Frequency Offset
-	uint16_t           ED_AVG_TOTAL;      //!< Total Averaged ED Value
-	uint16_t           CS_AVG_TOTAL;      //!< Total Averaged CS Value
+	uint32_t           PREERR_COUNT;      //!< Error Counter for Preamble Errors
+	uint32_t           MISSED_COUNT;      //!< Error Counter for Missed Packets
+	int32_t            FO_AVG;            //!< Averaged Frequency Offset (between Analysis Reports)
+	uint32_t           ED_AVG;            //!< Averaged ED Value         (between Analysis Reports)
+	uint32_t           CS_AVG;            //!< Averaged CS Value         (between Analysis Reports)
+	int32_t            FO_AVG_TOTAL;      //!< Total Averaged Frequency Offset
+	uint32_t           ED_AVG_TOTAL;      //!< Total Averaged ED Value
+	uint32_t           CS_AVG_TOTAL;      //!< Total Averaged CS Value
 	uint8_t            ED_MAX;            //!< Maximum ED Value
 	uint8_t            ED_MIN;            //!< Minimum ED Value
 	uint8_t            CS_MAX;            //!< Maximum CS Value
@@ -154,68 +147,66 @@ struct PHYTestRes
 /****** Global Variables defined in test15_4_phy_tests.c                  ******/
 /******************************************************************************/
 extern uint8_t                 PHY_TESTMODE;
-extern uint8_t                 PHY_LASTTESTMODE;
-extern uint8_t                 PHY_TESTSEQUENCECOUNT;
-extern uint8_t                 PHY_TEST_REINIT_TDME_ATTRIBUTE;
 extern struct PHYTestPar       PHY_TESTPAR;
 extern struct PHYTestRes       PHY_TESTRES;
-extern uint8_t                 PHY_ERROR_REPORTED;
+
 
 /******************************************************************************/
 /****** Function Declarations for Externally Defined Functions           ******/
 /******************************************************************************/
 unsigned long test15_4_getms(void);
 
+
 /******************************************************************************/
 /****** Function Declarations for test15_4_phy_tests.c                   ******/
 /******************************************************************************/
-// PHY Test Functions
-void PHYTestModeHandler(struct ca821x_dev *pDeviceRef);
-uint8_t PHYTestInitialise(struct ca821x_dev *pDeviceRef);
-uint8_t PHYTestReinitialise(struct ca821x_dev *pDeviceRef);
-uint8_t PHYTestTransmitPacket(struct ca821x_dev *pDeviceRef);
-void PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef);
-void PHYTestReceivePacketPSN(struct ca821x_dev *pDeviceRef);
-void PHYTestReceiveED(struct ca821x_dev *pDeviceRef);
-uint8_t PHYTestLOLocking(struct ca821x_dev *pDeviceRef);
-void PHYTestExit(uint8_t status, struct ca821x_dev *pDeviceRef);
-void PHYTestInitTestResults(void);
-void PHYTestReset(void);
-void PHYTestStatistics1(void);
-void PHYTestStatistics2(void);
-void PHYTestStatistics3(void);
-uint16_t divu16round(uint16_t va, uint16_t vb);
-int16_t divs16round(int16_t va, int16_t vb);
-// PHY Test Report Functions
-void PHYTestReportExit(uint8_t status, struct ca821x_dev *pDeviceRef);
-void PHYTestReportTestMode(struct ca821x_dev *pDeviceRef);
-void PHYTestReportTestParameters(uint8_t parameter, struct ca821x_dev *pDeviceRef);
-void PHYTestReportPacketTransmitted(struct ca821x_dev *pDeviceRef);
-void PHYTestReportTransmitPacketAnalysis(struct ca821x_dev *pDeviceRef);
-void PHYTestReportPacketReceived(struct ca821x_dev *pDeviceRef);
-void PHYTestReportReceivedPacketAnalysis(struct ca821x_dev *pDeviceRef);
-void PHYTestReportPERTestResult(struct ca821x_dev *pDeviceRef);
-void PHYTestReportEDReceived(struct ca821x_dev *pDeviceRef);
-void PHYTestReportLOLocking(uint8_t ntest, struct ca821x_dev *pDeviceRef);
-// PHY Functions in EVBME Attribute Control
-void PHYTestCfg(uint8_t val, struct ca821x_dev *pDeviceRef);
-// PHY Test Wrappers for TDME Commands
-uint8_t PHY_TESTMODE_request(struct ca821x_dev *pDeviceRef);
-uint8_t PHY_SET_request(uint8_t evbme_attribute, struct ca821x_dev *pDeviceRef);
-uint8_t PHY_TXPKT_request(struct ca821x_dev *pDeviceRef);
-uint8_t PHY_LOTLK_request(uint8_t ch, uint8_t rx_txb, struct ca821x_dev *pDeviceRef);
-int PHY_RXPKT_indication(struct MAC_Message *indication, struct ca821x_dev *pDeviceRef);
-int PHY_EDDET_indication(struct MAC_Message *indication, struct ca821x_dev *pDeviceRef);
-uint8_t PHY_ERROR_indication(void);
+/* PHY Test Functions */
+void     PHYTestModeHandler(struct ca821x_dev *pDeviceRef);
+uint8_t  PHYTestInitialise(struct ca821x_dev *pDeviceRef);
+void     PHYTestDeinitialise(struct ca821x_dev *pDeviceRef);
+uint8_t  PHYTestTransmitPacket(struct ca821x_dev *pDeviceRef);
+void     PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef);
+void     PHYTestReceivePacketPSN(struct ca821x_dev *pDeviceRef);
+void     PHYTestReceiveED(struct ca821x_dev *pDeviceRef);
+uint8_t  PHYTestLOLocking(struct ca821x_dev *pDeviceRef);
+void     PHYTestExit(uint8_t status);
+void     PHYTestInitTestResults(void);
+void     PHYTestReset(void);
+void     PHYTestStatistics(uint8_t ed, uint8_t cs, uint8_t fo, uint8_t init, uint8_t rollover, uint8_t final);
+uint32_t PHYTest_divu32round(uint32_t va, uint32_t vb);
+int32_t  PHYTest_divs32round(int32_t va, int32_t vb);
+uint8_t  PHYTestCalculateReportTime(uint8_t init);
+/* PHY Test Reporting Functions */
+void     PHYTestReportExit(uint8_t status);
+void     PHYTestReportTestMode(void);
+void     PHYTestReportTestParameters(uint8_t parameter);
+void     PHYTestReportPacketTransmitted(struct MAC_Message *msg, uint8_t status);
+void     PHYTestReportTransmitPacketAnalysis(void);
+void     PHYTestReportPacketReceived(struct TDME_RXPKT_indication_pset *params);
+void     PHYTestReportReceivedPacketAnalysis(void);
+void     PHYTestReportPERTestResult(void);
+void     PHYTestReportEDReceived(struct TDME_EDDET_indication_pset *params);
+void     PHYTestReportLOLocking(struct TDME_LOTLK_confirm_pset *params, uint8_t ntest);
+/* PHY Functions in EVBME Attribute Control */
+void     PHYTestCfg(uint8_t val);
+/* PHY Test Wrappers for TDME Commands and Responses */
+uint8_t  PHY_TESTMODE_request(uint8_t testmode, struct ca821x_dev *pDeviceRef);
+uint8_t  PHY_SET_request(uint8_t evbme_attribute, struct ca821x_dev *pDeviceRef);
+uint8_t  PHY_TXPKT_request(struct MAC_Message *msg, struct ca821x_dev *pDeviceRef);
+uint8_t  PHY_LOTLK_request(uint8_t ch, uint8_t rx_txb, uint8_t ntest, struct ca821x_dev *pDeviceRef);
+int      PHY_RXPKT_indication(struct TDME_RXPKT_indication_pset *params, struct ca821x_dev *pDeviceRef);
+int      PHY_EDDET_indication(struct TDME_EDDET_indication_pset *params, struct ca821x_dev *pDeviceRef);
 /******************************************************************************/
 /****** Function Declarations for test15_4_phy_tests_mac.c               ******/
 /******************************************************************************/
-// PHY Test Functions
-void PHYTestMACAddInit(void);
+/* PHY_MAC Test Functions */
+void    PHYTestMACAddInit(void);
 uint8_t PHYTestMACTxInitialise(struct ca821x_dev *pDeviceRef);
 uint8_t PHYTestMACRxInitialise(struct ca821x_dev *pDeviceRef);
-uint8_t PHY_TXPKT_MAC_request(struct ca821x_dev *pDeviceRef);
-uint8_t PHY_RXPKT_MAC_indication(struct MAC_Message *data_ind, struct ca821x_dev *pDeviceRef);
+uint8_t PHYTestMACDeinitialise(struct ca821x_dev *pDeviceRef);
+/* PHY_MAC Test Wrappers for MCPS Commands and Responses */
+uint8_t PHY_TXPKT_MAC_request(struct MAC_Message *msg, struct ca821x_dev *pDeviceRef);
+uint8_t PHY_RXPKT_MAC_indication(struct MCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef);
 
 
 #endif /* TEST15_4_PHY_TESTS_H */

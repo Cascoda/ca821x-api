@@ -24,14 +24,8 @@
 #include <string.h>
 
 #include "ca821x_api.h"
-
 #include "test15_4_phy_tests.h"
 
-extern int (*test15_4_upstream)(
-	const uint8_t *buf,
-	size_t len,
-	void *pDeviceRef
-);
 
 /******************************************************************************/
 /****** Address/PID Definitions                                          ******/
@@ -44,17 +38,8 @@ extern int (*test15_4_upstream)(
 
 
 /******************************************************************************/
-/****** Global Variables from PHY Tests                                  ******/
-/******************************************************************************/
-extern uint8_t PHYBuffer[256];
-extern uint8_t PHYLength;
-
-
-/******************************************************************************/
 /****** Global Variables only used in Phy Test Files                     ******/
 /******************************************************************************/
-struct FullAddr SrcFAdd, DstFAdd;
-
 uint16_t   PHYPANId;
 uint16_t   PHYTxShortAddress;
 uint16_t   PHYRxShortAddress;
@@ -76,12 +61,12 @@ void PHYTestMACAddInit(void)
 	PHYRxShortAddress  = PHY_RX_SHORTADD;
 	memcpy(PHYTxLongAddress, (uint8_t[])PHY_TX_LONGADD, 8);
 	memcpy(PHYRxLongAddress, (uint8_t[])PHY_RX_LONGADD, 8);
-}
+} // End of PHYTestMACAddInit()
 
 
 /******************************************************************************/
 /***************************************************************************//**
- * \brief Sequential Initialisation for using MAC layer in EVBME (Tx)
+ * \brief Initialisation for using MAC layer in EVBME (Tx)
  *******************************************************************************
  * \param pDeviceRef - Device Reference
  *******************************************************************************
@@ -91,6 +76,7 @@ void PHYTestMACAddInit(void)
 uint8_t PHYTestMACTxInitialise(struct ca821x_dev *pDeviceRef)
 {
 	uint8_t status;
+	uint8_t param;
 
 	PHYTestMACAddInit();
 
@@ -103,12 +89,15 @@ uint8_t PHYTestMACTxInitialise(struct ca821x_dev *pDeviceRef)
     if ((status = MLME_RESET_request_sync(0, pDeviceRef)))
 		return status;
 
-	PHYBuffer[0] = CCAM_EDORCS;
-	if ((status = HWME_SET_request_sync(HWME_CCAMODE, 1, PHYBuffer, pDeviceRef)))                // set CCA mode to ED OR CS
+	param = CCAM_EDORCS;
+	if ((status = HWME_SET_request_sync(HWME_CCAMODE, 1, &param, pDeviceRef)))                // set CCA mode to ED OR CS
 		return status;
 
-	PHYBuffer[0] = PHY_TESTPAR.EDTHRESHOLD;
-	if ((status = HWME_SET_request_sync(HWME_EDTHRESHOLD, 1, PHYBuffer, pDeviceRef)))            // set ED threshold to PHY_TESTPAR.EDTHRESHOLD
+	param = PHY_TESTPAR.EDTHRESHOLD;
+	if ((status = HWME_SET_request_sync(HWME_EDTHRESHOLD, 1, &param, pDeviceRef)))            // set ED threshold to PHY_TESTPAR.EDTHRESHOLD
+		return status;
+
+	if ((status = MLME_SET_request_sync(macPANId,        0, 2, &PHYPANId, pDeviceRef)))          // set local PANId
 		return status;
 
 	if ((status = MLME_SET_request_sync(nsIEEEAddress,   0, 8, PHYTxLongAddress, pDeviceRef)))   // set local long address
@@ -117,22 +106,8 @@ uint8_t PHYTestMACTxInitialise(struct ca821x_dev *pDeviceRef)
 	if ((status = MLME_SET_request_sync(macShortAddress, 0, 2, &PHYTxShortAddress, pDeviceRef))) // set local short address
 		return status;
 
-	status = MLME_START_request_sync(
-		PHYPANId,                  /* PANId */
-		PHY_TESTPAR.CHANNEL,       /* LogicalChannel */
-		15,                        /* BeaconOrder */
-		15,                        /* SuperframeOrder */
-		1,                         /* PANCoordinator */
-		0,                         /* BatteryLifeExtension */
-		1,                         /* CoordRealignment */
-		NULL,                      /* *pCoordRealignSecurity */
-		NULL,                      /* *pBeaconSecurity */
-		pDeviceRef);
-	if (status)
-		return status;
-
-	PHYBuffer[0] = 0;
-	if ((status = MLME_SET_request_sync(macRxOnWhenIdle, 0, 1, PHYBuffer, pDeviceRef)))          /* turn receiver off */
+	param = 0;
+	if ((status = MLME_SET_request_sync(macRxOnWhenIdle, 0, 1, &param, pDeviceRef)))          /* turn receiver off */
 		return status;
 
 	return status;
@@ -141,7 +116,7 @@ uint8_t PHYTestMACTxInitialise(struct ca821x_dev *pDeviceRef)
 
 /******************************************************************************/
 /***************************************************************************//**
- * \brief Sequential Initialisation for using MAC layer in EVBME (Rx)
+ * \brief Initialisation for using MAC layer in EVBME (Rx)
  *******************************************************************************
  * \param pDeviceRef - Device Reference
  *******************************************************************************
@@ -151,6 +126,7 @@ uint8_t PHYTestMACTxInitialise(struct ca821x_dev *pDeviceRef)
 uint8_t PHYTestMACRxInitialise(struct ca821x_dev *pDeviceRef)
 {
 	uint8_t status;
+	uint8_t param;
 
 	PHYTestMACAddInit();
 
@@ -172,14 +148,31 @@ uint8_t PHYTestMACRxInitialise(struct ca821x_dev *pDeviceRef)
 	if ((status = MLME_SET_request_sync(macShortAddress, 0, 2, &PHYRxShortAddress, pDeviceRef))) // set local short address
 		return status;
 
-	PHYBuffer[0] = 1;
-	if ((status = MLME_SET_request_sync(macRxOnWhenIdle, 0, 1, PHYBuffer, pDeviceRef)))          // turn receiver on
+	param = 1;
+	if ((status = MLME_SET_request_sync(macRxOnWhenIdle, 0, 1, &param, pDeviceRef)))          // turn receiver on
 		return status;
 
 	DSN_OLD = 0;
 
 	return status;
 } // End of PHYTestMACRxInitialise()
+
+
+/******************************************************************************/
+/***************************************************************************//**
+ * \brief Denitialisation for using MAC layer in EVBME
+ *******************************************************************************
+ * \param pDeviceRef - Device Reference
+ *******************************************************************************
+ * \return Status
+ *******************************************************************************
+ ******************************************************************************/
+uint8_t PHYTestMACDeinitialise(struct ca821x_dev *pDeviceRef)
+{
+	uint8_t status;
+	status = MLME_RESET_request_sync(1, pDeviceRef);
+	return status;
+} // End of PHYTestMACDeinitialise()
 
 
 /******************************************************************************/
@@ -192,56 +185,65 @@ uint8_t PHYTestMACRxInitialise(struct ca821x_dev *pDeviceRef)
 /****** Return: Status                                                   ******/
 /******************************************************************************/
 /******************************************************************************/
-uint8_t PHY_TXPKT_MAC_request(struct ca821x_dev *pDeviceRef)
+uint8_t PHY_TXPKT_MAC_request(struct MAC_Message *msg, struct ca821x_dev *pDeviceRef)
 {
 	uint8_t i;
 	uint8_t status;
 	uint8_t randnum[2];
 	uint8_t attlen;
+	struct FullAddr DstFAdd;
 	struct MAC_Message rx_msg;
 
-	PHYLength    =  PHY_TESTPAR.PACKETLENGTH;
-	PHYBuffer[1] =  PHY_TESTRES.SEQUENCENUMBER;
+    msg->PData.TDMETxPktReq.TestPacketSequenceNumber = LS_BYTE(PHY_TESTRES.SEQUENCENUMBER);
+ 	msg->PData.TDMETxPktReq.TestPacketDataType       = PHY_TESTPAR.PACKETDATATYPE;
+	msg->PData.TDMETxPktReq.TestPacketLength         = PHY_TESTPAR.PACKETLENGTH;
 
-	if (PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_APPENDED) {
-		for (i = 0; i < PHY_TESTPAR.PACKETLENGTH; ++i) {
-			PHYBuffer[i+2] = 0x00; // currently filled with 0's
-		}
-	} else if (PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_RANDOM) {
-		for (i = 0; i < PHY_TESTPAR.PACKETLENGTH; ++i) {
+	if (PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_APPENDED)
+	{
+		for (i = 0; i < PHY_TESTPAR.PACKETLENGTH; ++i)
+			msg->PData.TDMETxPktReq.TestPacketData[i] = 0x00; /* currently filled with 0's */
+	}
+	else if (PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_RANDOM)
+	{
+		for (i = 0; i < PHY_TESTPAR.PACKETLENGTH; ++i)
+		{
 			if ((status = HWME_GET_request_sync(HWME_RANDOMNUM, &attlen, randnum, pDeviceRef)))
 				return status;
 			else
-				PHYBuffer[i+2] = randnum[0];
+				msg->PData.TDMETxPktReq.TestPacketData[i] = randnum[0];
 		}
-	} else if (PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_SEQRANDOM) {
-		PHYBuffer[2] = PHY_TESTRES.SEQUENCENUMBER;
-		for (i = 1; i < PHY_TESTPAR.PACKETLENGTH; ++i) {
+	}
+	else if (PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_SEQRANDOM)
+	{
+		msg->PData.TDMETxPktReq.TestPacketData[0] = PHY_TESTRES.SEQUENCENUMBER;
+		for (i = 1; i < PHY_TESTPAR.PACKETLENGTH; ++i)
+		{
 			if ((status = HWME_GET_request_sync(HWME_RANDOMNUM, &attlen, randnum, pDeviceRef)))
 				return(status);
 			else
-				PHYBuffer[i+2] = randnum[0];
+				msg->PData.TDMETxPktReq.TestPacketData[i] = randnum[0];
 		}
-	} else { /* PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_COUNT) */
-		for (i = 0; i < PHY_TESTPAR.PACKETLENGTH; ++i) {
-			PHYBuffer[i+2] = i+1;
-		}
+	}
+	else  /* PHY_TESTPAR.PACKETDATATYPE == TDME_TXD_COUNT) */
+	{
+		for (i = 0; i < PHY_TESTPAR.PACKETLENGTH; ++i)
+			msg->PData.TDMETxPktReq.TestPacketData[i] = i+1;
 	}
 
 	DstFAdd.AddressMode = MAC_MODE_SHORT_ADDR;
 	PUTLE16(PHYPANId, DstFAdd.PANId);
 	PUTLE16(PHYRxShortAddress, DstFAdd.Address);
 
+	/* convert TDME to MLME */
 	MCPS_DATA_request(
-		MAC_MODE_SHORT_ADDR,                  /* SrcAddrMode */
-		DstFAdd,                              /* DstAddr */
-		PHYLength,                            /* MsduLength */
-		PHYBuffer+2,                          /* *pMsdu */
-		LS_BYTE(PHY_TESTRES.SEQUENCENUMBER),  /* MsduHandle */
-		TXOPT_ACKREQ,                         /* TxOptions */
-		NULL,                                /* *pSecurity */
-		pDeviceRef
-	);
+		MAC_MODE_SHORT_ADDR,                               /* SrcAddrMode */
+		DstFAdd,                                           /* DstAddr */
+		msg->PData.TDMETxPktReq.TestPacketLength,          /* MsduLength */
+		msg->PData.TDMETxPktReq.TestPacketData,            /* *pMsdu */
+		msg->PData.TDMETxPktReq.TestPacketSequenceNumber,  /* MsduHandle */
+		TXOPT_ACKREQ,                                      /* TxOptions */
+		NULL,                                              /* *pSecurity */
+		pDeviceRef);
 
 	if((status = ca821x_wait_for_message(SPI_MCPS_DATA_CONFIRM, 5000, &rx_msg.CommandId, pDeviceRef)))
      return(status);
@@ -275,28 +277,21 @@ uint8_t PHY_TXPKT_MAC_request(struct ca821x_dev *pDeviceRef)
  * \return Status
  *******************************************************************************
  ******************************************************************************/
-uint8_t PHY_RXPKT_MAC_indication(struct MAC_Message *data_ind, struct ca821x_dev *pDeviceRef)
+uint8_t PHY_RXPKT_MAC_indication(struct MCPS_DATA_indication_pset *params, struct ca821x_dev *pDeviceRef)
 {
 	uint8_t status = 0;
-	uint8_t MsduLength, MpduLinkQuality, DSN;
+	uint8_t DSN;
 	uint8_t edvallp, freqoffs;
 	uint8_t len;
+	struct TDME_RXPKT_indication_pset tdmeind;
 
-	DSN = data_ind->PData.DataInd.DSN;
-	MpduLinkQuality = data_ind->PData.DataInd.MpduLinkQuality;
-	MsduLength = data_ind->PData.DataInd.MsduLength;
+	DSN = params->DSN;
 
-	if (test15_4_upstream) {
-		test15_4_upstream(&data_ind->CommandId, data_ind->Length + 2, pDeviceRef);
-	}
-
-	if (!status) {
-		if (DSN == DSN_OLD) { /* check if same sequence number - discard if this is the case */
-			status = MAC_INVALID_HANDLE;
-		} else {
-			PHY_TESTRES.PACKET_RECEIVED = 1; /* Flag indication */
-		}
-	}
+	/* check if same sequence number - discard if this is the case */
+ 	if (DSN == DSN_OLD)
+		status = MAC_INVALID_HANDLE;
+	else
+		PHY_TESTRES.PACKET_RECEIVED = 1; /* Flag indication */
 
 	DSN_OLD = DSN;
 
@@ -306,17 +301,21 @@ uint8_t PHY_RXPKT_MAC_indication(struct MAC_Message *data_ind, struct ca821x_dev
 	if (!status)
 		status = HWME_GET_request_sync(HWME_FREQOFFS, &len, &freqoffs, pDeviceRef);
 
-	PHYBuffer[0] = status;
-	PHYBuffer[1] = edvallp;
-	PHYBuffer[2] = MpduLinkQuality;
-	PHYBuffer[3] = freqoffs;
-	PHYBuffer[4] = MsduLength;
-	PHYLength    = MsduLength;
+	/* convert MLME to TDME */
+    tdmeind.Status               = status;
+    tdmeind.TestPacketEDValue    = edvallp;
+	tdmeind.TestPacketCSValue    = params->MpduLinkQuality;
+	tdmeind.TestPacketFoffsValue = freqoffs;
+	tdmeind.TestPacketLength     = params->MsduLength;
+	memcpy(tdmeind.TestPacketData, params->Msdu, params->MsduLength);
 
-	memcpy(
-		&PHYBuffer[4],
-		data_ind->PData.DataInd.Msdu,
-		MsduLength);
+	PHYTestStatistics(tdmeind.TestPacketEDValue,
+					  tdmeind.TestPacketCSValue,
+					  tdmeind.TestPacketFoffsValue,
+					  0, 0, 0);
+
+	if((PHY_TESTPAR.PACKETPERIOD >= 500) || (PHY_TESTMODE == PHY_TEST_RX_PSN))
+		PHYTestReportPacketReceived(&tdmeind);
 
 	return status;
 } // End of PHY_RXPKT_MAC_indication()

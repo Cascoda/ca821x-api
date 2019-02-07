@@ -87,7 +87,7 @@
 /**@}*/
 
 
-/** PHY Testmode Setup Parameter Structure */
+/* PHY Testmode Setup Parameter Structure */
 struct PHYTestPar
 {
 	uint16_t           PACKETPERIOD;       //!< Packet Period [ms]
@@ -142,6 +142,12 @@ struct PHYTestRes
 /******************************************************************************/
 #define PHY_TEST_REPORT_PERIOD 5000    //!< Report period in [ms]
 
+/* Modes for PHYTestStatistics() */
+#define TEST_STAT_ACCUM  0	/* accumulate */
+#define TEST_STAT_INIT   1	/* initialise */
+#define TEST_STAT_REPORT 2	/* averages for interim reporting */
+#define TEST_STAT_FINAL  3	/* averages for final reporting */
+
 
 /******************************************************************************/
 /****** Global Variables defined in test15_4_phy_tests.c                  ******/
@@ -169,22 +175,21 @@ void     PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef);
 void     PHYTestReceivePacketPSN(struct ca821x_dev *pDeviceRef);
 void     PHYTestReceiveED(struct ca821x_dev *pDeviceRef);
 uint8_t  PHYTestLOLocking(struct ca821x_dev *pDeviceRef);
-void     PHYTestExit(uint8_t status);
+void     PHYTestExit(char *errmsg);
 void     PHYTestInitTestResults(void);
 void     PHYTestReset(void);
-void     PHYTestStatistics(uint8_t ed, uint8_t cs, uint8_t fo, uint8_t init, uint8_t rollover, uint8_t final);
+void     PHYTestStatistics(uint8_t mode, uint8_t ed, uint8_t cs, uint8_t fo);
 uint32_t PHYTest_divu32round(uint32_t va, uint32_t vb);
 int32_t  PHYTest_divs32round(int32_t va, int32_t vb);
 uint8_t  PHYTestCalculateReportTime(uint8_t init);
 /* PHY Test Reporting Functions */
-void     PHYTestReportExit(uint8_t status);
 void     PHYTestReportTestMode(void);
 void     PHYTestReportTestParameters(uint8_t parameter);
 void     PHYTestReportPacketTransmitted(struct MAC_Message *msg, uint8_t status);
 void     PHYTestReportTransmitPacketAnalysis(void);
 void     PHYTestReportPacketReceived(struct TDME_RXPKT_indication_pset *params);
 void     PHYTestReportReceivedPacketAnalysis(void);
-void     PHYTestReportPERTestResult(void);
+void     PHYTestReportTestResult(void);
 void     PHYTestReportEDReceived(struct TDME_EDDET_indication_pset *params);
 void     PHYTestReportLOLocking(struct TDME_LOTLK_confirm_pset *params, uint8_t ntest);
 /* PHY Functions in EVBME Attribute Control */

@@ -309,10 +309,10 @@ uint8_t PHY_RXPKT_MAC_indication(struct MCPS_DATA_indication_pset *params, struc
 	tdmeind.TestPacketLength     = params->MsduLength;
 	memcpy(tdmeind.TestPacketData, params->Msdu, params->MsduLength);
 
-	PHYTestStatistics(tdmeind.TestPacketEDValue,
+	PHYTestStatistics(TEST_STAT_ACCUM,
+					  tdmeind.TestPacketEDValue,
 					  tdmeind.TestPacketCSValue,
-					  tdmeind.TestPacketFoffsValue,
-					  0, 0, 0);
+					  tdmeind.TestPacketFoffsValue);
 
 	if((PHY_TESTPAR.PACKETPERIOD >= 500) || (PHY_TESTMODE == PHY_TEST_RX_PSN))
 		PHYTestReportPacketReceived(&tdmeind);

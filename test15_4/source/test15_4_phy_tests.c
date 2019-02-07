@@ -42,7 +42,7 @@ struct PHYTestRes       PHY_TESTRES;
 /****** Global Variables only used in this File                          ******/
 /******************************************************************************/
 uint8_t					PHY_TEST_INITIALISED; /* for tests that require initialisation */
-static long             start_ms; 			  /* Used for scheduling packet tx/rx */
+static unsigned long    start_ms; 			  /* Used for scheduling packet tx/rx */
 
 
 /******************************************************************************/
@@ -70,17 +70,13 @@ static unsigned long calculate_elapsed_ms(void)
  ******************************************************************************/
 void PHYTestModeHandler(struct ca821x_dev *pDeviceRef)
 {
-	uint8_t status;
 
     if(PHY_TESTRES.TEST_RUNNING)
     {
 		if (PHY_TESTMODE == PHY_TEST_TX_PKT)
 		{
-			if ((status = PHYTestTransmitPacket(pDeviceRef)))
-			{
-				printf("PHYTestTransmitPacket returned non-zero.\n");
-				PHYTestExit(status);
-			}
+			if ((PHYTestTransmitPacket(pDeviceRef)))
+				PHYTestExit("PHYTestTransmitPacket returned non-zero");
 		}
 		else if (PHY_TESTMODE == PHY_TEST_RX_PER)
 		{
@@ -96,10 +92,8 @@ void PHYTestModeHandler(struct ca821x_dev *pDeviceRef)
 		}
 		else if (PHY_TESTMODE == PHY_TEST_LO_3)
 		{
-			if ((status = PHYTestLOLocking(pDeviceRef)))
-			{
-				PHYTestExit(status);
-			}
+			if ((PHYTestLOLocking(pDeviceRef)))
+				PHYTestExit("PHYTestLOLocking returned non-zero");
 		}
 
 	}
@@ -123,7 +117,7 @@ uint8_t PHYTestInitialise(struct ca821x_dev *pDeviceRef)
 {
 	uint8_t status = 0;
 
-    /* set up TDME PIB and sync with transceiver */
+    /* set up TDME PIB and synchronise with transceiver */
 	if((status = PHY_SET_request(TDME_CHANNEL, pDeviceRef)))
 		return(status);
 
@@ -158,6 +152,9 @@ uint8_t PHYTestInitialise(struct ca821x_dev *pDeviceRef)
 	if((status = PHY_SET_request(TDME_ATM_CONFIG, pDeviceRef)))
 		return(status);
 
+	/* start test */
+	PHY_TEST_INITIALISED        = 0;
+
     /* initialise variables */
 	PHYTestInitTestResults();
 
@@ -181,9 +178,6 @@ uint8_t PHYTestInitialise(struct ca821x_dev *pDeviceRef)
 			return(status);
 	}
 
-	/* start test */
-	PHY_TEST_INITIALISED        = 0;
-
 	start_ms = test15_4_getms();
 
 	PHY_TESTRES.TEST_RUNNING = 1;
@@ -206,15 +200,10 @@ void PHYTestDeinitialise(struct ca821x_dev *pDeviceRef)
 	{
 		PHYTestReportTransmitPacketAnalysis();
 	}
-	else if(PHY_TESTMODE == PHY_TEST_RX_PSN)
+	else if((PHY_TESTMODE == PHY_TEST_RX_PER) || (PHY_TESTMODE == PHY_TEST_RX_PSN))
 	{
-		PHYTestStatistics(0, 0, 0, 0, 1, 0);
-		PHYTestReportReceivedPacketAnalysis();
-	}
-	else if(PHY_TESTMODE == PHY_TEST_RX_PER)
-	{
-		PHYTestStatistics(0, 0, 0, 0, 0, 1);
-		PHYTestReportPERTestResult();
+		PHYTestStatistics(TEST_STAT_FINAL, 0, 0, 0);
+		PHYTestReportTestResult();
 	}
 
 	PHY_TEST_INITIALISED = 0;
@@ -247,7 +236,7 @@ void PHYTestDeinitialise(struct ca821x_dev *pDeviceRef)
 uint8_t PHYTestTransmitPacket(struct ca821x_dev *pDeviceRef)
 {
 	uint8_t status = 0;
-	long msElapsed;
+	unsigned long msElapsed;
 	struct MAC_Message tx_msg;
 
  	if(!PHY_TEST_INITIALISED)
@@ -304,13 +293,13 @@ uint8_t PHYTestTransmitPacket(struct ca821x_dev *pDeviceRef)
  ******************************************************************************/
 void PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef)
 {
-	long msElapsed;
+	unsigned long msElapsed;
 	uint8_t missed_packet;
 	static uint8_t missed_last = 0;
 
     if(PHY_TESTPAR.PACKETPERIOD == 0)
     {
-		PHYTestExit(MAC_INVALID_PARAMETER);
+		PHYTestExit("PHYTestReceivePacketPER Packet Period is 0");
 		return;
 	}
 
@@ -318,12 +307,17 @@ void PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef)
  	if(!PHY_TEST_INITIALISED)
     {
 		PHYTestCalculateReportTime(1);
-		PHYTestStatistics(0, 0, 0, 1, 0, 0);
+		PHYTestStatistics(TEST_STAT_INIT, 0, 0, 0);
 		missed_last = 0;
 		if(PHY_TESTRES.PACKET_RECEIVED)
+		{
+			start_ms = test15_4_getms();
 			PHY_TEST_INITIALISED = 1;
+		}
 		else
+		{
 			return;
+		}
 	}
 
 	msElapsed = calculate_elapsed_ms();
@@ -363,7 +357,7 @@ void PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef)
 
 	if (PHYTestCalculateReportTime(0))
 	{
-		PHYTestStatistics(0, 0, 0, 0, 1, 0);
+		PHYTestStatistics(TEST_STAT_REPORT, 0, 0, 0);
 		PHYTestReportReceivedPacketAnalysis();
 	}
 
@@ -381,11 +375,11 @@ void PHYTestReceivePacketPER(struct ca821x_dev *pDeviceRef)
  ******************************************************************************/
 void PHYTestReceivePacketPSN(struct ca821x_dev *pDeviceRef)
 {
-	int msElapsed;
+	unsigned long msElapsed;
 
  	if(!PHY_TEST_INITIALISED)
     {
-		PHYTestStatistics(0, 0, 0, 1, 0, 0);
+		PHYTestStatistics(TEST_STAT_INIT, 0, 0, 0);
 		PHY_TEST_INITIALISED = 1;
 		return;
 	}
@@ -406,7 +400,7 @@ void PHYTestReceivePacketPSN(struct ca821x_dev *pDeviceRef)
 		if (msElapsed > PHY_TEST_REPORT_PERIOD)
 		{
 			start_ms = test15_4_getms();
-			PHYTestStatistics(0, 0, 0, 0, 1, 0);
+			// PHYTestStatistics(TEST_STAT_REPORT, 0, 0, 0);
 			// PHYTestReportReceivedPacketAnalysis();
 		}
 	}
@@ -443,7 +437,7 @@ void PHYTestReceiveED(struct ca821x_dev *pDeviceRef)
 uint8_t PHYTestLOLocking(struct ca821x_dev *pDeviceRef)
 {
 	uint8_t status = 0;
-	int msElapsed;
+	unsigned long msElapsed;
 	static uint8_t ntest   =  0;
 	static uint8_t channel = 11;
 	static uint8_t rx_txb  =  0;
@@ -491,7 +485,6 @@ uint8_t PHYTestLOLocking(struct ca821x_dev *pDeviceRef)
 				}
 			}
 		}
-		status = MAC_SUCCESS;
 	}
 
 	return(status);
@@ -505,10 +498,10 @@ uint8_t PHYTestLOLocking(struct ca821x_dev *pDeviceRef)
  * \param status - Status to be reported
  *******************************************************************************
  ******************************************************************************/
-void PHYTestExit(uint8_t status)
+void PHYTestExit(char *errmsg)
 {
 	PHY_TESTMODE = PHY_TEST_OFF;
-	PHYTestReportExit(status);
+	printf("PHY Test Exit: %s.\n", errmsg);
 } // End of PHYTestExit()
 
 
@@ -577,12 +570,12 @@ void PHYTestReset(void)
 /***************************************************************************//**
  * \brief Calculate Test Statistics
  *******************************************************************************
- * \param init - Initialise when 1
+ * \param mode - mode: accumulation, initialisation, rollover report, final report
  * \param rollover - rollover for reporting when 1
  * \param final - final calculations for end of test reporting
  *******************************************************************************
  ******************************************************************************/
-void PHYTestStatistics(uint8_t ed, uint8_t cs, uint8_t fo, uint8_t init, uint8_t rollover, uint8_t final)
+void PHYTestStatistics(uint8_t mode, uint8_t ed, uint8_t cs, uint8_t fo)
 {
 	int8_t sv;
 	static int32_t  acc_fo = 0;
@@ -591,7 +584,7 @@ void PHYTestStatistics(uint8_t ed, uint8_t cs, uint8_t fo, uint8_t init, uint8_t
 	static uint32_t count1 = 0;
 	static uint32_t count2 = 0;
 
-	if(init)
+	if(mode == TEST_STAT_INIT)
 	{
 		count1 = 0;
 		count2 = 0;
@@ -601,19 +594,25 @@ void PHYTestStatistics(uint8_t ed, uint8_t cs, uint8_t fo, uint8_t init, uint8_t
 		return;
 	}
 
-	if (final)
+	else if (mode == TEST_STAT_FINAL)
 	{
 
 		if(count2 != 0)
 		{
+			/* determine final averages for end of test */
 			PHY_TESTRES.FO_AVG_TOTAL = PHYTest_divs32round((PHY_TESTRES.FO_AVG_TOTAL+acc_fo),  (int32_t)count2);
 			PHY_TESTRES.ED_AVG_TOTAL = PHYTest_divu32round((PHY_TESTRES.ED_AVG_TOTAL+acc_ed), (uint32_t)count2);
 			PHY_TESTRES.CS_AVG_TOTAL = PHYTest_divu32round((PHY_TESTRES.CS_AVG_TOTAL+acc_cs), (uint32_t)count2);
 		}
+		else
+		{
+			PHY_TESTRES.ED_MIN = 0;
+			PHY_TESTRES.CS_MIN = 0;
+		}
 	}
-	else if (rollover)
+	else if (mode == TEST_STAT_REPORT)
 	{
-		/* determine averages */
+		/* determine temporary averages for interim reporting */
 		if(count1 != 0)
 		{
 			PHY_TESTRES.FO_AVG = PHYTest_divs32round(acc_fo,  (int32_t)count1);
@@ -634,7 +633,7 @@ void PHYTestStatistics(uint8_t ed, uint8_t cs, uint8_t fo, uint8_t init, uint8_t
 		acc_cs = 0;
 		count1 = 0;
 	}
-	else
+	else /* mode == TEST_STAT_ACCUM */
 	{
 
 		if (PHY_TESTRES.PACKET_RECEIVED)
@@ -755,41 +754,6 @@ uint8_t PHYTestCalculateReportTime(uint8_t init)
 
 return(0);
 } // End of PHYTestCalculateReportTime()
-
-
-/******************************************************************************/
-/***************************************************************************//**
- * \brief Report Testmode Exit
- *******************************************************************************
- * \param status - Status to be reported
- *******************************************************************************
- ******************************************************************************/
-void PHYTestReportExit(uint8_t status)
-{
-	printf("PHY Testmode Exit. Status: ");
-	switch (status)
-	{
-	case MAC_SUCCESS:
-		printf("Success");
-		break;
-	case MAC_SYSTEM_ERROR:
-		printf("MAC System Error");
-		break;
-	case MAC_CHANNEL_ACCESS_FAILURE:
-		printf("MAC Channel Access Failure");
-		break;
-	case MAC_NO_ACK:
-		printf("MAC no ACK");
-		break;
-	case MAC_INVALID_PARAMETER:
-		printf("Invalid Parameter");
-		break;
-	default:
-		printf("Unknown: %02X", status);
-		break;
-	}
-	printf("\n");
-} // End of PHYTestReportExit()
 
 
 /******************************************************************************/
@@ -986,23 +950,23 @@ void PHYTestReportReceivedPacketAnalysis(void)
 
 /******************************************************************************/
 /***************************************************************************//**
- * \brief Report Complete Packet Error Rate (PER) Test Result
+ * \brief Report Complete Test Result
  *******************************************************************************
  ******************************************************************************/
-void PHYTestReportPERTestResult(void)
+void PHYTestReportTestResult(void)
 {
 	uint32_t errcount_total;
 
 	errcount_total = PHY_TESTRES.CRCERR_COUNT
 	               + PHY_TESTRES.MISSED_COUNT;
 
-	printf("PER Test Result: %u Packets received, %u Errors\n",
+	printf("Test Result: %u Packets received, %u Errors\n",
 		PHY_TESTRES.PACKET_COUNT,
 		errcount_total);
 
 	if (PHY_TESTPAR.RX_FFSYNC)
 	{
-		printf("PER Error Analysis: CRC: %u; PHR: %u; SHR: %u; PRE: %u Missed: %u\n",
+		printf("Error Analysis: CRC: %u; PHR: %u; SHR: %u; PRE: %u Missed: %u\n",
 			PHY_TESTRES.CRCERR_COUNT,
 			PHY_TESTRES.PHRERR_COUNT,
 			PHY_TESTRES.SHRERR_COUNT,
@@ -1011,7 +975,7 @@ void PHYTestReportPERTestResult(void)
 	}
 	else
 	{
-		printf("PER Error Analysis: CRC: %u; Missed: %u\n",
+		printf("Error Analysis: CRC: %u; Missed: %u\n",
 			PHY_TESTRES.CRCERR_COUNT,
 			PHY_TESTRES.MISSED_COUNT);
 	}
@@ -1030,9 +994,9 @@ void PHYTestReportPERTestResult(void)
 			PHY_TESTRES.SHRERR_COUNT,
 			PHY_TESTRES.PHRERR_COUNT);
 	}
-	printf("PER Test completed\n");
+	printf("Test completed\n");
 
-} // End of PHYTestReportPERTestResult()
+} // End of PHYTestReportTestResult()
 
 
 /******************************************************************************/
@@ -1047,7 +1011,7 @@ void PHYTestReportEDReceived(struct TDME_EDDET_indication_pset *params)
 	tat = ((uint16_t)(params->TestTimeAboveThreshold_us[1]) << 8)
 	    +  (uint16_t)(params->TestTimeAboveThreshold_us[0]);
 
-	printf("ED above %3u: ED=%3u CS=%3u THigh=%5u N=%u\n",
+	printf("ED above %3u: ED=%3u; CS=%3u; THigh=%5u us; N=%u\n",
 		params->TestEDThreshold,
 		params->TestEDValue,
 		params->TestCSValue,
@@ -1296,10 +1260,10 @@ int PHY_RXPKT_indication(struct TDME_RXPKT_indication_pset *params, struct ca821
 
 	PHY_TESTRES.PACKET_RECEIVED = 1; /* Flag indication */
 
-	PHYTestStatistics(params->TestPacketEDValue,
+	PHYTestStatistics(TEST_STAT_ACCUM,
+					  params->TestPacketEDValue,
 					  params->TestPacketCSValue,
-					  params->TestPacketFoffsValue,
-					  0, 0, 0);
+					  params->TestPacketFoffsValue);
 
 	if((PHY_TESTPAR.PACKETPERIOD >= 500) || (PHY_TESTMODE == PHY_TEST_RX_PSN))
 		PHYTestReportPacketReceived(params);
